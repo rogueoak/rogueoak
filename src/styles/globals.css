@@ -1,0 +1,50 @@
+/* Tailwind v4 (CSS-first) + Roots tokens + Canopy defaults.
+   Order matters: Roots' tokens.css and preset load before the fonts so the
+   semantic token layer is in place. Canopy's default palette (moss / bark /
+   stone / amber) is used as-is - no custom theme override. */
+@import 'tailwindcss';
+@import '@rogueoak/roots/tokens.css';
+@import '@rogueoak/roots/tailwind-preset.css';
+
+/* Self-hosted brand fonts (Roots ships only the family names). */
+@import '@fontsource-variable/figtree';
+@import '@fontsource-variable/geist-mono';
+
+/* Enable the rare explicit `dark:` utility; whole-UI theming is automatic via
+   the semantic vars when `.dark` is on a root element. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Canopy ships className strings, not a prebuilt stylesheet. Point Tailwind's
+   source scanner at the package so its component utilities are emitted into our
+   build; without this, Canopy components render unstyled. Path is relative to
+   this file (src/styles/globals.css -> node_modules). */
+@source '../../node_modules/@rogueoak/canopy';
+
+/* Scroll reveal. A section starts faded and nudged down, then transitions to
+   visible once the Reveal component adds `.in-view` (on first viewport entry).
+   The pre-animation state is applied by the client only after mount (via the
+   `.reveal` class), so server HTML - and any JS-disabled visitor - sees content
+   fully visible. Under prefers-reduced-motion the element is always visible with
+   no transition. */
+.reveal {
+  opacity: 0;
+  translate: 0 1.5rem;
+  transition:
+    opacity 600ms ease-out,
+    translate 600ms ease-out;
+  will-change: opacity, translate;
+}
+
+.reveal.in-view {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.in-view {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+}
