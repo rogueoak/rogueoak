@@ -1,6 +1,6 @@
-// Pure decision seam for whether PostHog analytics should capture. Kept as plain
-// JS so `node --test` can unit-test the rule without a browser. Imported by the
-// client wiring (posthog-browser.ts).
+// Pure decision seam for whether PostHog analytics should capture. Typed TS so
+// the capture gate keeps type-checking; `node --test` loads it directly (Node
+// strips the types on import). Imported by the client wiring (posthog-browser.ts).
 //
 // The goal: local runs must never pollute the live dashboard. Only the deployed
 // production host captures.
@@ -11,7 +11,7 @@ const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1"]);
  * True when `hostname` is a local address (any port stripped). Covers the plain
  * loopback names plus the `.local` / `.localhost` suffixes.
  */
-export function isLocalHost(hostname) {
+export function isLocalHost(hostname: string | null | undefined): boolean {
   if (!hostname) return false;
   let h = String(hostname).trim().toLowerCase();
   // Strip the port without eating an IPv6 address's own colons: bracketed forms
@@ -33,7 +33,13 @@ export function isLocalHost(hostname) {
  * The deployed client is built with NODE_ENV=production and served from
  * rogueoak.com, so it stays enabled.
  */
-export function isClientAnalyticsEnabled({ nodeEnv, hostname }) {
+export function isClientAnalyticsEnabled({
+  nodeEnv,
+  hostname,
+}: {
+  nodeEnv: string | undefined;
+  hostname: string | null | undefined;
+}): boolean {
   if (nodeEnv !== "production") return false;
   if (!hostname) return false;
   return !isLocalHost(hostname);

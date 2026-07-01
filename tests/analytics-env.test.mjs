@@ -1,13 +1,13 @@
 // Unit tests for the PostHog capture gate. The rule - only a production build on
 // the real host captures, so local runs never pollute the live dashboard - lives
-// in a pure JS seam, so it is provable without a browser.
+// in a pure typed seam, so it is provable without a browser.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   isLocalHost,
   isClientAnalyticsEnabled,
-} from "../src/lib/analytics-env.js";
+} from "../src/lib/analytics-env.ts";
 
 test("isLocalHost recognizes every local form (port stripped)", () => {
   for (const h of [

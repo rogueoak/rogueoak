@@ -4,7 +4,15 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { hero, oakStory, projects } from "../src/lib/content.ts";
+
+// Resolve a "/foo.svg" public path to its file on disk. A referenced asset that
+// is not in public/ would 404 at runtime, so the tests fail the build instead.
+function publicFileExists(publicPath) {
+  return existsSync(fileURLToPath(new URL("../public" + publicPath, import.meta.url)));
+}
 
 // Em dash, en dash, and other non-ASCII: the language rules require ASCII only
 // with spaced hyphens " - ". This catches a stray Unicode dash slipping into copy.
@@ -29,20 +37,32 @@ test("there are exactly three projects", () => {
 
 test("each project has the required fields", () => {
   for (const project of projects) {
-    assert.ok(project.name, "name is present");
+    assert.ok(project.name.trim(), "name is present");
     assert.match(project.logo, /^\/[\w-]+\.svg$/, "logo is a public svg path");
-    assert.ok(project.pitch.length > 0, "pitch is present");
+    assert.ok(
+      publicFileExists(project.logo),
+      `logo file is missing from public/: ${project.logo}`,
+    );
+    assert.ok(project.pitch.trim(), "pitch is a non-empty string");
     assert.ok(
       project.benefits.length >= 2 && project.benefits.length <= 3,
       "2-3 benefits",
     );
+    for (const benefit of project.benefits) {
+      assert.ok(benefit.trim(), "each benefit is a non-empty string");
+    }
     assert.match(
       project.href,
       /^https:\/\/github\.com\/rogueoak\//,
       "href points at the rogueoak org",
     );
-    assert.ok(project.hrefLabel.length > 0, "hrefLabel is present");
+    assert.ok(project.hrefLabel.trim(), "hrefLabel is present");
   }
+});
+
+test("hero image assets exist in public/", () => {
+  assert.ok(publicFileExists(hero.avatar), `missing ${hero.avatar}`);
+  assert.ok(publicFileExists(hero.wordmark), `missing ${hero.wordmark}`);
 });
 
 test("the oak story ties back to customer value", () => {

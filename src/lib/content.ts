@@ -3,6 +3,11 @@
  * language rules: address the reader as "you", stay terse, no hype words, and
  * ASCII only (use spaced hyphens " - ", never em / en dashes). Every product is
  * described in confident present tense as a shipped tool.
+ *
+ * This module is import-free on purpose: `node --test` loads it directly to
+ * assert on the copy, so it must not pull in path-aliased or extensionless
+ * modules. It is the source of truth for the brand name and tagline - `site.ts`
+ * derives its identity strings from `hero` here, rather than restating them.
  */
 
 export type Project = {

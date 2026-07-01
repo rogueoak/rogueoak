@@ -32,6 +32,15 @@ export function Reveal({ children, as, className, delay }: RevealProps) {
     const node = ref.current;
     if (!node) return;
 
+    // Elements already in the viewport at mount (above the fold, e.g. the hero)
+    // must never be hidden: applying `.reveal` (opacity 0) and waiting for the
+    // observer's async first callback to add `.in-view` produces a visible
+    // fade-out-then-in flash on load. Leave them as the SSR render left them -
+    // fully visible.
+    const rect = node.getBoundingClientRect();
+    const alreadyInView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (alreadyInView) return;
+
     // Apply the hidden pre-animation state now, on the client only, so the SSR /
     // no-JS render stays visible.
     node.classList.add("reveal");

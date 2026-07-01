@@ -1,11 +1,15 @@
+import { hero } from "@/lib/content";
+
 /**
  * Site-wide constants: identity, canonical URL, and social links. One source of
- * truth so metadata, sitemap, robots, manifest, and the footer never drift. No
- * secrets live here by design.
+ * truth so metadata, sitemap, robots, manifest, and the footer never drift. The
+ * brand name and tagline come from `content.ts` (the import-free copy leaf) so
+ * the page hero and the site metadata can never disagree. No secrets live here
+ * by design.
  */
 export const site = {
-  name: "Rogue Oak",
-  title: "Quietly rogue. Seriously solid.",
+  name: hero.name,
+  title: hero.tagline,
   // One shared description: the <meta>, Open Graph, and manifest all read this
   // so the link preview, search snippet, and install prompt never drift.
   description:
