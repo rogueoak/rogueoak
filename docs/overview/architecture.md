@@ -29,4 +29,10 @@ matthewmaynes.com, the reference Canopy consumer.
   standalone `server.js` as the non-root `node` user on port 3000, with a node-based healthcheck.
   `SITE_URL` is a build arg (baked into metadata at build time, not read at runtime). `.dockerignore`
   keeps the context lean/secret-free; `docker-compose.yml` runs the image locally.
-- **Deploy shape (planned)**: standalone Docker image -> GHCR -> DigitalOcean droplet behind Caddy.
+- **Release**: `.github/workflows/release.yml` runs on push to `main` - the shared `verify` gate,
+  then a `build` job that builds the image (with `--build-arg SITE_URL`) and pushes it to
+  `ghcr.io/rogueoak/rogueoak` tagged `latest` + `sha-<full-sha>`. `packages: write` is scoped to the
+  build job only; `no-cache` avoids stale-layer bugs. `cleanup-images.yml` prunes GHCR to the 30 most
+  recent tagged images on a daily schedule.
+- **Deploy shape (planned)**: GHCR image (published by release.yml) -> DigitalOcean droplet behind
+  Caddy (0005), pinning the `sha-` tag.

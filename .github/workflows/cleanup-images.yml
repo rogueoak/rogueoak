@@ -1,0 +1,55 @@
+name: Cleanup images
+
+# Prune old GHCR container image versions so the package does not accumulate the
+# full history of every build. Keeps the 10 most recent tagged images (plus every
+# manifest they reference), and removes older tagged images and orphaned untagged
+# manifests.
+
+on:
+  schedule:
+    # Daily at 04:17 UTC (off-peak). The scheduled run is live (it deletes).
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview deletions without deleting"
+        type: boolean
+        default: true
+
+# Least privilege: deleting package versions needs packages: write; nothing else.
+permissions:
+  contents: read
+  packages: write
+
+# Never let two cleanups race on the same package.
+concurrency:
+  group: cleanup-images
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Prune old GHCR images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old image versions
+        # dataaxiom/ghcr-cleanup-action is referrer-aware: it retains the manifests
+        # referenced by kept tags, so a live image is never corrupted - unlike a raw
+        # version-count prune. Pinned to a commit SHA per the supply-chain rule: a
+        # delete-capable action must not float on a mutable tag.
+        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        with:
+          package: rogueoak
+          # A fresh sha-<commit> tag is published per push to main, and the deploy
+          # (0005) pins the sha it runs - so retention must comfortably exceed the
+          # deploy cadence, or a running/rollback sha could be pruned out from under
+          # a host reboot/re-pull. 30 gives ~30 commits of headroom for a low-volume
+          # site; if 0005 ever needs deeper history, raise this or have the deploy
+          # protect the live sha.
+          keep-n-tagged: 30
+          delete-untagged: true
+          delete-partial-images: true
+          # Live on the daily schedule (inputs.dry_run empty -> false); a manual run
+          # defaults to a safe preview. If a run fails on permissions for this
+          # package, pass a PAT with delete:packages as `token` instead.
+          dry-run: ${{ inputs.dry_run || false }}
+          token: ${{ secrets.GITHUB_TOKEN }}
