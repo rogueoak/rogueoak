@@ -25,10 +25,8 @@ export type Project = {
   hrefLabel: string;
 };
 
-/** Hero tagline - the Rogue Oak master line. */
+/** Hero - the Rogue Oak name and master tagline (also the source for site.ts). */
 export const hero = {
-  wordmark: "/rogueoak-logo.svg",
-  avatar: "/rogueoak-avatar.svg",
   name: "Rogue Oak",
   tagline: "Tools built to stand on their own.",
 } as const;

@@ -12,12 +12,12 @@ import { projects } from "@/lib/content";
  */
 export function Projects() {
   return (
-    <section className="px-6 py-16 sm:py-20">
+    <section className="px-6 py-20 sm:py-28">
       <div className="mx-auto max-w-3xl">
         <Reveal>
           <h2 className="text-h2 text-balance">Projects</h2>
         </Reveal>
-        <div className="mt-12 space-y-16">
+        <div className="mt-14 space-y-20">
           {projects.map((project) => (
             <Reveal key={project.name}>
               <div>

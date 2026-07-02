@@ -7,13 +7,13 @@ import { oakStory } from "@/lib/content";
  */
 export function NameStory() {
   return (
-    <Reveal as="section" className="px-6 py-10 sm:py-14">
+    <Reveal as="section" className="px-6 py-20 sm:py-28">
       <figure className="mx-auto max-w-3xl border-l-2 border-primary pl-6 sm:pl-10">
-        <blockquote className="space-y-4">
+        <blockquote className="space-y-3">
           {oakStory.paragraphs.map((paragraph) => (
             <p
               key={paragraph}
-              className="text-body font-normal text-pretty text-text-muted sm:text-lg"
+              className="text-body-sm font-normal text-pretty text-text-muted sm:text-body"
             >
               {paragraph}
             </p>

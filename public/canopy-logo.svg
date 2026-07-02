@@ -20,7 +20,7 @@
   </defs>
 
   <!-- panel -->
-  <rect x="0.5" y="0.5" width="519" height="149" rx="18" fill="#0d1117" stroke="#1b2129"/>
+  <rect x="0.5" y="0.5" width="519" height="149" rx="18" fill="none"/>
 
   <!-- glow behind the mark -->
   <circle cx="68" cy="75" r="62" fill="url(#canopyGlow)"/>

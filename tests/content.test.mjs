@@ -60,11 +60,6 @@ test("each project has the required fields", () => {
   }
 });
 
-test("hero image assets exist in public/", () => {
-  assert.ok(publicFileExists(hero.avatar), `missing ${hero.avatar}`);
-  assert.ok(publicFileExists(hero.wordmark), `missing ${hero.wordmark}`);
-});
-
 test("the oak story ties back to customer value", () => {
   const joined = oakStory.paragraphs.join(" ");
   assert.match(joined, /300/, "mentions the 300-year longevity");
