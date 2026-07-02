@@ -25,4 +25,8 @@ matthewmaynes.com, the reference Canopy consumer.
 - **CI**: `.github/workflows/verify.yml` is a reusable (`workflow_call`) gate - `npm ci`, lint,
   build, test on Node 24 - called by `ci.yml` on every PR to `main`. Written reusable so the deploy
   pipeline runs the identical gate. Actions are SHA-pinned; Dependabot keeps the pins current.
+- **Container**: multi-stage `Dockerfile` (deps -> build -> runtime) on `node:24-alpine` serving the
+  standalone `server.js` as the non-root `node` user on port 3000, with a node-based healthcheck.
+  `SITE_URL` is a build arg (baked into metadata at build time, not read at runtime). `.dockerignore`
+  keeps the context lean/secret-free; `docker-compose.yml` runs the image locally.
 - **Deploy shape (planned)**: standalone Docker image -> GHCR -> DigitalOcean droplet behind Caddy.
