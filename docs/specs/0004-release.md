@@ -63,8 +63,12 @@ and `prewarm` - those are 0005 and out of scope). Mirror `cleanup-images.yml` fo
     old source; a clean build each run is the reliable default and this app builds in about a minute.
 - **`cleanup-images.yml`**: scheduled daily (off-peak) + `workflow_dispatch` (dry-run default true);
   `permissions: { contents: read, packages: write }`; `dataaxiom/ghcr-cleanup-action` (SHA-pinned,
-  referrer-aware) with `package: rogueoak`, `keep-n-tagged: 10`, `delete-untagged: true`,
+  referrer-aware) with `package: rogueoak`, `keep-n-tagged: 30`, `delete-untagged: true`,
   `delete-partial-images: true`.
+  - **0004 -> 0005 coupling**: because a fresh `sha-<commit>` tag ships per push and 0005 pins the
+    sha it deploys, retention must exceed the deploy cadence or a live/rollback sha could be pruned
+    from under a host reboot/re-pull. `keep-n-tagged: 30` gives ~30 commits of headroom; if 0005
+    needs deeper history it should raise this or protect the deployed sha.
 
 ## Acceptance
 
@@ -74,7 +78,7 @@ and `prewarm` - those are 0005 and out of scope). Mirror `cleanup-images.yml` fo
 - [ ] The image is built with `--build-arg SITE_URL=https://rogueoak.com`.
 - [ ] `packages: write` is granted only to the `build` job; everything else is `contents: read`.
 - [ ] All third-party actions are pinned to commit SHAs with version comments.
-- [ ] `cleanup-images.yml` exists, runs on a schedule, prunes to the 10 most recent tagged images,
+- [ ] `cleanup-images.yml` exists, runs on a schedule, prunes to the 30 most recent tagged images,
       and defaults a manual run to a dry-run preview.
 - [ ] Merging this to `main` triggers a real image build (validating the 0003 Dockerfile) and a
       published image in GHCR.

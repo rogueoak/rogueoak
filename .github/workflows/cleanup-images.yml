@@ -39,7 +39,13 @@ jobs:
         uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:
           package: rogueoak
-          keep-n-tagged: 10
+          # A fresh sha-<commit> tag is published per push to main, and the deploy
+          # (0005) pins the sha it runs - so retention must comfortably exceed the
+          # deploy cadence, or a running/rollback sha could be pruned out from under
+          # a host reboot/re-pull. 30 gives ~30 commits of headroom for a low-volume
+          # site; if 0005 ever needs deeper history, raise this or have the deploy
+          # protect the live sha.
+          keep-n-tagged: 30
           delete-untagged: true
           delete-partial-images: true
           # Live on the daily schedule (inputs.dry_run empty -> false); a manual run
