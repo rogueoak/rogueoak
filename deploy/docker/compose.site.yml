@@ -1,0 +1,27 @@
+# Production site stack. Runs the prebuilt GHCR image behind the edge proxy.
+# No host port is published: Caddy reaches it as `site:3000` over the `edge`
+# network. The image carries its own HEALTHCHECK (see Dockerfile).
+# Deploy/update (CD pins IMAGE_TAG to the commit's sha-<full> tag; defaults to latest):
+#   IMAGE_TAG=sha-<commit> docker compose -f compose.site.yml up -d --wait
+name: site # explicit project name so it never collides with the proxy stack
+
+services:
+  site:
+    image: ghcr.io/rogueoak/rogueoak:${IMAGE_TAG:-latest}
+    container_name: site
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      # SITE_URL is baked into the image at build time (see Dockerfile / spec 0003),
+      # so it is deliberately not set here. There are no server-side secrets in v1,
+      # so there is no env_file.
+      NODE_ENV: production
+    networks:
+      - edge
+
+# Shared with the proxy stack; the deploy job creates it if missing:
+# `docker network create edge`.
+networks:
+  edge:
+    external: true
