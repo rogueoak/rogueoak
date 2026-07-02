@@ -48,7 +48,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark h-full antialiased">
+    <html lang="en" className="dark h-full antialiased" suppressHydrationWarning>
+      <head>
+        {/* Enable scroll-reveal before first paint, so `.reveal` elements are
+            hidden pre-paint (no flash) - but only when JS is on and the visitor
+            allows motion. Without this class the CSS never hides anything. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('reveal-enabled')}catch(e){}",
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-bg font-sans text-text">
         <PostHogProvider>
           <Header />

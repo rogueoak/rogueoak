@@ -21,33 +21,31 @@
    this file (src/styles/globals.css -> node_modules). */
 @source '../../node_modules/@rogueoak/canopy';
 
-/* Scroll reveal. A section starts faded and nudged down, then transitions to
-   visible once the Reveal component adds `.in-view` (on first viewport entry).
-   The pre-animation state is applied by the client only after mount (via the
-   `.reveal` class), so server HTML - and any JS-disabled visitor - sees content
-   fully visible. Under prefers-reduced-motion the element is always visible with
-   no transition. */
-.reveal {
+/* Scroll reveal. Elements carry `.reveal` in the server HTML but are only hidden
+   once the head script adds `.reveal-enabled` to <html> - before first paint, and
+   only when JS is on and motion is allowed. So there is no flash, and a no-JS or
+   reduced-motion visitor always sees content. The Reveal component adds `.in-view`
+   on first viewport entry to fade + rise it in. `transform` (not the independent
+   `translate` property) is used for the widest browser support, incl. iOS Safari. */
+.reveal-enabled .reveal {
   opacity: 0;
-  translate: 0 1.5rem;
-  will-change: opacity, translate;
+  transform: translateY(1.5rem);
+  will-change: opacity, transform;
 }
 
-/* Transition lives on the revealed state so adding `.reveal` hides instantly
-   (no fade-out), and adding `.in-view` fades/rises the element in. */
-.reveal.in-view {
+.reveal-enabled .reveal.in-view {
   opacity: 1;
-  translate: 0 0;
+  transform: none;
   transition:
     opacity 600ms ease-out,
-    translate 600ms ease-out;
+    transform 600ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal.in-view {
+  .reveal-enabled .reveal,
+  .reveal-enabled .reveal.in-view {
     opacity: 1;
-    translate: 0 0;
+    transform: none;
     transition: none;
   }
 }
