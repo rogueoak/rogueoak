@@ -1,0 +1,14 @@
+# Local convenience: build and run the production image the same way the deploy
+# host will. Not used in CI or on the droplet (0005 has its own compose files).
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rogueoak-site
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      SITE_URL: https://rogueoak.com
+    restart: unless-stopped
