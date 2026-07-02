@@ -15,9 +15,11 @@ export const site = {
   description:
     "Rogue Oak builds developer tools that stand on their own. Spectra for spec-driven development, Trellis for shared agent conventions, and Canopy, a tree-themed design system.",
   // Alt text for the generated share card (opengraph-image).
-  ogImageAlt: "Rogue Oak - Quietly rogue. Seriously solid.",
+  ogImageAlt: "Rogue Oak - Tools built to stand on their own.",
   // Read at build time for static metadata (metadataBase). Use `||` (not `??`)
   // so an empty-string SITE_URL falls back instead of throwing in new URL("").
   url: process.env.SITE_URL || "https://rogueoak.com",
   githubOrg: "https://github.com/rogueoak",
+  // The person behind Rogue Oak; linked from the footer.
+  personalSite: "https://matthewmaynes.com",
 } as const;

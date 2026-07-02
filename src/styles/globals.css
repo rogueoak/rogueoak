@@ -1,10 +1,11 @@
-/* Tailwind v4 (CSS-first) + Roots tokens + Canopy defaults.
-   Order matters: Roots' tokens.css and preset load before the fonts so the
-   semantic token layer is in place. Canopy's default palette (moss / bark /
-   stone / amber) is used as-is - no custom theme override. */
+/* Tailwind v4 (CSS-first) + Roots tokens + the Rogue Oak dark theme.
+   Order matters: Roots' tokens.css and preset load first to establish the
+   semantic token layer, then theme-rogueoak.css re-points the dark tokens to the
+   navy/green/amber banner palette (the site is dark-only for now). */
 @import 'tailwindcss';
 @import '@rogueoak/roots/tokens.css';
 @import '@rogueoak/roots/tailwind-preset.css';
+@import './theme-rogueoak.css';
 
 /* Self-hosted brand fonts (Roots ships only the family names). */
 @import '@fontsource-variable/figtree';

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
-import { ThemeScript } from "@/components/theme-script";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { site } from "@/lib/site";
 
@@ -39,12 +38,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Tints mobile browser chrome (best-effort: reflects the OS color scheme, not
-  // the in-page toggle).
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f6f3" },
-    { media: "(prefers-color-scheme: dark)", color: "#14100c" },
-  ],
+  // The site is dark-only; tint the mobile browser chrome to the navy base.
+  themeColor: "#0a0d13",
 };
 
 export default function RootLayout({
@@ -53,10 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <head>
-        <ThemeScript />
-      </head>
+    <html lang="en" className="dark h-full antialiased">
       <body className="flex min-h-full flex-col bg-bg font-sans text-text">
         <PostHogProvider>
           <Header />

@@ -1,11 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
- * Minimal site header: the Rogue Oak avatar + wordmark on the left, the theme
- * toggle on the right. A single-page site needs no nav, so this stays light.
+ * Minimal site header: the Rogue Oak avatar + wordmark. A single-page, dark-only
+ * site needs no nav or theme toggle, so this stays light.
  */
 export function Header() {
   return (
@@ -22,7 +21,6 @@ export function Header() {
           />
           <span className="font-semibold tracking-tight">{site.name}</span>
         </Link>
-        <ThemeToggle />
       </div>
     </header>
   );

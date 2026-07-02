@@ -9,14 +9,14 @@ export const alt = site.ogImageAlt;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Canopy earthy palette (bark / moss / amber ramps), used as flat literals so the
-// card matches the site without importing the token CSS.
-const BG_FROM = "#1c140d"; // deep bark
-const BG_TO = "#0f0a06";
-const TEXT = "#f7f6f3"; // stone-50
-const SUBTLE = "#c9bfb2"; // stone-300
-const SPARK_FROM = "#d2a463"; // amber
-const SPARK_TO = "#5fb98a"; // moss
+// Rogue Oak dark palette (the navy banner colors), as flat literals so the card
+// matches the site without importing the token CSS.
+const BG_FROM = "#1a2533"; // banner navy
+const BG_TO = "#0a0d13"; // deep navy base
+const TEXT = "#eaf1f4";
+const SUBTLE = "#c9d2da";
+const SPARK_FROM = "#d2a463"; // amber accent
+const SPARK_TO = "#5fb98a"; // banner green
 
 export default function OpengraphImage() {
   return new ImageResponse(

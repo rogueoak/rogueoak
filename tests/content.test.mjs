@@ -73,7 +73,7 @@ test("the oak story ties back to customer value", () => {
 });
 
 test("the hero carries the master tagline", () => {
-  assert.equal(hero.tagline, "Quietly rogue. Seriously solid.");
+  assert.equal(hero.tagline, "Tools built to stand on their own.");
 });
 
 test("all copy is ASCII only (no em / en dash)", () => {
