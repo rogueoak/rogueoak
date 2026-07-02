@@ -66,3 +66,52 @@ jobs:
           # No cross-run build cache: a stale COPY . . layer can ship old source.
           # A clean build each run is the reliable default; the app builds fast.
           no-cache: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          # Pin the exact image built in this run (full-SHA tag from metadata-action),
+          # so the running version is auditable and rollback is a one-line tag change.
+          IMAGE_TAG: sha-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pinned host key (DEPLOY_KNOWN_HOSTS secret): authenticates the server,
+          # so a MITM on a deploy cannot impersonate it. No trust-on-first-use.
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=10 \
+            "$USER@$HOST" "IMAGE_TAG='$IMAGE_TAG' bash -se" <<'REMOTE'
+            set -euo pipefail
+            REPO="$HOME/rogueoak"
+            # Self-bootstrap: clone on first deploy, else force-sync to origin/main
+            # so a stray local edit on the server can never wedge future deploys.
+            if [ ! -d "$REPO/.git" ]; then
+              git clone https://github.com/rogueoak/rogueoak.git "$REPO"
+            fi
+            cd "$REPO"
+            git fetch --prune origin
+            git reset --hard origin/main
+            # Shared edge network + TLS proxy: create / bring up if absent (idempotent;
+            # also applies any Caddyfile change).
+            docker network inspect edge >/dev/null 2>&1 || docker network create edge
+            docker compose -f deploy/docker/compose.proxy.yml up -d
+            export IMAGE_TAG
+            docker compose -f deploy/docker/compose.site.yml pull
+            # --wait blocks until the container passes its HEALTHCHECK, so a broken
+            # image is a red deploy instead of a silently flapping container.
+            docker compose -f deploy/docker/compose.site.yml up -d --wait
+            # Prune only THIS project's dangling images (label-scoped), so a
+            # cohosted stack's images are never touched.
+            docker image prune -f \
+              --filter "label=org.opencontainers.image.source=https://github.com/rogueoak/rogueoak"
+          REMOTE
