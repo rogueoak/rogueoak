@@ -1,0 +1,48 @@
+/* Tailwind v4 (CSS-first) + Roots tokens + the Rogue Oak dark theme.
+   Order matters: Roots' tokens.css and preset load first to establish the
+   semantic token layer, then theme-rogueoak.css re-points the dark tokens to the
+   navy/green/amber banner palette (the site is dark-only for now). */
+@import 'tailwindcss';
+@import '@rogueoak/roots/tokens.css';
+@import '@rogueoak/roots/tailwind-preset.css';
+@import './theme-rogueoak.css';
+
+/* Self-hosted brand fonts (Roots ships only the family names). */
+@import '@fontsource-variable/figtree';
+@import '@fontsource-variable/geist-mono';
+
+/* Enable the rare explicit `dark:` utility; whole-UI theming is automatic via
+   the semantic vars when `.dark` is on a root element. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Canopy ships className strings, not a prebuilt stylesheet. Point Tailwind's
+   source scanner at the package so its component utilities are emitted into our
+   build; without this, Canopy components render unstyled. Path is relative to
+   this file (src/styles/globals.css -> node_modules). */
+@source '../../node_modules/@rogueoak/canopy';
+
+/* Reveal: a pure-CSS fade-up entrance. Runs on load, no JS. `both` fill keeps the
+   element at the start state (invisible) through any stagger delay, then holds the
+   end state - so content always ends visible and can never be stuck hidden.
+   `transform` (not the independent `translate` property) is used for the widest
+   browser support, including iOS Safari. */
+@keyframes reveal-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal {
+  animation: reveal-fade-up 700ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}

@@ -1,0 +1,4 @@
+/* The authoritative styles live in src/styles/globals.css.
+   This entry point (which the root layout imports) re-exports it so the import
+   order defined there is preserved verbatim. */
+@import '../styles/globals.css';
