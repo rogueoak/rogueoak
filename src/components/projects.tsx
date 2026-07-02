@@ -18,8 +18,8 @@ export function Projects() {
           <h2 className="text-h2 text-balance">Projects</h2>
         </Reveal>
         <div className="mt-14 space-y-20">
-          {projects.map((project) => (
-            <Reveal key={project.name}>
+          {projects.map((project, index) => (
+            <Reveal key={project.name} delay={index * 120}>
               <div>
                 <Image
                   src={project.logo}

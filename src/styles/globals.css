@@ -21,28 +21,28 @@
    this file (src/styles/globals.css -> node_modules). */
 @source '../../node_modules/@rogueoak/canopy';
 
-/* Scroll reveal. Content is visible by default; the Reveal component adds
-   `.reveal-hidden` (only to below-the-fold elements, after load) and removes it as
-   each scrolls into view, fading + rising it in. `transform` (not the independent
-   `translate` property) is used for the widest browser support, incl. iOS Safari.
-   Nothing on screen is ever hidden, so the page can never be blank. */
-.reveal {
-  transition:
-    opacity 600ms ease-out,
-    transform 600ms ease-out;
+/* Reveal: a pure-CSS fade-up entrance. Runs on load, no JS. `both` fill keeps the
+   element at the start state (invisible) through any stagger delay, then holds the
+   end state - so content always ends visible and can never be stuck hidden.
+   `transform` (not the independent `translate` property) is used for the widest
+   browser support, including iOS Safari. */
+@keyframes reveal-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.reveal.reveal-hidden {
-  opacity: 0;
-  transform: translateY(1.5rem);
-  will-change: opacity, transform;
+.reveal {
+  animation: reveal-fade-up 700ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal.reveal-hidden {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  .reveal {
+    animation: none;
   }
 }
