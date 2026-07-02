@@ -38,3 +38,4 @@ next-env.d.ts
 
 # local tooling scratch (not tracked)
 .worktrees/
+.playwright-mcp/
