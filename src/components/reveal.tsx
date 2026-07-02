@@ -14,11 +14,10 @@ type RevealProps = {
  * motion all render it plainly). Only when the browser can animate do we hide it
  * on mount and fade it in on first viewport entry.
  *
- * Robustness is the whole point here: content must NEVER get stuck hidden. So we
- * only hide elements that start below the fold, we reveal on IntersectionObserver
- * intersection, and a fallback timer reveals regardless if the observer never
- * fires (seen with flaky observer timing across browsers). The `.reveal` /
- * `.reveal.in-view` transition lives in globals.css.
+ * Only elements that start below the fold are hidden, and they fade in on first
+ * viewport entry via IntersectionObserver (supported in every target browser).
+ * Elements already on screen at mount stay visible, so there is no flash. The
+ * fade transition lives on `.reveal.in-view` in globals.css.
  */
 export function Reveal({ children, as, className }: RevealProps) {
   const Tag = as ?? "div";
@@ -40,28 +39,22 @@ export function Reveal({ children, as, className }: RevealProps) {
     const rect = node.getBoundingClientRect();
     if (rect.top < window.innerHeight && rect.bottom > 0) return;
 
+    // Below the fold: hide now (instantly - the transition lives on `.in-view`),
+    // then fade in when it scrolls into view.
     node.classList.add("reveal");
-    const reveal = () => node.classList.add("in-view");
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          reveal();
+          node.classList.add("in-view");
           observer.disconnect();
         }
       },
-      { threshold: 0, rootMargin: "0px 0px -80px 0px" },
+      { threshold: 0.15 },
     );
     observer.observe(node);
 
-    // Safety net: if the observer has not fired shortly, reveal anyway so a block
-    // can never be left invisible.
-    const fallback = window.setTimeout(reveal, 1500);
-
-    return () => {
-      observer.disconnect();
-      window.clearTimeout(fallback);
-    };
+    return () => observer.disconnect();
   }, []);
 
   return (

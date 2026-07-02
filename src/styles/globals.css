@@ -30,15 +30,17 @@
 .reveal {
   opacity: 0;
   translate: 0 1.5rem;
-  transition:
-    opacity 600ms ease-out,
-    translate 600ms ease-out;
   will-change: opacity, translate;
 }
 
+/* Transition lives on the revealed state so adding `.reveal` hides instantly
+   (no fade-out), and adding `.in-view` fades/rises the element in. */
 .reveal.in-view {
   opacity: 1;
   translate: 0 0;
+  transition:
+    opacity 600ms ease-out,
+    translate 600ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
