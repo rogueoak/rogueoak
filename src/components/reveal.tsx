@@ -12,10 +12,10 @@ type RevealProps = {
 /**
  * Reveal wrapper: a pure-CSS fade-up entrance (see `.reveal` in globals.css).
  *
- * No JavaScript on purpose. Earlier scroll/observer versions were unreliable on
- * iOS Safari (blank pages, no fade); a plain CSS animation always plays and can
- * never leave content hidden. `prefers-reduced-motion` disables it. Pass `delay`
- * to stagger a group (e.g. the project blocks).
+ * No JavaScript on purpose. Scroll/observer-driven versions were unreliable
+ * across environments; a plain CSS animation always plays and can never leave
+ * content hidden. `prefers-reduced-motion` disables it. Pass `delay` to stagger a
+ * group (e.g. the project blocks).
  */
 export function Reveal({ children, as, className, delay }: RevealProps) {
   const Tag = as ?? "div";
