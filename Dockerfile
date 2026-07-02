@@ -14,6 +14,11 @@ FROM node:24-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# SITE_URL is read at build time (baked into metadataBase, robots, sitemap,
+# manifest during static generation), so it must be set here, not only at
+# runtime. Defaults to production; the release pipeline / compose can override.
+ARG SITE_URL=https://rogueoak.com
+ENV SITE_URL=$SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

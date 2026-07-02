@@ -49,6 +49,11 @@ lockfile confusing the workspace root).
     `USER node`; copy `.next/standalone`, `.next/static`, and `public` with `--chown=node:node`;
     `EXPOSE 3000`; `HEALTHCHECK` using the runtime's own `node` `fetch` on `/`; `CMD ["node",
     "server.js"]`.
+  - **`SITE_URL` is a build arg** (`ARG SITE_URL` -> `ENV` before `npm run build`), because the app
+    reads it at build time to bake `metadataBase`, `robots`, `sitemap`, and the manifest into the
+    static output. A runtime `SITE_URL` would be ignored for pre-rendered metadata. The release
+    pipeline (0004) must therefore pass `--build-arg SITE_URL=...` at image-build time, not set it at
+    deploy time.
 - **`.dockerignore`**: `node_modules`, `.next`, `.git(ignore)`, `Dockerfile`, `.dockerignore`,
   `docker-compose.yml`, `README.md`, `.env*` except `.env.example`, `coverage`, `context`,
   `.DS_Store`, `*.tsbuildinfo`, and `.worktrees` (this repo uses git worktrees under it).
