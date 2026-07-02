@@ -22,4 +22,7 @@ matthewmaynes.com, the reference Canopy consumer.
 - **Assets**: brand SVGs (org + product logos, matthewmaynes.com favicon) live in `public/`; the
   repo is standalone and cannot reach sibling repos at build time.
 - **Tests**: Node's built-in runner (`node --test`, `tests/*.test.mjs`).
+- **CI**: `.github/workflows/verify.yml` is a reusable (`workflow_call`) gate - `npm ci`, lint,
+  build, test on Node 24 - called by `ci.yml` on every PR to `main`. Written reusable so the deploy
+  pipeline runs the identical gate. Actions are SHA-pinned; Dependabot keeps the pins current.
 - **Deploy shape (planned)**: standalone Docker image -> GHCR -> DigitalOcean droplet behind Caddy.
