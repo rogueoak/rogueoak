@@ -21,29 +21,26 @@
    this file (src/styles/globals.css -> node_modules). */
 @source '../../node_modules/@rogueoak/canopy';
 
-/* Scroll reveal. Elements carry `.reveal` in the server HTML but are only hidden
-   once the head script adds `.reveal-enabled` to <html> - before first paint, and
-   only when JS is on and motion is allowed. So there is no flash, and a no-JS or
-   reduced-motion visitor always sees content. The Reveal component adds `.in-view`
-   on first viewport entry to fade + rise it in. `transform` (not the independent
-   `translate` property) is used for the widest browser support, incl. iOS Safari. */
-.reveal-enabled .reveal {
-  opacity: 0;
-  transform: translateY(1.5rem);
-  will-change: opacity, transform;
-}
-
-.reveal-enabled .reveal.in-view {
-  opacity: 1;
-  transform: none;
+/* Scroll reveal. Content is visible by default; the Reveal component adds
+   `.reveal-hidden` (only to below-the-fold elements, after load) and removes it as
+   each scrolls into view, fading + rising it in. `transform` (not the independent
+   `translate` property) is used for the widest browser support, incl. iOS Safari.
+   Nothing on screen is ever hidden, so the page can never be blank. */
+.reveal {
   transition:
     opacity 600ms ease-out,
     transform 600ms ease-out;
 }
 
+.reveal.reveal-hidden {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  will-change: opacity, transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal-enabled .reveal,
-  .reveal-enabled .reveal.in-view {
+  .reveal,
+  .reveal.reveal-hidden {
     opacity: 1;
     transform: none;
     transition: none;

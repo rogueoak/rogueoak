@@ -10,15 +10,18 @@ type RevealProps = {
 };
 
 /**
- * Scroll-reveal wrapper. The element ships with the `.reveal` class in the
- * server HTML; an inline script in the document head adds `reveal-enabled` to
- * <html> before first paint (only when JS is on and motion is allowed), so the
- * hidden state is applied pre-paint with no flash and no layout measurement.
- * This effect just observes the element and adds `.in-view` the first time it
- * enters the viewport, which fades and rises it in (see globals.css).
+ * Scroll-reveal wrapper.
  *
- * No-JS, reduced-motion, and browsers without IntersectionObserver all leave the
- * content fully visible - it can never get stuck hidden.
+ * Safety first: content is ALWAYS visible by default (server HTML, no-JS,
+ * reduced-motion, and browsers without IntersectionObserver all render it
+ * plainly). The only thing this does is, after the page has fully loaded, hide
+ * the elements that are still BELOW the fold - never anything already on screen -
+ * and fade them in as they scroll into view. Because we never hide what the
+ * visitor can see, the page can never end up blank.
+ *
+ * The hide decision waits for `window.load` so the logo images are laid out and
+ * the below-fold measurement is accurate (measuring too early made short mobile
+ * pages think everything was on screen).
  */
 export function Reveal({ children, as, className }: RevealProps) {
   const Tag = as ?? "div";
@@ -28,23 +31,41 @@ export function Reveal({ children, as, className }: RevealProps) {
     const node = ref.current;
     if (!node) return;
 
-    if (typeof IntersectionObserver === "undefined") {
-      node.classList.add("in-view");
-      return;
+    const reducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion || typeof IntersectionObserver === "undefined") return;
+
+    let observer: IntersectionObserver | undefined;
+
+    const setup = () => {
+      // Only hide elements the visitor cannot currently see; leave everything
+      // on screen (or above it) visible, so nothing ever gets stuck hidden.
+      if (node.getBoundingClientRect().top < window.innerHeight) return;
+
+      node.classList.add("reveal-hidden");
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            node.classList.remove("reveal-hidden");
+            observer?.disconnect();
+          }
+        },
+        { threshold: 0, rootMargin: "0px 0px -10% 0px" },
+      );
+      observer.observe(node);
+    };
+
+    if (document.readyState === "complete") {
+      setup();
+    } else {
+      window.addEventListener("load", setup, { once: true });
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          node.classList.add("in-view");
-          observer.disconnect();
-        }
-      },
-      { threshold: 0, rootMargin: "0px 0px -10% 0px" },
-    );
-    observer.observe(node);
-
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener("load", setup);
+      observer?.disconnect();
+    };
   }, []);
 
   const classes = className ? `reveal ${className}` : "reveal";
