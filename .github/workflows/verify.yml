@@ -1,0 +1,28 @@
+# Reusable verification job: lint, build, test. Called by ci.yml (on pull_request,
+# to gate merges) and, later, by the deploy pipeline (on push to main) so both
+# enforce the IDENTICAL gate - a check can never pass on a PR yet fail post-merge.
+#
+# Actions are pinned to commit SHAs (mutable tags are a supply-chain risk).
+# Dependabot (.github/dependabot.yml) proposes SHA bumps with the tag in a
+# trailing comment.
+name: verify
+
+on:
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24 # matches the planned container runtime (node:24-alpine, spec 0003)
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test
