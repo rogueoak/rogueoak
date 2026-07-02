@@ -1,0 +1,68 @@
+# Release pipeline for rogueoak.com.
+# Push to main -> verify (lint/build/test) -> build + push the container image to
+# GHCR. A red verify or build never publishes. Deploying the published image to
+# the droplet is a separate concern (spec 0005).
+#
+# Actions are pinned to commit SHAs (mutable tags are a supply-chain risk: the
+# build job has packages: write). Dependabot (.github/dependabot.yml) proposes
+# SHA bumps with the tag in a trailing comment.
+name: release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Default to read-only; the build job opts into packages: write for itself only.
+permissions:
+  contents: read
+
+# Never build+push two images for the same branch at once; let an in-flight one
+# finish so tags are not clobbered mid-run.
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  # Same gate the PR runs (ci.yml), shared so the two can never drift apart.
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest # native amd64, so no QEMU emulation for the image build
+    permissions:
+      contents: read
+      packages: write # least privilege: only this job pushes to GHCR
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+      - uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+        id: meta
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+      - uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          # SITE_URL is baked into the site's metadata at build time (spec 0003),
+          # so it must be passed here, not at deploy time.
+          build-args: |
+            SITE_URL=https://rogueoak.com
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # No cross-run build cache: a stale COPY . . layer can ship old source.
+          # A clean build each run is the reliable default; the app builds fast.
+          no-cache: true
