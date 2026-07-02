@@ -12,7 +12,7 @@ import { projects } from "@/lib/content";
  */
 export function Projects() {
   return (
-    <section className="px-6 py-20 sm:py-28">
+    <section className="px-6 pt-8 pb-20 sm:pt-10 sm:pb-28">
       <div className="mx-auto max-w-3xl">
         <Reveal>
           <h2 className="text-h2 text-balance">Projects</h2>

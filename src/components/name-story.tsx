@@ -11,7 +11,7 @@ import { oakStory } from "@/lib/content";
  */
 export function NameStory() {
   return (
-    <Reveal as="section" className="px-6 py-20 sm:py-28">
+    <Reveal as="section" className="px-6 pt-8 pb-8 sm:pt-10 sm:pb-10">
       <figure
         className="mx-auto max-w-3xl"
         style={{

@@ -8,7 +8,7 @@ import { hero } from "@/lib/content";
  */
 export function Hero() {
   return (
-    <Reveal as="section" className="px-6 pt-20 pb-16 sm:pt-28 sm:pb-24">
+    <Reveal as="section" className="px-6 pt-20 pb-4 sm:pt-28 sm:pb-6">
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <Image
           src="/rogueoak-avatar.svg"
