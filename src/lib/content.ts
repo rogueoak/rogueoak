@@ -31,9 +31,8 @@ export const hero = {
   tagline: "Tools built to stand on their own.",
 } as const;
 
-/** The oak name story - two short paragraphs. */
+/** The oak name story - two short paragraphs, shown as a quote. */
 export const oakStory = {
-  heading: "The oak",
   paragraphs: [
     "Oaks are among the strongest trees - majestic, long-lived, and built to stand the test of time. They usually gather in groves and savannahs, but sometimes a lone oak, a rogue oak, stands on its own in an open field, against the grain.",
     "Some white oaks grow for 300 years, live for 300 more, and take 300 to die. Across all that time the oak gives endless value to a whole ecosystem. Rogue Oak aims to build incredible customer value the same way.",

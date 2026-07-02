@@ -7,24 +7,20 @@ type RevealProps = {
   /** Element to render as the wrapper. Defaults to a <div>. */
   as?: ElementType;
   className?: string;
-  /** Extra delay (ms) before the reveal transition starts, for a light stagger. */
-  delay?: number;
 };
 
 /**
- * Scroll-reveal wrapper. Dependency-free: an IntersectionObserver adds the
- * `in-view` class the first time the element enters the viewport, then unobserves
- * so each element animates once. The fade + upward translate lives in
- * globals.css (`.reveal` / `.reveal.in-view`).
+ * Scroll-reveal wrapper. Content is visible by default (SSR / no-JS / reduced
+ * motion all render it plainly). Only when the browser can animate do we hide it
+ * on mount and fade it in on first viewport entry.
  *
- * Progressive enhancement: the pre-animation (hidden) `.reveal` class is added by
- * the client effect, never during render. Server HTML - and any visitor with JS
- * disabled - renders the content fully visible. Under prefers-reduced-motion the
- * CSS keeps the content visible with no transition, so the observer is harmless.
- * The class is toggled on the DOM node directly (not via React state) so the
- * effect stays a pure external-DOM sync with no cascading renders.
+ * Robustness is the whole point here: content must NEVER get stuck hidden. So we
+ * only hide elements that start below the fold, we reveal on IntersectionObserver
+ * intersection, and a fallback timer reveals regardless if the observer never
+ * fires (seen with flaky observer timing across browsers). The `.reveal` /
+ * `.reveal.in-view` transition lives in globals.css.
  */
-export function Reveal({ children, as, className, delay }: RevealProps) {
+export function Reveal({ children, as, className }: RevealProps) {
   const Tag = as ?? "div";
   const ref = useRef<HTMLElement>(null);
 
@@ -32,44 +28,41 @@ export function Reveal({ children, as, className, delay }: RevealProps) {
     const node = ref.current;
     if (!node) return;
 
-    // Elements already in the viewport at mount (above the fold, e.g. the hero)
-    // must never be hidden: applying `.reveal` (opacity 0) and waiting for the
-    // observer's async first callback to add `.in-view` produces a visible
-    // fade-out-then-in flash on load. Leave them as the SSR render left them -
-    // fully visible.
+    // Leave content visible for reduced-motion users and where the observer is
+    // unavailable - never hide what we cannot reliably bring back.
+    const reducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion || typeof IntersectionObserver === "undefined") return;
+
+    // Already on screen at mount (e.g. the hero): never hide it, so there is no
+    // fade-out-then-in flash.
     const rect = node.getBoundingClientRect();
-    const alreadyInView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (alreadyInView) return;
+    if (rect.top < window.innerHeight && rect.bottom > 0) return;
 
-    // Apply the hidden pre-animation state now, on the client only, so the SSR /
-    // no-JS render stays visible.
     node.classList.add("reveal");
-    if (delay) node.style.transitionDelay = `${delay}ms`;
-
     const reveal = () => node.classList.add("in-view");
-
-    // If the browser cannot observe, reveal immediately so nothing is trapped
-    // hidden.
-    if (typeof IntersectionObserver === "undefined") {
-      reveal();
-      return;
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            reveal();
-            observer.disconnect();
-            break;
-          }
+        if (entries.some((entry) => entry.isIntersecting)) {
+          reveal();
+          observer.disconnect();
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+      { threshold: 0, rootMargin: "0px 0px -80px 0px" },
     );
     observer.observe(node);
-    return () => observer.disconnect();
-  }, [delay]);
+
+    // Safety net: if the observer has not fired shortly, reveal anyway so a block
+    // can never be left invisible.
+    const fallback = window.setTimeout(reveal, 1500);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallback);
+    };
+  }, []);
 
   return (
     <Tag ref={ref} className={className || undefined}>
