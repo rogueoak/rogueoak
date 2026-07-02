@@ -12,16 +12,17 @@ type RevealProps = {
 /**
  * Scroll-reveal wrapper.
  *
- * Safety first: content is ALWAYS visible by default (server HTML, no-JS,
- * reduced-motion, and browsers without IntersectionObserver all render it
- * plainly). The only thing this does is, after the page has fully loaded, hide
- * the elements that are still BELOW the fold - never anything already on screen -
- * and fade them in as they scroll into view. Because we never hide what the
- * visitor can see, the page can never end up blank.
+ * Content is ALWAYS visible by default (server HTML, no-JS, reduced-motion). When
+ * motion is allowed, this hides only the elements still below the fold - never
+ * anything on screen - and fades them in once they scroll up into view.
  *
- * The hide decision waits for `window.load` so the logo images are laid out and
- * the below-fold measurement is accurate (measuring too early made short mobile
- * pages think everything was on screen).
+ * The trigger is a plain scroll/resize listener (rAF-throttled), not an
+ * IntersectionObserver: iOS Safari has not reliably fired the observer callback
+ * here, whereas scroll events do. Because on-screen content is never hidden, the
+ * page can never be blank even if the listener never runs.
+ *
+ * The below-the-fold check runs on mount and again after `window.load`, so
+ * late-loading logo images that push content down are measured correctly.
  */
 export function Reveal({ children, as, className }: RevealProps) {
   const Tag = as ?? "div";
@@ -34,37 +35,52 @@ export function Reveal({ children, as, className }: RevealProps) {
     const reducedMotion =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion || typeof IntersectionObserver === "undefined") return;
+    if (reducedMotion) return;
 
-    let observer: IntersectionObserver | undefined;
+    let armed = false;
+    let done = false;
+    let raf = 0;
 
-    const setup = () => {
-      // Only hide elements the visitor cannot currently see; leave everything
-      // on screen (or above it) visible, so nothing ever gets stuck hidden.
-      if (node.getBoundingClientRect().top < window.innerHeight) return;
+    // Reveal once the element's top has scrolled to within 85% of the viewport
+    // height - far enough in that the fade is clearly visible.
+    const inView = () => node.getBoundingClientRect().top < window.innerHeight * 0.85;
 
-      node.classList.add("reveal-hidden");
-      observer = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            node.classList.remove("reveal-hidden");
-            observer?.disconnect();
-          }
-        },
-        { threshold: 0, rootMargin: "0px 0px -10% 0px" },
-      );
-      observer.observe(node);
+    const finish = () => {
+      if (done) return;
+      done = true;
+      node.classList.remove("reveal-hidden");
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
 
-    if (document.readyState === "complete") {
-      setup();
-    } else {
-      window.addEventListener("load", setup, { once: true });
+    const onScroll = () => {
+      if (done || raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        if (inView()) finish();
+      });
+    };
+
+    const arm = () => {
+      if (armed || done) return;
+      // Leave anything already on screen visible - only hide what is below the fold.
+      if (inView()) return;
+      armed = true;
+      node.classList.add("reveal-hidden");
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
+    };
+
+    arm();
+    if (document.readyState !== "complete") {
+      window.addEventListener("load", arm, { once: true });
     }
 
     return () => {
-      window.removeEventListener("load", setup);
-      observer?.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("load", arm);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
