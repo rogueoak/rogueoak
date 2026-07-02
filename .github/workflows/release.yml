@@ -104,14 +104,19 @@ jobs:
             # Shared edge network + TLS proxy: create / bring up if absent (idempotent;
             # also applies any Caddyfile change).
             docker network inspect edge >/dev/null 2>&1 || docker network create edge
+            # Validate the Caddyfile before applying it, so a syntax error fails the
+            # deploy instead of taking the edge proxy down (Caddy has no healthcheck).
+            docker run --rm -v "$REPO/deploy/docker/Caddyfile:/etc/caddy/Caddyfile:ro" \
+              caddy:2-alpine caddy validate --adapter caddyfile --config /etc/caddy/Caddyfile
             docker compose -f deploy/docker/compose.proxy.yml up -d
             export IMAGE_TAG
             docker compose -f deploy/docker/compose.site.yml pull
             # --wait blocks until the container passes its HEALTHCHECK, so a broken
             # image is a red deploy instead of a silently flapping container.
             docker compose -f deploy/docker/compose.site.yml up -d --wait
-            # Prune only THIS project's dangling images (label-scoped), so a
-            # cohosted stack's images are never touched.
-            docker image prune -f \
+            # Prune this project's UNUSED images (label-scoped, -a not just dangling),
+            # so superseded sha-<commit> images do not pile up on the host disk; the
+            # running image is in use and kept. A cohosted stack's images are untouched.
+            docker image prune -af \
               --filter "label=org.opencontainers.image.source=https://github.com/rogueoak/rogueoak"
           REMOTE

@@ -57,9 +57,11 @@ Mirror matthewmaynes.com's `deploy/docker/` stacks and the `deploy` job of its `
 - **Self-bootstrapping `deploy` job** (the difference from mmc, which bootstraps the host by hand):
   the remote script clones the repo to `~/rogueoak` if missing, `git fetch` + `reset --hard
   origin/main` (so a stray host edit can never wedge a deploy), `docker network create edge` if
-  absent, `docker compose -f deploy/docker/compose.proxy.yml up -d` (idempotent; applies Caddyfile
-  changes), then `IMAGE_TAG=sha-${{ github.sha }}` `compose -f compose.site.yml pull` + `up -d
-  --wait`, then a label-scoped `docker image prune` (only this project's images). Trade-off: the
+  absent, **validate the Caddyfile** (`caddy validate`) before `docker compose -f
+  deploy/docker/compose.proxy.yml up -d` so a broken Caddyfile fails the deploy instead of taking the
+  edge down, then `IMAGE_TAG=sha-${{ github.sha }}` `compose -f compose.site.yml pull` + `up -d
+  --wait`, then a label-scoped `docker image prune -af` (drops superseded `sha-<commit>` images so
+  the host disk stays bounded; the running image is in use and kept). Trade-off: the
   deploy touches the proxy stack each run; it is idempotent and keeps the host reproducible from an
   empty box, which is worth more than strict proxy/app separation here.
 - **SSH** uses the four secrets from host setup: `DEPLOY_SSH_KEY` (private key), `DEPLOY_KNOWN_HOSTS`
