@@ -1,14 +1,19 @@
-# Production site stack. Runs the prebuilt GHCR image behind the edge proxy.
-# No host port is published: Caddy reaches it as `site:3000` over the `edge`
+# Production site stack. Runs the prebuilt GHCR image behind the shared edge proxy.
+# No host port is published: Caddy reaches it as `rogueoak:3000` over the `edge`
 # network. The image carries its own HEALTHCHECK (see Dockerfile).
+#
+# This site is cohosted with matthewmaynes.com on one host. That repo owns the
+# edge TLS proxy and routes rogueoak.com -> rogueoak:3000, so this stack is named
+# `rogueoak` (project / service / container) to stay distinct from the cohosted
+# `site` stack - two stacks named `site` on one host would collide.
 # Deploy/update (CD pins IMAGE_TAG to the commit's sha-<full> tag; defaults to latest):
 #   IMAGE_TAG=sha-<commit> docker compose -f compose.site.yml up -d --wait
-name: site # explicit project name so it never collides with the proxy stack
+name: rogueoak # explicit project name; distinct from the cohosted `site` stack
 
 services:
-  site:
+  rogueoak:
     image: ghcr.io/rogueoak/rogueoak:${IMAGE_TAG:-latest}
-    container_name: site
+    container_name: rogueoak
     restart: unless-stopped
     expose:
       - "3000"
@@ -20,8 +25,8 @@ services:
     networks:
       - edge
 
-# Shared with the proxy stack; the deploy job creates it if missing:
-# `docker network create edge`.
+# Shared with the matthewmaynes proxy stack, which owns it. This deploy also
+# creates it if missing (idempotent bootstrap): `docker network create edge`.
 networks:
   edge:
     external: true

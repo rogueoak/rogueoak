@@ -35,9 +35,11 @@ matthewmaynes.com, the reference Canopy consumer.
   build job only; `no-cache` avoids stale-layer bugs. `cleanup-images.yml` prunes GHCR to the 30 most
   recent tagged images on a daily schedule.
 - **Deploy**: on push to `main`, the `deploy` job in `release.yml` (needs: build) SSHes into a
-  DigitalOcean droplet as `deploy` and rolls the site to the `sha-<commit>` image. The host runs two
-  compose stacks on a shared external `edge` network: a **Caddy** proxy (`deploy/docker/`) that
-  terminates TLS (auto Let's Encrypt) and is the only stack publishing 80/443, and the **site** stack
-  (no host port, reached as `site:3000`). The deploy is self-bootstrapping (clones the repo, ensures
-  the network + proxy, then `compose up -d --wait` - health-gated) and label-scoped prunes. Serves
+  DigitalOcean droplet as `deploy` and rolls the site to the `sha-<commit>` image. This site is
+  **cohosted with matthewmaynes.com**: that repo owns the shared **Caddy** edge proxy (terminates
+  TLS, auto Let's Encrypt, the only stack publishing 80/443) and routes `rogueoak.com` ->
+  `rogueoak:3000` over the shared external `edge` network. This repo ships only the **rogueoak** site
+  stack (`deploy/docker/compose.site.yml`, project / service / container `rogueoak`, no host port).
+  The deploy is self-bootstrapping (clones the repo, ensures the `edge` network exists, then `compose
+  up -d --wait` - health-gated) and label-scoped prunes; it no longer brings up Caddy. Serves
   `https://rogueoak.com` (`www` -> apex).

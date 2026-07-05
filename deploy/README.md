@@ -1,18 +1,23 @@
 # Deploy
 
-rogueoak.com runs as a container on a DigitalOcean droplet, behind a Caddy edge proxy that
-terminates TLS. Deploys are automatic: every push to `main` runs
-`.github/workflows/release.yml` (verify -> build -> **deploy**), and the deploy job SSHes into the
-droplet and rolls the site forward to the image built for that commit
-(`ghcr.io/rogueoak/rogueoak:sha-<commit>`).
+rogueoak.com runs as a container on a DigitalOcean droplet, **cohosted with matthewmaynes.com**
+behind a shared Caddy edge proxy that terminates TLS. The `matthewmaynes` repo owns that proxy and
+routes `rogueoak.com` -> `rogueoak:3000` over the shared `edge` network; this repo ships only its
+own site stack. Deploys are automatic: every push to `main` runs `.github/workflows/release.yml`
+(verify -> build -> **deploy**), and the deploy job SSHes into the droplet and rolls the site
+forward to the image built for that commit (`ghcr.io/rogueoak/rogueoak:sha-<commit>`).
 
 ## Stacks (`deploy/docker/`)
 
-- `compose.proxy.yml` + `Caddyfile` - the **Caddy** edge proxy. The only stack that publishes host
-  ports (80/443). Auto-issues and renews Let's Encrypt certs; routes `rogueoak.com` -> `site:3000`
-  and redirects `www` -> apex.
-- `compose.site.yml` - the **site** stack. Runs the prebuilt GHCR image, publishes no host port
-  (Caddy reaches it as `site:3000` on the shared `edge` network), `NODE_ENV=production`. No secrets.
+- `compose.site.yml` - the **rogueoak** stack (project / service / container all named `rogueoak`,
+  distinct from the cohosted `site` stack). Runs the prebuilt GHCR image, publishes no host port
+  (Caddy reaches it as `rogueoak:3000` on the shared `edge` network), `NODE_ENV=production`. No
+  secrets.
+
+The Caddy edge proxy and its Caddyfile live in the `matthewmaynes` repo, which is the single owner
+of the TLS terminator for every domain on this host. This repo no longer ships a `compose.proxy.yml`
+or `Caddyfile`: two deploys each bringing up their own Caddy would fight over ports 80/443 and knock
+the other site offline.
 
 ## Host prerequisites (one-time)
 
@@ -27,9 +32,13 @@ The deploy job is self-bootstrapping, so a fresh droplet needs only:
 5. **DNS**: `A` records for `rogueoak.com` and `www.rogueoak.com` pointing at the droplet IP (Caddy
    needs this to issue TLS).
 6. The **GHCR package is public** (`ghcr.io/rogueoak/rogueoak`), so the host pulls without login.
+7. The **shared edge proxy** is deployed from the `matthewmaynes` repo (it owns the Caddy stack and
+   the `rogueoak.com` route). Deploy or update it there so the route exists before/when this site
+   comes up. Deploy order does not matter for the network: whichever stack runs first creates the
+   external `edge` network.
 
-The deploy job itself clones the repo to `~deploy/rogueoak` on first run, creates the `edge`
-network, brings up the proxy, and deploys the site - no other manual host steps.
+The deploy job itself clones the repo to `~deploy/rogueoak` on first run, ensures the shared `edge`
+network exists, and deploys the site - it no longer manages the proxy (the `matthewmaynes` repo does).
 
 ## GitHub Actions secrets
 
