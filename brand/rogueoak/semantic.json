@@ -1,0 +1,4 @@
+{
+  "$description": "Rogue Oak is dark-only: it overrides nothing in light, so light mode keeps Canopy's defaults. All brand roles live in semantic.dark.json. This file is intentionally empty of role mappings.",
+  "color": {}
+}

@@ -1,0 +1,50 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-navy-500: #33445a;
+  --color-navy-600: #24303f;
+  --color-navy-700: #22303f;
+  --color-navy-800: #1a2533;
+  --color-navy-900: #131b26;
+  --color-navy-950: #0a0d13;
+  --color-mist-50: #eaf1f4;
+  --color-mist-200: #c9d2da;
+  --color-mist-400: #7d8896;
+  --color-green-300: #7fcf9f;
+  --color-green-400: #5fb98a;
+  --color-green-500: #4fa87a;
+  --color-green-950: #06131a;
+  --color-gold-300: #e0b57a;
+  --color-gold-400: #d2a463;
+  --color-gold-950: #1a1206;
+}
+
+/* rogueoak-dark theme - semantic remap. Overrides the base semantic vars;
+   primitives (shared ramps) are NOT repeated. Toggle by adding the `.dark` selector
+   to a root element. */
+.dark {
+  --color-bg: var(--color-navy-950);
+  --color-surface: var(--color-navy-900);
+  --color-surface-raised: var(--color-navy-800);
+  --color-muted: var(--color-navy-900);
+  --color-muted-raised: var(--color-navy-700);
+  --color-text: var(--color-mist-50);
+  --color-text-muted: var(--color-mist-200);
+  --color-text-subtle: var(--color-mist-400);
+  --color-text-inverted: var(--color-navy-950);
+  --color-muted-foreground: var(--color-mist-200);
+  --color-border: var(--color-navy-600);
+  --color-border-strong: var(--color-navy-500);
+  --color-ring: var(--color-green-400);
+  --color-ring-offset: var(--color-navy-950);
+  --color-primary: var(--color-green-400);
+  --color-primary-foreground: var(--color-green-950);
+  --color-primary-hover: var(--color-green-300);
+  --color-primary-active: var(--color-green-500);
+  --color-accent: var(--color-gold-400);
+  --color-accent-strong: var(--color-gold-300);
+  --color-accent-foreground: var(--color-gold-950);
+  --color-accent-hover: var(--color-gold-300);
+}

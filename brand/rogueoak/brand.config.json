@@ -1,0 +1,8 @@
+{
+  "name": "rogueoak",
+  "primitives": "primitive.json",
+  "semantic": "semantic.json",
+  "semanticDark": "semantic.dark.json",
+  "outFile": "../../src/styles/brand-rogueoak.generated.css",
+  "scope": null
+}

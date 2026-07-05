@@ -5,9 +5,13 @@ matthewmaynes.com, the reference Canopy consumer.
 
 - **Design system**: Canopy via published npm packages - `@rogueoak/roots` (design tokens + a
   Tailwind v4 preset), `@rogueoak/canopy` (React components), `@rogueoak/icons`. `globals.css`
-  imports Tailwind, the roots tokens + preset, the Figtree/Geist Mono fonts, then
-  `theme-rogueoak.css`, which re-points the dark semantic tokens to the navy/green/amber
-  product-banner palette. The site is dark-only (`.dark` fixed on `<html>`; no toggle).
+  imports Tailwind, the roots tokens + preset, then the Rogue Oak brand
+  (`brand-rogueoak.generated.css`), `theme-rogueoak.css`, and the Figtree/Geist Mono fonts. The
+  brand re-points the dark semantic tokens to the navy/green/amber product-banner palette; it is
+  **generated** by the roots brand pipeline (`npm run theme:build`) from the DTCG sources in
+  `brand/rogueoak/` (a partial, dark-only brand - it maps only the `.dark` roles and inherits the
+  rest from Roots), and `theme-rogueoak.css` keeps only the non-palette `color-scheme: dark`. The
+  site is dark-only (`.dark` fixed on `<html>`; no toggle).
 - **RSC boundary**: Canopy's published build ships no `"use client"` directives and reads React
   context at module scope, so every Canopy component is re-exported through one `"use client"`
   barrel, `src/components/ui.ts`, and imported from there.

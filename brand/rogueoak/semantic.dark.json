@@ -1,0 +1,26 @@
+{
+  "color": {
+    "bg": { "$value": "{color.navy.950}", "$type": "color" },
+    "surface": { "$value": "{color.navy.900}", "$type": "color" },
+    "surface-raised": { "$value": "{color.navy.800}", "$type": "color" },
+    "muted": { "$value": "{color.navy.900}", "$type": "color" },
+    "muted-raised": { "$value": "{color.navy.700}", "$type": "color" },
+    "text": { "$value": "{color.mist.50}", "$type": "color" },
+    "text-muted": { "$value": "{color.mist.200}", "$type": "color" },
+    "text-subtle": { "$value": "{color.mist.400}", "$type": "color" },
+    "text-inverted": { "$value": "{color.navy.950}", "$type": "color" },
+    "muted-foreground": { "$value": "{color.mist.200}", "$type": "color" },
+    "border": { "$value": "{color.navy.600}", "$type": "color" },
+    "border-strong": { "$value": "{color.navy.500}", "$type": "color" },
+    "ring": { "$value": "{color.green.400}", "$type": "color" },
+    "ring-offset": { "$value": "{color.navy.950}", "$type": "color" },
+    "primary": { "$value": "{color.green.400}", "$type": "color" },
+    "primary-foreground": { "$value": "{color.green.950}", "$type": "color" },
+    "primary-hover": { "$value": "{color.green.300}", "$type": "color" },
+    "primary-active": { "$value": "{color.green.500}", "$type": "color" },
+    "accent": { "$value": "{color.gold.400}", "$type": "color" },
+    "accent-strong": { "$value": "{color.gold.300}", "$type": "color" },
+    "accent-foreground": { "$value": "{color.gold.950}", "$type": "color" },
+    "accent-hover": { "$value": "{color.gold.300}", "$type": "color" }
+  }
+}
