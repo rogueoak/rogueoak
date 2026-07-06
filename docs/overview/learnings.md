@@ -24,3 +24,18 @@
   Point dependents at it instead (e.g. `site.ts` reads from the import-free `content.ts`, not the
   reverse). **How to apply:** if `node --test` fails with ERR_MODULE_NOT_FOUND, invert the import
   direction so the tested module stays a leaf.
+
+## Zero-downtime deploy on a cohosted box (spec 0006)
+
+- **A blue/green rollout briefly doubles the container's memory, and on a SHARED host that peak
+  must fit alongside the cohosted site's own peak.** rogueoak and matthewmaynes run on one small VM
+  behind one Caddy; matthewmaynes' first rollout OOM'd the box (its feedback 0015) because two of its
+  instances plus rogueoak exceeded RAM. rogueoak's rollout adds the same 2x transient. Guard the same
+  way: a per-service `mem_limit` so one stack can't starve the box and take the neighbour down, and
+  rely on the host headroom (RAM + swap) provisioned for both overlaps. Size for the sum of the peaks,
+  not one site in isolation.
+- **Keep the two cohosted deploys symmetric.** rogueoak's deploy mirrors matthewmaynes' (same pinned
+  docker-rollout, `docker rollout`, post-rollout health gate, `timeout-minutes`, `prune -af`,
+  clone-if-missing), differing only where it must: this repo never manages the shared Caddy (that repo
+  owns the edge proxy) and has no image prewarm job. Symmetric pipelines mean a fix or hardening in one
+  (like the OOM guards) ports directly to the other.
