@@ -43,7 +43,18 @@ matthewmaynes.com, the reference Canopy consumer.
   **cohosted with matthewmaynes.com**: that repo owns the shared **Caddy** edge proxy (terminates
   TLS, auto Let's Encrypt, the only stack publishing 80/443) and routes `rogueoak.com` ->
   `rogueoak:3000` over the shared external `edge` network. This repo ships only the **rogueoak** site
-  stack (`deploy/docker/compose.site.yml`, project / service / container `rogueoak`, no host port).
-  The deploy is self-bootstrapping (clones the repo, ensures the `edge` network exists, then `compose
-  up -d --wait` - health-gated) and label-scoped prunes; it no longer brings up Caddy. Serves
-  `https://rogueoak.com` (`www` -> apex).
+  stack (`deploy/docker/compose.site.yml`, project / service `rogueoak`, no host port).
+  The deploy is self-bootstrapping (clones the repo, ensures the `edge` network exists) and
+  label-scoped prunes; it no longer brings up Caddy. Serves `https://rogueoak.com` (`www` -> apex).
+- **Zero-downtime deploy (spec 0006, symmetric with matthewmaynes spec 0019):** instead of
+  `compose up -d` recreating the one fixed-name container in place (a hard-down window), the deploy
+  uses [`docker-rollout`](https://github.com/Wowu/docker-rollout) (pinned, checksum-verified) to scale
+  `rogueoak` to two Compose-indexed instances, wait for the new HEALTHCHECK, then remove the old.
+  `container_name` is dropped so the two can coexist; the matthewmaynes Caddy proxy resolves the
+  `rogueoak` alias via **dynamic-A upstreams** (re-resolving Docker DNS), so it follows the swap. A
+  post-rollout health gate curls rogueoak.com through Caddy over loopback and fails the deploy on a
+  non-200; a `timeout-minutes` bounds a wedged host. A broken image never goes healthy, so the old
+  instance keeps serving and the deploy fails. The pipeline is kept **symmetric with matthewmaynes'**,
+  differing only where it must (this repo never manages the shared Caddy, has no image prewarm job,
+  and uses rogueoak names). A per-service `mem_limit` keeps a rollout's transient 2x footprint from
+  OOM-ing the shared VM and taking down the cohosted site (matthewmaynes feedback 0015).

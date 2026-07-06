@@ -6,15 +6,28 @@
 # edge TLS proxy and routes rogueoak.com -> rogueoak:3000, so this stack is named
 # `rogueoak` (project / service / container) to stay distinct from the cohosted
 # `site` stack - two stacks named `site` on one host would collide.
-# Deploy/update (CD pins IMAGE_TAG to the commit's sha-<full> tag; defaults to latest):
-#   IMAGE_TAG=sha-<commit> docker compose -f compose.site.yml up -d --wait
+# Deploy/update: zero-downtime via docker-rollout (spec 0006), which scales the
+# service to two instances, waits for the new one's health, then removes the old:
+#   IMAGE_TAG=sha-<commit> docker rollout -f compose.site.yml rogueoak
 name: rogueoak # explicit project name; distinct from the cohosted `site` stack
 
 services:
   rogueoak:
     image: ghcr.io/rogueoak/rogueoak:${IMAGE_TAG:-latest}
-    container_name: rogueoak
+    # No container_name on purpose: docker-rollout (spec 0006) runs two
+    # Compose-indexed instances (rogueoak-rogueoak-1 / -2) during a rollout, so a
+    # fixed name would block the overlap. The service keeps the `rogueoak` network
+    # alias, which the matthewmaynes Caddy proxy resolves via Docker DNS to whichever
+    # instances are live.
     restart: unless-stopped
+    # Cohosted-box memory safety (matthewmaynes feedback 0015): the zero-downtime
+    # rollout briefly runs TWO rogueoak instances, and on the shared VM a spike here
+    # must never OOM the whole box and take down the cohosted matthewmaynes site (an
+    # OOM outage happened once, before swap + limits existed). Bound each instance
+    # well above its real footprint, so this never trips normally and only caps a
+    # runaway. The host holds site + rogueoak overlaps (~1GB + 2GB swap).
+    mem_limit: 400m
+    mem_reservation: 192m
     expose:
       - "3000"
     environment:
