@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { hero, oakStory, projects } from "../src/lib/content.ts";
+import { hero, notFound, oakStory, projects } from "../src/lib/content.ts";
 
 // Resolve a "/foo.svg" public path to its file on disk. A referenced asset that
 // is not in public/ would 404 at runtime, so the tests fail the build instead.
@@ -71,8 +71,15 @@ test("the hero carries the master tagline", () => {
   assert.equal(hero.tagline, "Tools built to stand on their own.");
 });
 
+test("the 404 copy points a lost visitor back home", () => {
+  assert.equal(notFound.code, "404");
+  assert.ok(notFound.heading.trim(), "heading is present");
+  assert.ok(notFound.body.trim(), "body is present");
+  assert.ok(notFound.cta.trim(), "cta label is present");
+});
+
 test("all copy is ASCII only (no em / en dash)", () => {
-  for (const value of everyString({ hero, oakStory, projects })) {
+  for (const value of everyString({ hero, notFound, oakStory, projects })) {
     assert.ok(
       !NON_ASCII.test(value),
       `non-ASCII character found in copy: ${JSON.stringify(value)}`,
