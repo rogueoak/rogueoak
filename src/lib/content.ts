@@ -31,6 +31,14 @@ export const hero = {
   tagline: "Tools built to stand on their own.",
 } as const;
 
+/** Copy for the 404 page - a lost visitor, pointed back home. */
+export const notFound = {
+  code: "404",
+  heading: "Whoops, looks like you are lost!",
+  body: "Even a rogue oak stands somewhere. This page does not - the path you followed leads nowhere. Let's get you back to solid ground.",
+  cta: "Let's go home",
+} as const;
+
 /** The oak name story - two short paragraphs, shown as a quote. */
 export const oakStory = {
   paragraphs: [
