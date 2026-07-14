@@ -19,11 +19,26 @@
   with `node --test`. Keep correctness-critical modules typed. **How to apply:** author new `lib`
   modules as `.ts`; a `.mjs` test can import a `.ts` module directly.
 
+- **A git worktree needs its own real `node_modules` - do not symlink the primary checkout's.**
+  Turbopack (`next build`) rejects a `node_modules` symlink pointing outside the project root
+  ("Symlink [project]/node_modules is invalid, it points out of the filesystem root") and panics;
+  `node --test` and `eslint` follow the symlink fine, so the break only shows at build. **How to
+  apply:** when building in `.worktrees/<slug>`, run `npm ci` inside the worktree (node_modules is
+  git-ignored, so a fresh worktree has none) rather than symlinking back to the main checkout.
+
 - **Keep a node-testable module import-free.** A module a `node --test` file imports directly must
   not use path aliases (`@/...`) or extensionless relative imports, which raw Node cannot resolve.
   Point dependents at it instead (e.g. `site.ts` reads from the import-free `content.ts`, not the
   reverse). **How to apply:** if `node --test` fails with ERR_MODULE_NOT_FOUND, invert the import
   direction so the tested module stays a leaf.
+
+- **Do not leave security-relevant logic inline in a Next route handler - it is not node-testable.**
+  A route handler imports `next/server` and uses `@/` aliases, so `node --test` cannot load it; any
+  logic inside it (IP keying, body caps, guard ordering, status mapping) is untestable at the unit
+  level and drifts unnoticed (feedback 0001, spec 0008). **How to apply:** extract the
+  regression-prone, pure decisions into an import-free `lib` leaf and unit-test them there; keep the
+  handler a thin orchestrator and cover its wiring with a production-build smoke test. Bound a
+  request body on ACTUAL bytes read, not the client-declared `Content-Length` (absent/spoofable).
 
 ## Zero-downtime deploy on a cohosted box (spec 0006)
 

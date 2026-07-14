@@ -1,11 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Github } from "@rogueoak/icons";
 import { Button } from "@/components/ui";
 import { site } from "@/lib/site";
 
 /**
- * Minimal footer: Rogue Oak, a "built with Canopy" note, and links out to the
- * GitHub org and to matthewmaynes.com (the person behind Rogue Oak).
+ * Minimal footer: Rogue Oak, a "built with Canopy" note, the Subscribe / Privacy
+ * links (spec 0007 / 0008), and links out to the GitHub org and to
+ * matthewmaynes.com (the person behind Rogue Oak).
  */
 export function SiteFooter() {
   return (
@@ -23,6 +25,20 @@ export function SiteFooter() {
           </a>
           .
         </p>
+        <nav className="flex items-center gap-5 text-caption" aria-label="Footer">
+          <Link
+            href="/subscribe"
+            className="text-text-muted underline-offset-2 hover:text-primary hover:underline"
+          >
+            Subscribe
+          </Link>
+          <Link
+            href="/privacy"
+            className="text-text-muted underline-offset-2 hover:text-primary hover:underline"
+          >
+            Privacy
+          </Link>
+        </nav>
         <div className="flex items-center gap-1">
           <Button
             asChild

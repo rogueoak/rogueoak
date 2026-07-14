@@ -13,7 +13,7 @@ export const site = {
   // One shared description: the <meta>, Open Graph, and manifest all read this
   // so the link preview, search snippet, and install prompt never drift.
   description:
-    "Rogue Oak builds developer tools that stand on their own. Spectra for spec-driven development, Trellis for shared agent conventions, and Canopy, a tree-themed design system.",
+    "Rogue Oak builds software that stands on its own. Spectra for spec-driven development, Trellis for shared agent conventions, and Canopy, a tree-themed design system.",
   // Alt text for the generated share card (opengraph-image).
   ogImageAlt: "Rogue Oak - Tools built to stand on their own.",
   // Read at build time for static metadata (metadataBase). Use `||` (not `??`)

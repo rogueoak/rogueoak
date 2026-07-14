@@ -9,5 +9,8 @@ a Caddy edge proxy, with PostHog analytics. The repo is public, so no secrets ar
 real values live in GitHub Actions secrets and on the host.
 
 Roadmap (all shipped): **0001 site** -> **0002 PR CI** -> **0003 container** -> **0004 release
-pipeline** -> **0005 DigitalOcean deploy**. The site builds, tests, containerizes, publishes to
-GHCR, and deploys to the droplet automatically on every push to `main`.
+pipeline** -> **0005 DigitalOcean deploy** -> **0006 zero-downtime deploy** -> **0007 privacy
+policy** -> **0008 subscribe**. The site builds, tests, containerizes, publishes to GHCR, and
+deploys to the droplet automatically on every push to `main`. As of 0008 it also has a mailing list
+(the "Rogue Oak" Constant Contact list) and its first server-side secret, injected on the host via a
+git-ignored `.env.site`.

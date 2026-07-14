@@ -11,7 +11,7 @@
  * Canopy from here, not from "@rogueoak/canopy/*" directly.
  */
 
-export { Badge, Button } from "@rogueoak/canopy/seeds";
+export { Badge, Button, Input } from "@rogueoak/canopy/seeds";
 export {
   Card,
   CardContent,
@@ -19,4 +19,7 @@ export {
   CardFooter,
   CardHeader,
   CardTitle,
+  FormField,
+  FormFieldControl,
+  FormFieldLabel,
 } from "@rogueoak/canopy/twigs";
