@@ -11,8 +11,9 @@ forward to the image built for that commit (`ghcr.io/rogueoak/rogueoak:sha-<comm
 
 - `compose.site.yml` - the **rogueoak** stack (project / service / container all named `rogueoak`,
   distinct from the cohosted `site` stack). Runs the prebuilt GHCR image, publishes no host port
-  (Caddy reaches it as `rogueoak:3000` on the shared `edge` network), `NODE_ENV=production`. No
-  secrets.
+  (Caddy reaches it as `rogueoak:3000` on the shared `edge` network), `NODE_ENV=production`. Reads
+  the subscribe secrets from a host-side `.env.site` (optional, `required: false` - the stack starts
+  without it and the subscribe route just fails closed). See "Subscribe secrets" below.
 
 The Caddy edge proxy and its Caddyfile live in the `matthewmaynes` repo, which is the single owner
 of the TLS terminator for every domain on this host. This repo no longer ships a `compose.proxy.yml`
@@ -39,6 +40,29 @@ The deploy job is self-bootstrapping, so a fresh droplet needs only:
 
 The deploy job itself clones the repo to `~deploy/rogueoak` on first run, ensures the shared `edge`
 network exists, and deploys the site - it no longer manages the proxy (the `matthewmaynes` repo does).
+
+## Subscribe secrets (`deploy/docker/.env.site`)
+
+The subscribe endpoint (spec 0008) writes to the "Rogue Oak" Constant Contact list. Its
+credentials are **server-only** and are read at runtime from a host-side `deploy/docker/.env.site`
+- created **once** on the droplet, git-ignored (the `.env*` rule) and untracked, so it survives
+deploys and never lands in git or the image. This mirrors the cohosted matthewmaynes stack's
+`.env.site`. Create it once, next to `compose.site.yml`, and lock it down:
+
+```bash
+# on the droplet, as the deploy user, in ~deploy/rogueoak/deploy/docker
+cat > .env.site <<'EOF'
+CTCT_CLIENT_ID=<constant-contact-app-client-id>
+CTCT_REFRESH_TOKEN=<long-lived-refresh-token>
+CTCT_LIST_ID=630fc3a0-7eda-11f1-9567-02420a320002
+EOF
+chmod 600 .env.site
+```
+
+`CTCT_LIST_ID` above is the "Rogue Oak" list. Mint the refresh token with the
+[`ctct`](https://github.com/mattmaynes/ctct-cli) CLI (`ctct login`, then read the stored token).
+Without this file the site still runs; the subscribe route just returns a generic 500 until it
+exists. A `docker rollout` / `compose up` picks up edits on the next deploy (restart).
 
 ## GitHub Actions secrets
 

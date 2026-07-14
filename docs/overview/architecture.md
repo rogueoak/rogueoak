@@ -21,6 +21,17 @@ matthewmaynes.com, the reference Canopy consumer.
 - **Analytics**: `src/lib/analytics-env.ts` is the pure, unit-tested capture gate;
   `posthog-browser.ts` plus the provider/pageview components wire the client SDK; `next.config.ts`
   sets up the same-origin `/ingest` reverse proxy to PostHog US Cloud.
+- **Subscribe (spec 0008)**: the site's first server-side behavior and first server secret. The pure,
+  import-free (node-testable leaf) cores `src/lib/subscribe.ts` (validate, `sign_up_form` shaping,
+  OAuth refresh + token cache with 401 self-heal) and `src/lib/http-guards.ts` (honeypot,
+  same-origin, in-memory rate limiter) carry all the logic; `app/v1/subscribe/route.ts` is a thin
+  HTTP shell that reads `CTCT_CLIENT_ID` / `CTCT_REFRESH_TOKEN` / `CTCT_LIST_ID` from server env and
+  maps outcomes to status codes. Credentials never cross the client boundary; unset env fails closed.
+  An `@rogueoak.com` email short-circuits to a simulated success (no Constant Contact call) so the
+  UX is exercisable without throwaway contacts. The form (`subscribe-form.tsx`) is a `"use client"`
+  island using Canopy `Input` / `FormField` (re-exported through `ui.ts`). Mirrors matthewmaynes spec
+  0018, trimmed to one list / opt-in only (no CRM record). The welcome email lives in `emails/` as a
+  standalone HTML file (created in Constant Contact via the `ctct` CLI, not read at runtime).
 - **Reveal**: a pure-CSS fade-up on load (`.reveal` + a keyframe, `both` fill). JS/observer/scroll
   approaches were tried and dropped - see learnings.
 - **Assets**: brand SVGs (org + product logos, matthewmaynes.com favicon) live in `public/`; the
@@ -46,6 +57,10 @@ matthewmaynes.com, the reference Canopy consumer.
   stack (`deploy/docker/compose.site.yml`, project / service `rogueoak`, no host port).
   The deploy is self-bootstrapping (clones the repo, ensures the `edge` network exists) and
   label-scoped prunes; it no longer brings up Caddy. Serves `https://rogueoak.com` (`www` -> apex).
+  Since spec 0008 the site stack reads the subscribe secrets from a host-side, git-ignored
+  `deploy/docker/.env.site` (`env_file`, `required: false`), created once on the droplet and never
+  tracked or baked into the image - mirroring the cohosted matthewmaynes stack. Missing file =>
+  subscribe fails closed, the rest of the site is unaffected.
 - **Zero-downtime deploy (spec 0006, symmetric with matthewmaynes spec 0019):** instead of
   `compose up -d` recreating the one fixed-name container in place (a hard-down window), the deploy
   uses [`docker-rollout`](https://github.com/Wowu/docker-rollout) (pinned, checksum-verified) to scale

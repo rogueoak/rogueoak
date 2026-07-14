@@ -19,6 +19,13 @@
   with `node --test`. Keep correctness-critical modules typed. **How to apply:** author new `lib`
   modules as `.ts`; a `.mjs` test can import a `.ts` module directly.
 
+- **A git worktree needs its own real `node_modules` - do not symlink the primary checkout's.**
+  Turbopack (`next build`) rejects a `node_modules` symlink pointing outside the project root
+  ("Symlink [project]/node_modules is invalid, it points out of the filesystem root") and panics;
+  `node --test` and `eslint` follow the symlink fine, so the break only shows at build. **How to
+  apply:** when building in `.worktrees/<slug>`, run `npm ci` inside the worktree (node_modules is
+  git-ignored, so a fresh worktree has none) rather than symlinking back to the main checkout.
+
 - **Keep a node-testable module import-free.** A module a `node --test` file imports directly must
   not use path aliases (`@/...`) or extensionless relative imports, which raw Node cannot resolve.
   Point dependents at it instead (e.g. `site.ts` reads from the import-free `content.ts`, not the

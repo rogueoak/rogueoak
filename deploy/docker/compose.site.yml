@@ -32,9 +32,18 @@ services:
       - "3000"
     environment:
       # SITE_URL is baked into the image at build time (see Dockerfile / spec 0003),
-      # so it is deliberately not set here. There are no server-side secrets in v1,
-      # so there is no env_file.
+      # so it is deliberately not set here.
       NODE_ENV: production
+    env_file:
+      # Subscribe secrets (spec 0008): CTCT_CLIENT_ID, CTCT_REFRESH_TOKEN,
+      # CTCT_LIST_ID (the "Rogue Oak" list). Created ONCE on the host at
+      # deploy/docker/.env.site (git-ignored via the .env* rule, chmod 600) and
+      # untracked, so it survives deploys and never lands in the image or git.
+      # Mirrors the cohosted matthewmaynes stack's .env.site. See deploy/README.md.
+      # `required: false` so a host without the file (or a local `compose up`) still
+      # starts - the subscribe route just fails closed until the secrets exist.
+      - path: .env.site
+        required: false
     networks:
       - edge
 
