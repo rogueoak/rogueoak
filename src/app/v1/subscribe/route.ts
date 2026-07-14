@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import {
+  clientIpFromForwardedFor,
   createRateLimiter,
+  isBodyWithinLimit,
   isHoneypotFilled,
   isSameOrigin,
 } from "@/lib/http-guards";
@@ -35,16 +37,6 @@ const tokenCache = createTokenCache();
 // headroom yet bounds the parse.
 const MAX_BODY_BYTES = 8 * 1024;
 
-function clientIp(req: Request): string {
-  // The Caddy reverse proxy APPENDS the real client IP as the LAST X-Forwarded-For
-  // entry, so any client-supplied (spoofable) values sit earlier - take the last
-  // entry, not the first, or a bot could rotate a forged prefix past the limiter.
-  const fwd = req.headers.get("x-forwarded-for");
-  if (!fwd) return "unknown";
-  const parts = fwd.split(",");
-  return parts[parts.length - 1]?.trim() || "unknown";
-}
-
 export async function POST(req: Request): Promise<Response> {
   // 1. Same-origin: this endpoint is public, so reject cross-origin drive-bys.
   if (
@@ -57,19 +49,27 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ ok: false, error: "Forbidden." }, { status: 403 });
   }
 
-  // 2. Bound the body before buffering it (cheap DoS guard).
-  const declaredLength = Number(req.headers.get("content-length") ?? "0");
-  if (declaredLength > MAX_BODY_BYTES) {
+  // 2. Read the body as text and bound it on ACTUAL bytes, not the client-declared
+  //    Content-Length (which can be absent or spoofed, e.g. a chunked transfer).
+  //    `req.text()` is still backstopped by the platform's own body limit; this cap
+  //    is the app-level guard. Over the cap => 413 before we parse.
+  let raw: string;
+  try {
+    raw = await req.text();
+  } catch {
+    return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
+  }
+  if (!isBodyWithinLimit(Buffer.byteLength(raw, "utf8"), MAX_BODY_BYTES)) {
     return NextResponse.json(
       { ok: false, error: "Request too large." },
       { status: 413 },
     );
   }
 
-  // 3. Parse the JSON body (malformed => 400).
+  // 3. Parse the JSON body (malformed / empty => 400).
   let body: unknown;
   try {
-    body = await req.json();
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
   }
@@ -104,7 +104,7 @@ export async function POST(req: Request): Promise<Response> {
 
   // 6. Rate limit, keyed on the real client IP. Counts every valid, same-origin
   //    attempt that reaches here (honeypot/invalid requests returned earlier).
-  if (!limiter.check(clientIp(req))) {
+  if (!limiter.check(clientIpFromForwardedFor(req.headers.get("x-forwarded-for")))) {
     return NextResponse.json(
       { ok: false, error: "Too many requests - please try again shortly." },
       { status: 429 },

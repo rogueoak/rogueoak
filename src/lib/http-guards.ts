@@ -41,6 +41,30 @@ export function isSameOrigin(
   }
 }
 
+/**
+ * Extract the real client IP from an `X-Forwarded-For` header. Our Caddy reverse
+ * proxy APPENDS the real client IP as the LAST entry, so any client-supplied
+ * (spoofable) values sit earlier - take the LAST entry, not the first, or a bot
+ * could rotate a forged prefix past the rate limiter. Returns `"unknown"` when the
+ * header is absent or empty, so the limiter still keys deterministically. Pure, so
+ * the anti-spoof choice is unit-tested rather than living only in the route.
+ */
+export function clientIpFromForwardedFor(xff: string | null): string {
+  if (!xff) return "unknown";
+  const parts = xff.split(",");
+  return parts[parts.length - 1]?.trim() || "unknown";
+}
+
+/**
+ * True when a request body is within the byte cap. Enforced on the ACTUAL byte
+ * length (not just the client-declared `Content-Length`, which can be absent or
+ * spoofed), so a body with no length header or a chunked transfer is still bounded
+ * once read. `byteLength` is the real UTF-8 byte count of the buffered body.
+ */
+export function isBodyWithinLimit(byteLength: number, max: number): boolean {
+  return byteLength <= max;
+}
+
 /** A per-key rate limiter: `check` returns true if allowed, false if over. */
 export type RateLimiter = { check(key: string, now?: number): boolean };
 

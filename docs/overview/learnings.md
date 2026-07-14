@@ -32,6 +32,14 @@
   reverse). **How to apply:** if `node --test` fails with ERR_MODULE_NOT_FOUND, invert the import
   direction so the tested module stays a leaf.
 
+- **Do not leave security-relevant logic inline in a Next route handler - it is not node-testable.**
+  A route handler imports `next/server` and uses `@/` aliases, so `node --test` cannot load it; any
+  logic inside it (IP keying, body caps, guard ordering, status mapping) is untestable at the unit
+  level and drifts unnoticed (feedback 0001, spec 0008). **How to apply:** extract the
+  regression-prone, pure decisions into an import-free `lib` leaf and unit-test them there; keep the
+  handler a thin orchestrator and cover its wiring with a production-build smoke test. Bound a
+  request body on ACTUAL bytes read, not the client-declared `Content-Length` (absent/spoofable).
+
 ## Zero-downtime deploy on a cohosted box (spec 0006)
 
 - **A blue/green rollout briefly doubles the container's memory, and on a SHARED host that peak
