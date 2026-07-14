@@ -26,10 +26,20 @@ The `docs/overview/` living docs are the project's memory - read them first, the
 ## 1. Route the change
 
 - **Trivial** (a line, a typo, an obvious fix) → implement directly. Skip to step 6.
-- **Net-new feature** → write a spec (§2), get developer approval before building.
+- **Feature** → decide **net-new vs. change to an existing spec** *before* writing one. Search
+  `docs/specs/` first. A spec already owns this behavior? It's a **modification** - update that
+  spec in place (§2), don't add a second spec that contradicts the first. No spec owns it? It's
+  **net-new** - write a spec (§2). Either way, get developer approval before building.
 - **Bug or feedback** → write a feedback doc (§3) so it becomes a learning.
 
 ## 2. Spec (features)
+
+**A spec is the living source of truth for its feature.** It is the backbone of AI-driven
+development - agents read it to know what the feature *is*, so a stale spec misleads every later
+change. Keep it accurate as the system evolves: when behavior changes (a new requirement, a
+dropped scope item, a different approach), update the owning spec **in the same PR** so the spec
+and the shipped software never disagree. Revising a spec is normal, not exceptional; it is done
+being written only when the feature is retired.
 
 **One spec is one independently shippable feature, and maps to one PR.** A spec is the
 smallest change that ships on its own and leaves the system whole - working software, working
@@ -37,7 +47,7 @@ docs. Two features that can ship apart belong in two specs, not one batched spec
 a group needs - a recipe, infra, new deps - lives in the *first* spec of the group; the rest
 reference it and stay small. Small specs review cleanly and map 1:1 to a PR.
 
-Write `docs/specs/NNNN-<slug>.md`:
+Write or revise `docs/specs/NNNN-<slug>.md`:
 - **Problem** - what/why, who it's for.
 - **Outcome** - observable behavior when done.
 - **Scope** - in / out.

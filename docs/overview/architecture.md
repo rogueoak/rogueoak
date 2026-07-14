@@ -49,27 +49,27 @@ matthewmaynes.com, the reference Canopy consumer.
   `ghcr.io/rogueoak/rogueoak` tagged `latest` + `sha-<full-sha>`. `packages: write` is scoped to the
   build job only; `no-cache` avoids stale-layer bugs. `cleanup-images.yml` prunes GHCR to the 30 most
   recent tagged images on a daily schedule.
-- **Deploy**: on push to `main`, the `deploy` job in `release.yml` (needs: build) SSHes into a
-  DigitalOcean droplet as `deploy` and rolls the site to the `sha-<commit>` image. This site is
+- **Deploy (spec 0005, zero-downtime; symmetric with matthewmaynes spec 0019):** on push to `main`,
+  the `deploy` job in `release.yml` (needs: build) SSHes into a DigitalOcean droplet as `deploy` and
+  rolls the site to the `sha-<commit>` image with **no user-visible downtime**. This site is
   **cohosted with matthewmaynes.com**: that repo owns the shared **Caddy** edge proxy (terminates
   TLS, auto Let's Encrypt, the only stack publishing 80/443) and routes `rogueoak.com` ->
   `rogueoak:3000` over the shared external `edge` network. This repo ships only the **rogueoak** site
-  stack (`deploy/docker/compose.site.yml`, project / service `rogueoak`, no host port).
-  The deploy is self-bootstrapping (clones the repo, ensures the `edge` network exists) and
-  label-scoped prunes; it no longer brings up Caddy. Serves `https://rogueoak.com` (`www` -> apex).
-  Since spec 0008 the site stack reads the subscribe secrets from a host-side, git-ignored
-  `deploy/docker/.env.site` (`env_file`, `required: false`), created once on the droplet and never
-  tracked or baked into the image - mirroring the cohosted matthewmaynes stack. Missing file =>
-  subscribe fails closed, the rest of the site is unaffected.
-- **Zero-downtime deploy (spec 0006, symmetric with matthewmaynes spec 0019):** instead of
-  `compose up -d` recreating the one fixed-name container in place (a hard-down window), the deploy
-  uses [`docker-rollout`](https://github.com/Wowu/docker-rollout) (pinned, checksum-verified) to scale
-  `rogueoak` to two Compose-indexed instances, wait for the new HEALTHCHECK, then remove the old.
-  `container_name` is dropped so the two can coexist; the matthewmaynes Caddy proxy resolves the
-  `rogueoak` alias via **dynamic-A upstreams** (re-resolving Docker DNS), so it follows the swap. A
-  post-rollout health gate curls rogueoak.com through Caddy over loopback and fails the deploy on a
-  non-200; a `timeout-minutes` bounds a wedged host. A broken image never goes healthy, so the old
-  instance keeps serving and the deploy fails. The pipeline is kept **symmetric with matthewmaynes'**,
-  differing only where it must (this repo never manages the shared Caddy, has no image prewarm job,
-  and uses rogueoak names). A per-service `mem_limit` keeps a rollout's transient 2x footprint from
-  OOM-ing the shared VM and taking down the cohosted site (matthewmaynes feedback 0015).
+  stack (`deploy/docker/compose.site.yml`, service `rogueoak`, no host port); it never manages Caddy.
+  Instead of `compose up -d` recreating one fixed-name container in place (a hard-down window), the
+  deploy uses [`docker-rollout`](https://github.com/Wowu/docker-rollout) (pinned, checksum-verified)
+  to scale `rogueoak` to two Compose-indexed instances, wait for the new HEALTHCHECK, then remove the
+  old. `container_name` is dropped so the two can coexist (the `rogueoak` alias is kept); the
+  matthewmaynes Caddy proxy resolves the `rogueoak` alias via **dynamic-A upstreams** (re-resolving
+  Docker DNS), so it follows the swap. A post-rollout health gate curls rogueoak.com through Caddy
+  over loopback and fails the deploy on a non-200; a `timeout-minutes` bounds a wedged host. A broken
+  image never goes healthy, so the old instance keeps serving and the deploy fails. The deploy is
+  self-bootstrapping (clones the repo, ensures the `edge` network exists), pre-pulls, and label-scoped
+  prunes. The pipeline is kept **symmetric with matthewmaynes'**, differing only where it must (this
+  repo never manages the shared Caddy, has no image prewarm job, and uses rogueoak names). A
+  per-service `mem_limit` keeps a rollout's transient 2x footprint from OOM-ing the shared VM and
+  taking down the cohosted site (matthewmaynes feedback 0015). Serves `https://rogueoak.com`
+  (`www` -> apex). Since spec 0008 the site stack reads the subscribe secrets from a host-side,
+  git-ignored `deploy/docker/.env.site` (`env_file`, `required: false`), created once on the droplet
+  and never tracked or baked into the image - mirroring the cohosted matthewmaynes stack. Missing
+  file => subscribe fails closed, the rest of the site is unaffected.
