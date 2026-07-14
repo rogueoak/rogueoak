@@ -1,5 +1,16 @@
 # Learnings
 
+- **Text inputs must be font-size >= 16px on mobile, or iOS Safari auto-zooms on focus.** Canopy's
+  `Input` defaults to `text-sm` (14px), which tripped a jarring page zoom when the subscribe fields
+  were tapped on iOS (feedback 0002). **How to apply:** pin interactive inputs to `text-base` (16px)
+  at the app layer when the design-system default is smaller; exactly 16px is enough (no zoom).
+  Recorded as a Trellis web-app convention too, so future web apps inherit it.
+
+- **Public-facing copy on a business site is written in the third person, not the first person.**
+  rogueoak.com is Rogue Oak's site, not a personal one, so its privacy policy speaks about "Rogue
+  Oak" (and "you"), never "I/my". **How to apply:** keep site copy in the brand's third-person voice;
+  reserve first person for genuinely personal sites.
+
 - **Verify JS/interactive behavior against a production build, not the dev server over LAN.**
   Next.js dev-mode client runtime does not reliably hydrate when the page is opened from a different
   host than the dev server, so scroll/observer JavaScript silently never ran on a phone hitting the
