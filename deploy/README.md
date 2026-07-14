@@ -72,9 +72,11 @@ subscribes. On a quiet site it can sit idle past that window and expire, 500ing 
 warning (this is what took down the cohosted matthewmaynes.com subscribe on 2026-07-14). A daily
 host cron prevents it by exercising the token out-of-band and emailing on failure.
 
-The script is tracked at `deploy/docker/refresh-ctct-token.sh`. It emails via Resend on failure,
-but rogueoak's `.env.site` normally carries only the CTCT keys - so add the shared owner's Resend
-alert credentials to it (used by the cron only; the app ignores them):
+The refresh logic lives in the `ctct` CLI (`@mattmaynes/ctct-cli`, `ctct refresh-token`), run as
+a container - the box has no Node runtime, and this is one tested implementation shared with the
+cohosted matthewmaynes site. `refresh-token` emails nothing itself; a small host wrapper does the
+Resend alert. rogueoak's `.env.site` normally carries only the CTCT keys, so add the shared
+owner's Resend alert credentials to it (used by the cron wrapper only; the app ignores them):
 
 ```bash
 # on the droplet, as deploy, appended to ~deploy/rogueoak/deploy/docker/.env.site
@@ -83,20 +85,22 @@ CONTACT_TO_EMAIL=<owner inbox for alerts>
 CONTACT_FROM_EMAIL=<a Resend-verified sender>
 ```
 
-Install the keepalive once on the host (outside the git checkout, so a deploy `git reset --hard`
-never disturbs it) and schedule it daily:
+The wrapper `~/ctct-refresh/ctct-keepalive.sh <env-file> <label>` (installed once on the host,
+shared with matthewmaynes) runs
+`docker run --rm --env-file <env-file> ghcr.io/mattmaynes/ctct-cli refresh-token`, logs to
+`~/ctct-refresh/keepalive.log`, and alerts via Resend on failure. Pull the image and schedule the
+daily cron (offset from the matthewmaynes keepalive):
 
 ```bash
-mkdir -p ~/ctct-refresh && install -m 700 ~/rogueoak/deploy/docker/refresh-ctct-token.sh \
-  ~/ctct-refresh/refresh-ctct-rogueoak.sh
+docker pull ghcr.io/mattmaynes/ctct-cli:latest
 ( crontab -l 2>/dev/null; \
-  echo '41 8 * * * /home/deploy/ctct-refresh/refresh-ctct-rogueoak.sh >> /home/deploy/ctct-refresh/cron.err 2>&1' \
+  echo '41 8 * * * /home/deploy/ctct-refresh/ctct-keepalive.sh /home/deploy/rogueoak/deploy/docker/.env.site rogueoak.com >> /home/deploy/ctct-refresh/cron.err 2>&1' \
 ) | crontab -
 ```
 
-Re-copy the script to `~/ctct-refresh/` whenever the tracked source changes. Health check: run
-`~/ctct-refresh/refresh-ctct-rogueoak.sh` by hand and expect `OK token refreshed` in
-`~/ctct-refresh/rogueoak-refresh.log`.
+After a new CLI release, `docker pull ghcr.io/mattmaynes/ctct-cli:latest` to update. Health check:
+run `~/ctct-refresh/ctct-keepalive.sh ~/rogueoak/deploy/docker/.env.site rogueoak.com` by hand and
+expect `OK token refreshed` in `~/ctct-refresh/keepalive.log`.
 
 ### Re-auth when a token is truly dead (device flow)
 

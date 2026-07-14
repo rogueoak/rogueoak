@@ -37,19 +37,22 @@ Observable when done:
 
 ## Approach
 
-- `deploy/docker/refresh-ctct-token.sh` (tracked): reads `.env.site`, POSTs
-  `grant_type=refresh_token` to the CTCT token endpoint, logs `OK`/`FAIL`, and on failure
-  sends a Resend alert. Runtime copy lives at `~/ctct-refresh/refresh-ctct-rogueoak.sh` on the
-  host - outside the git checkout so a deploy `git reset --hard` never disturbs it; re-copy
-  from the tracked source when it changes.
-- Host crontab (deploy user): a daily run -> the script, appending stderr to
-  `~/ctct-refresh/cron.err`. Offset from the matthewmaynes keepalive so the two do not fire in
-  the same minute.
+The token-refresh logic lives in the versioned, unit-tested **`ctct` CLI**
+(`@mattmaynes/ctct-cli`, `ctct refresh-token`), run as a container on the box (which has no
+Node runtime) - one tested implementation shared with the cohosted matthewmaynes site, not
+duplicated `curl`.
+
+- A host wrapper `~/ctct-refresh/ctct-keepalive.sh <env-file> <label>` runs
+  `docker run --rm --env-file <env-file> ghcr.io/mattmaynes/ctct-cli refresh-token`, logs
+  `OK`/`FAIL` (never the minted token), and on failure emails a Resend alert. It lives on the
+  host, outside the git checkout, so a deploy `git reset --hard` never disturbs it.
+- Host crontab (deploy user): a daily run -> the wrapper for rogueoak's `.env.site`, offset
+  from the matthewmaynes keepalive so the two do not fire in the same minute.
 - rogueoak has **no Resend credentials of its own** (subscribe only, no contact form), so the
   three alert keys (`RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`) are added to
   the host `.env.site` for the cron; the app does not use them. Documented in `deploy/README.md`.
-- One-time re-auth (when a token is truly dead) uses the CTCT **device flow** (public client,
-  no redirect URI); steps live in `deploy/README.md`.
+- One-time re-auth (when a token is truly dead) uses the CTCT **device flow** (`ctct login`, or
+  the raw device grant); steps live in `deploy/README.md`.
 
 ## Notes
 
