@@ -51,7 +51,7 @@
   handler a thin orchestrator and cover its wiring with a production-build smoke test. Bound a
   request body on ACTUAL bytes read, not the client-declared `Content-Length` (absent/spoofable).
 
-## Zero-downtime deploy on a cohosted box (spec 0006)
+## Zero-downtime deploy on a cohosted box (spec 0005)
 
 - **A blue/green rollout briefly doubles the container's memory, and on a SHARED host that peak
   must fit alongside the cohosted site's own peak.** rogueoak and matthewmaynes run on one small VM

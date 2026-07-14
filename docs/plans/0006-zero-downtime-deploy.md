@@ -1,7 +1,8 @@
 # Plan 0006 - Zero-downtime deploy (blue/green via docker-rollout)
 
-Source spec: `docs/specs/0006-zero-downtime-deploy.md`. Mirrors matthewmaynes spec 0019 +
-feedback 0015. No app code changes - deploy pipeline, compose, docs only.
+Source spec: `docs/specs/0005-deploy.md` (this zero-downtime work was originally spec 0006 and
+has since been folded into the deploy spec as its single source of truth). Mirrors matthewmaynes
+spec 0019 + feedback 0015. No app code changes - deploy pipeline, compose, docs only.
 
 Pinned tool: `docker-rollout` v0.13, commit `39b8066d56cc1edc76d1ae898db46623cc93bc24`,
 sha256 `fa0df004de84747142cb627c55210aaa914bbae76666e7b95a2ac46805d81a84`.
