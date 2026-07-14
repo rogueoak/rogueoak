@@ -168,6 +168,10 @@ export function SubscribeForm({
                   required
                   maxLength={200}
                   onFocus={() => setExpanded(true)}
+                  // text-base (16px): iOS Safari auto-zooms the page when a focused
+                  // input's font-size is below 16px, and Canopy's Input defaults to
+                  // text-sm (14px). Pin to 16px so focusing the field never zooms.
+                  className="text-base"
                 />
               </FormFieldControl>
             </FormField>
@@ -197,6 +201,8 @@ export function SubscribeForm({
                   maxLength={100}
                   aria-hidden={expanded ? undefined : true}
                   tabIndex={expanded ? undefined : -1}
+                  // 16px, same iOS anti-zoom reason as the email field above.
+                  className="text-base"
                 />
               </FormFieldControl>
             </FormField>
