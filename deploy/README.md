@@ -64,6 +64,53 @@ chmod 600 .env.site
 Without this file the site still runs; the subscribe route just returns a generic 500 until it
 exists. A `docker rollout` / `compose up` picks up edits on the next deploy (restart).
 
+### Token keepalive (spec 0009)
+
+The refresh token above is **long-lived**, but a long-lived CTCT token still **expires after
+~180 days of inactivity** - and the subscribe route only exercises it when someone actually
+subscribes. On a quiet site it can sit idle past that window and expire, 500ing the form with no
+warning (this is what took down the cohosted matthewmaynes.com subscribe on 2026-07-14). A daily
+host cron prevents it by exercising the token out-of-band and emailing on failure.
+
+The script is tracked at `deploy/docker/refresh-ctct-token.sh`. It emails via Resend on failure,
+but rogueoak's `.env.site` normally carries only the CTCT keys - so add the shared owner's Resend
+alert credentials to it (used by the cron only; the app ignores them):
+
+```bash
+# on the droplet, as deploy, appended to ~deploy/rogueoak/deploy/docker/.env.site
+RESEND_API_KEY=<same key the matthewmaynes contact form uses>
+CONTACT_TO_EMAIL=<owner inbox for alerts>
+CONTACT_FROM_EMAIL=<a Resend-verified sender>
+```
+
+Install the keepalive once on the host (outside the git checkout, so a deploy `git reset --hard`
+never disturbs it) and schedule it daily:
+
+```bash
+mkdir -p ~/ctct-refresh && install -m 700 ~/rogueoak/deploy/docker/refresh-ctct-token.sh \
+  ~/ctct-refresh/refresh-ctct-rogueoak.sh
+( crontab -l 2>/dev/null; \
+  echo '41 8 * * * /home/deploy/ctct-refresh/refresh-ctct-rogueoak.sh >> /home/deploy/ctct-refresh/cron.err 2>&1' \
+) | crontab -
+```
+
+Re-copy the script to `~/ctct-refresh/` whenever the tracked source changes. Health check: run
+`~/ctct-refresh/refresh-ctct-rogueoak.sh` by hand and expect `OK token refreshed` in
+`~/ctct-refresh/rogueoak-refresh.log`.
+
+### Re-auth when a token is truly dead (device flow)
+
+If the token expires (subscribe 500s; the keepalive log shows `invalid_grant`), re-mint it. The
+app is a device-flow public client (no redirect URI, no secret) - easiest via the
+[`ctct`](https://github.com/mattmaynes/ctct-cli) CLI (`ctct login`), or by hand: POST
+`client_id` + `scope=contact_data offline_access` to
+`https://authz.constantcontact.com/oauth2/default/v1/device/authorize`, approve the returned
+`verification_uri_complete` in a browser, then poll
+`https://authz.constantcontact.com/oauth2/default/v1/token` with
+`grant_type=urn:ietf:params:oauth:grant-type:device_code` until it returns a new `refresh_token`.
+Put it in `.env.site` and recreate the container (`compose ... up -d --force-recreate rogueoak`)
+so it re-reads env - a plain restart will not.
+
 ## GitHub Actions secrets
 
 Set under **Settings -> Secrets and variables -> Actions**:

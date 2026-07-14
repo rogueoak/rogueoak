@@ -68,3 +68,23 @@
   clone-if-missing), differing only where it must: this repo never manages the shared Caddy (that repo
   owns the edge proxy) and has no image prewarm job. Symmetric pipelines mean a fix or hardening in one
   (like the OOM guards) ports directly to the other.
+
+## Constant Contact: a "long-lived" refresh token still expires from inactivity (spec 0009)
+
+- **A long-lived CTCT refresh token is not immortal - it expires after ~180 days of NON-USE, and the
+  idle clock resets only when the token is exercised.** The cohosted matthewmaynes.com subscribe went
+  down this way (its token silently expired), and rogueoak runs the identical subscribe code against
+  its own long-lived token, so it had the same latent failure - just not yet triggered. The old
+  `subscribe.ts` comment calling the token "non-rotating ... nothing to persist" was half right (they
+  do not rotate) but hid this failure mode.
+- **A lazy token mint on a low-traffic endpoint is a latent time bomb.** The route mints an access
+  token only on a real subscribe, then caches it ~24h - so on a quiet site the refresh token can go
+  unused for months. Deploys do not exercise it (the cache is lazy). Any credential kept alive only as
+  a side effect of user traffic will eventually die in a lull; exercise it on a fixed schedule (cron),
+  independent of traffic - `deploy/docker/refresh-ctct-token.sh`, daily, with a Resend email alert on
+  failure. This is the same fix shipped on matthewmaynes; keeping the two cohosted sites symmetric
+  (see the deploy note above) means the mitigation ports directly.
+- **rogueoak has no Resend credentials of its own** (subscribe only, no contact form), so the
+  keepalive's alert reuses the shared owner's Resend key, added to rogueoak's host `.env.site` purely
+  for the cron. Re-auth when a token is truly dead is a device-flow browser approval (public client,
+  no redirect URI); steps are in `deploy/README.md`.
