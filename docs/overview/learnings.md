@@ -1,10 +1,13 @@
 # Learnings
 
-- **Text inputs must be font-size >= 16px on mobile, or iOS Safari auto-zooms on focus.** Canopy's
-  `Input` defaults to `text-sm` (14px), which tripped a jarring page zoom when the subscribe fields
-  were tapped on iOS (feedback 0002). **How to apply:** pin interactive inputs to `text-base` (16px)
-  at the app layer when the design-system default is smaller; exactly 16px is enough (no zoom).
-  Recorded as a Trellis web-app convention too, so future web apps inherit it.
+- **A design-system-wide bug belongs in the design system, not an app-level override.** Subscribe
+  inputs auto-zoomed on iOS because Canopy's `Input` defaulted to `text-sm` (14px, under iOS's 16px
+  zoom threshold) (feedback 0002). The first fix pinned `text-base` on the app's inputs - a stopgap
+  that every other consumer would have had to repeat. The real fix moved into Canopy (`text-base
+  md:text-sm` on `Input`/`Textarea`/`Select`, shipped in @rogueoak/canopy 0.10.1), and this app now
+  just consumes the default with no override. **How to apply:** when a symptom traces to a shared
+  component's default, fix it upstream and delete the local patch, rather than overriding in each
+  consumer. Keep an app-level override only for genuinely app-specific needs.
 
 - **Public-facing copy on a business site is written in the third person, not the first person.**
   rogueoak.com is Rogue Oak's site, not a personal one, so its privacy policy speaks about "Rogue
