@@ -27,3 +27,11 @@ Read `docs/spectra/protocol.md` and follow it for every change:
 - **Before concluding, reflect**: update the relevant `docs/overview/` living docs
   (`project`, `features`, `architecture`, `learnings`).
 <!-- spectra:end -->
+
+## Email (Constant Contact)
+
+When creating a Rogue Oak email with the `ctct` CLI, always set the footer organization name to
+**"Rogue Oak"** on the campaign activity (`physical_address_in_footer.organization_name`) before
+sending. The Constant Contact account is shared across brands and its account-wide org name is
+"Matthew Maynes", so the CAN-SPAM footer defaults to that unless you override it per-email. It is
+easy to forget. See `emails/README.md` for the full publishing steps.

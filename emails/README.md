@@ -33,6 +33,24 @@ ctct email create \
   --html-file emails/templates/welcome.html
 ```
 
+**Set the footer organization name.** The account is shared across brands and its account-wide org
+name is "Matthew Maynes", so the CAN-SPAM footer Constant Contact injects defaults to that. Override
+it **per-email** to "Rogue Oak" on the campaign activity (never account-wide, which would relabel the
+other brands' mail). A real mailing address is legally required, so include one:
+
+```bash
+ctct email update-activity <activityId> --data '{
+  "physical_address_in_footer": {
+    "organization_name": "Rogue Oak",
+    "address_line1": "...", "city": "...", "state_code": "ON",
+    "postal_code": "...", "country_code": "ca"
+  }
+}'
+```
+
+(The CLI's read commands do not echo `physical_address_in_footer` back, so confirm it in the
+dashboard.)
+
 `create` prints a `campaign_id`. Preview it in your own inbox before sending:
 
 ```bash
