@@ -1,7 +1,8 @@
 /**
  * Page copy in one reviewable, testable place. The voice follows the rogueoak
  * language rules: address the reader as "you", stay terse, no hype words, and
- * ASCII only (use spaced hyphens " - ", never em / en dashes). Shipped products
+ * ASCII only (never em / en dashes), and avoid " - " as a sentence break - prefer
+ * a colon, period, or comma so the copy reads clean. Shipped products
  * are described in confident present tense as software; anything not yet shipped
  * lives in `comingSoon` and is labeled as the early work it is.
  *
@@ -36,15 +37,15 @@ export const hero = {
 export const notFound = {
   code: "404",
   heading: "Whoops, looks like you are lost!",
-  body: "Even a rogue oak stands somewhere. This page does not - the path you followed leads nowhere. Let's get you back to solid ground.",
+  body: "Even a rogue oak stands somewhere. This page does not. The path you followed leads nowhere, so let's get you back to solid ground.",
   cta: "Let's go home",
 } as const;
 
 /** The oak name story - two short paragraphs, shown as a quote. */
 export const oakStory = {
   paragraphs: [
-    "Oaks are among the strongest trees - majestic, long-lived, and built to stand the test of time. They usually gather in groves and savannahs, but sometimes a lone oak, a rogue oak, stands on its own in an open field, against the grain.",
-    "Some white oaks grow for 300 years, live for 300 more, and take 300 to die. Across all that time the oak gives endless value to its whole ecosystem. Rogue Oak builds software the same way - a relentless focus on value, experience, and quality that lasts.",
+    "Oaks are among the strongest trees: majestic, long-lived, and built to stand the test of time. They usually gather in groves and savannahs, but sometimes a lone oak, a rogue oak, stands on its own in an open field, against the grain.",
+    "Some white oaks grow for 300 years, live for 300 more, and take 300 to die. Across all that time the oak gives endless value to its whole ecosystem. Rogue Oak builds software the same way, with a relentless focus on value, experience, and quality that lasts.",
   ],
 } as const;
 
@@ -53,7 +54,7 @@ export const projects: readonly Project[] = [
     name: "Spectra",
     logo: "/spectra-logo.svg",
     pitch:
-      "Spec-driven development with learning feedback loops - installable into any repo in three commands.",
+      "Spec-driven development with learning feedback loops. Installable into any repo in three commands.",
     benefits: [
       "An 8-step protocol loop: Route, Spec, Plan, Build, Test, Review, Merge, Reflect.",
       "Scoped review personas and a feedback-to-learnings loop, so the system gets better at your codebase over time.",
@@ -79,7 +80,7 @@ export const projects: readonly Project[] = [
     name: "Canopy",
     logo: "/canopy-logo.svg",
     pitch:
-      "An earthy, tree-themed design system for rogueoak - built on Radix, shadcn, Tailwind v4, and TypeScript.",
+      "An earthy, tree-themed design system for rogueoak, built on Radix, shadcn, Tailwind v4, and TypeScript.",
     benefits: [
       "A tree-anatomy model: Roots are tokens, then Seeds, Twigs, Branches, and Boughs.",
       "Semantic tokens as the source of truth, with light and dark theming for free at WCAG AA.",
@@ -112,11 +113,11 @@ export const comingSoon = {
       logo: "/thought-stream-logo.svg",
       status: "In early development",
       pitch:
-        "Hands-free, on-device dictation for capturing your thinking out loud - on iPhone and in CarPlay.",
+        "Hands-free, on-device dictation for capturing your thinking out loud on iPhone and in CarPlay.",
       benefits: [
         "Tap once, ask Siri, or press Start in CarPlay, then just talk. Pause to think; the stream waits for you.",
         "Edit entirely by voice with a control word, so you never have to touch the screen.",
-        "Speech-to-text runs on the device - your words never leave your phone, and your thoughts stay yours as plain Markdown.",
+        "Speech-to-text runs on the device, so your words never leave your phone, and your thoughts stay yours as plain Markdown.",
       ],
       href: "https://github.com/rogueoak/thought-stream",
       hrefLabel: "View Thought Stream",
