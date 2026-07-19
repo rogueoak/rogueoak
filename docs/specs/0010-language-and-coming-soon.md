@@ -39,10 +39,12 @@ Out:
 ## Approach
 
 Copy lives in one import-free module (`content.ts`) that `site.ts` and the tests both read, so the
-tagline can only be stated once. The Coming Soon section mirrors the Projects component but renders
-a square app icon (rounded like an app tile) and an "In early development" badge, so it reads as
-not-yet-shipped rather than a fourth shipped product. Thought Stream's only brand asset is its
-1024x1024 app icon; it is copied verbatim into `public/` rather than commissioning a wordmark.
+tagline can only be stated once. The Coming Soon section mirrors a Projects block - wordmark, pitch,
+benefits - with an "In early development" badge under the wordmark as the only tell that it has not
+shipped. Thought Stream gets a new wordmark (`public/thought-stream-logo.svg`) drawn in the shared
+logo language (520x150 canvas, 84x84 dark tile, monoline mark), carrying the soundwave-and-gold-spark
+motif from its app icon so it sits in the same family as Spectra, Trellis, and Canopy. The app icon
+PNG (`public/thought-stream-icon.png`) is still shipped for the announcement email.
 
 Tagline chosen: "Software built to last." - keeps the oak's longevity, drops "tools," and lets the
 value/experience/quality message carry in the copy below.

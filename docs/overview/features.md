@@ -7,7 +7,8 @@
   - A single-column showcase of Spectra, Trellis, and Canopy - each a large product wordmark, its
     pitch, benefits, and a repo link.
   - A "Coming soon" section (spec 0010) previews unshipped work - Thought Stream first, shown as a
-    rounded app-icon tile with an "In early development" badge and a GitHub link.
+    product wordmark (matching Spectra/Trellis/Canopy) with an "In early development" badge and a
+    GitHub link.
   - A "Subscribe for updates" section closes the page (spec 0008), below Coming soon.
   - Footer: Subscribe + Privacy links, GitHub org, matthewmaynes.com (its favicon as the icon), and
     "built with Canopy" linking to the Canopy repo.

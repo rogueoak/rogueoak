@@ -6,10 +6,11 @@ import { comingSoon } from "@/lib/content";
 
 /**
  * Coming Soon: early work that has not shipped yet, sitting between Projects and
- * Subscribe. Unlike Projects (wide product wordmarks), each item leads with its
- * app icon as a rounded tile and carries an "In early development" badge, so it
- * reads as a preview rather than a fourth shipped product. Thought Stream is the
- * first. Each block reveals on its own as it scrolls into view.
+ * Subscribe. Each item mirrors a Projects block - a wide product wordmark, pitch,
+ * and benefits - so it sits in the same visual family; the "In early development"
+ * badge under the wordmark is what marks it as a preview rather than a fourth
+ * shipped product. Thought Stream is the first. Each block reveals on its own as
+ * it scrolls into view.
  */
 export function ComingSoon() {
   return (
@@ -21,24 +22,23 @@ export function ComingSoon() {
         <div className="mt-14 space-y-20">
           {comingSoon.items.map((item, index) => (
             <Reveal key={item.name} delay={index * 120}>
-              <div className="flex flex-col items-center text-center">
+              <div>
                 <Image
                   src={item.logo}
                   alt={item.name}
-                  width={96}
-                  height={96}
-                  className="size-20 rounded-[22%] shadow-lg sm:size-24"
+                  width={520}
+                  height={150}
+                  className="mx-auto h-20 w-auto sm:h-32"
                 />
-                <h3 className="mt-5 text-h3 font-semibold tracking-tight">
-                  {item.name}
-                </h3>
-                <span className="mt-3 inline-flex items-center rounded-full border border-border px-3 py-1 text-body-sm text-text-muted">
-                  {item.status}
-                </span>
+                <p className="mt-2 text-center">
+                  <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-body-sm text-text-muted">
+                    {item.status}
+                  </span>
+                </p>
                 <p className="mt-5 text-lg text-pretty text-text-subtle italic">
                   {item.pitch}
                 </p>
-                <ul className="mt-5 space-y-2 text-left">
+                <ul className="mt-5 space-y-2">
                   {item.benefits.map((benefit) => (
                     <li
                       key={benefit}

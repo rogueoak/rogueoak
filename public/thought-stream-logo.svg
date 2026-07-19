@@ -1,71 +1,66 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Thought Stream">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" width="520" height="150" role="img" aria-label="Thought Stream - hands-free dictation for iPhone and CarPlay">
   <defs>
-    <linearGradient id="ts-wave" gradientUnits="userSpaceOnUse" x1="512" y1="250" x2="512" y2="800">
-      <stop offset="0"   stop-color="#9DBBBF"/>
-      <stop offset="0.5" stop-color="#517E88"/>
-      <stop offset="1"   stop-color="#35606B"/>
+    <!-- River Mist wave: bright at the peaks, deeper at the base (matches the app icon) -->
+    <linearGradient id="tsWave" gradientUnits="userSpaceOnUse" x1="68" y1="49" x2="68" y2="101">
+      <stop offset="0"    stop-color="#9DBBBF"/>
+      <stop offset="0.55" stop-color="#6F979E"/>
+      <stop offset="1"    stop-color="#4E7882"/>
     </linearGradient>
-    <radialGradient id="ts-bg" cx="0.5" cy="0.44" r="0.78">
-      <stop offset="0" stop-color="#1B2E32"/>
-      <stop offset="1" stop-color="#0B1315"/>
-    </radialGradient>
-    <radialGradient id="ts-glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#6F979E" stop-opacity="0.22"/>
+    <linearGradient id="tsH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6F979E"/>
+      <stop offset="1" stop-color="#9DBBBF"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#161d27"/>
+      <stop offset="1" stop-color="#0f141c"/>
+    </linearGradient>
+    <radialGradient id="tsGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6F979E" stop-opacity="0.20"/>
       <stop offset="1" stop-color="#6F979E" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <rect width="1024" height="1024" fill="url(#ts-bg)"/>
-  <circle cx="512" cy="512" r="410" fill="url(#ts-glow)"/>
+  <!-- panel -->
+  <rect x="0.5" y="0.5" width="519" height="149" rx="18" fill="none"/>
 
-  <!-- the stream the sound rides on -->
-  <path d="M228 512 C 324 484 386 540 512 512 C 632 486 700 540 796 512"
-        fill="none" stroke="url(#ts-wave)" stroke-width="9" stroke-linecap="round" opacity="0.45"/>
+  <!-- glow behind the mark -->
+  <circle cx="68" cy="75" r="60" fill="url(#tsGlow)"/>
 
-  <!-- soundwave bars, irregular like a real voice, node-graph style -->
-  <g fill="none" stroke="url(#ts-wave)" stroke-linecap="round">
-    <!-- glow pass -->
-    <g stroke-width="50" opacity="0.14">
-      <path d="M256 442 L256 582"/> <path d="M320 362 L320 662"/>
-      <path d="M384 416 L384 608"/> <path d="M448 302 L448 722"/>
-      <path d="M512 382 L512 642"/> <path d="M576 277 L576 747"/>
-      <path d="M640 422 L640 602"/> <path d="M704 342 L704 682"/>
-      <path d="M768 452 L768 572"/>
-    </g>
-    <!-- crisp pass -->
-    <g stroke-width="28">
-      <path d="M256 442 L256 582"/> <path d="M320 362 L320 662"/>
-      <path d="M384 416 L384 608"/> <path d="M448 302 L448 722"/>
-      <path d="M512 382 L512 642"/> <path d="M576 277 L576 747"/>
-      <path d="M640 422 L640 602"/> <path d="M704 342 L704 682"/>
-      <path d="M768 452 L768 572"/>
-    </g>
-  </g>
+  <!-- product tile -->
+  <rect x="26" y="33" width="84" height="84" rx="20" fill="url(#tile)" stroke="#262e39"/>
 
-  <!-- node caps -->
+  <!-- mark: a voice soundwave riding a quiet stream, node-graph style -->
   <g>
-    <!-- halos on the tallest peaks -->
-    <g fill="#6F979E" opacity="0.18">
-      <circle cx="576" cy="277" r="30"/> <circle cx="448" cy="302" r="26"/>
-      <circle cx="704" cy="342" r="22"/>
+    <!-- the stream the sound rides on -->
+    <path d="M44 75 C 54 70, 62 80, 68 75 C 74 70, 82 80, 92 75"
+          fill="none" stroke="url(#tsWave)" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+
+    <!-- soundwave bars, irregular like a real voice -->
+    <g stroke="url(#tsWave)" stroke-width="4" stroke-linecap="round" fill="none">
+      <path d="M46 63 L46 87"/>
+      <path d="M57 53 L57 97"/>
+      <path d="M68 59 L68 91"/>
+      <path d="M79 49 L79 101"/>
+      <path d="M90 61 L90 89"/>
     </g>
-    <!-- bright top nodes -->
-    <g fill="#EAF1F4">
-      <circle cx="256" cy="442" r="12"/> <circle cx="320" cy="362" r="14"/>
-      <circle cx="384" cy="416" r="12"/> <circle cx="448" cy="302" r="15"/>
-      <circle cx="512" cy="382" r="13"/> <circle cx="640" cy="422" r="12"/>
-      <circle cx="704" cy="342" r="14"/> <circle cx="768" cy="452" r="11"/>
+
+    <!-- bright top node caps -->
+    <g fill="#eaf1f4">
+      <circle cx="46" cy="63" r="3"/>
+      <circle cx="57" cy="53" r="3.2"/>
+      <circle cx="68" cy="59" r="3"/>
+      <circle cx="90" cy="61" r="3"/>
     </g>
-    <!-- subtle bottom nodes -->
-    <g fill="#C4D6D8" opacity="0.85">
-      <circle cx="256" cy="582" r="9"/>  <circle cx="320" cy="662" r="10"/>
-      <circle cx="384" cy="608" r="9"/>  <circle cx="448" cy="722" r="11"/>
-      <circle cx="512" cy="642" r="10"/> <circle cx="576" cy="747" r="11"/>
-      <circle cx="640" cy="602" r="9"/>  <circle cx="704" cy="682" r="10"/>
-      <circle cx="768" cy="572" r="9"/>
-    </g>
-    <!-- live source: gold spark on the tallest peak -->
-    <circle cx="576" cy="277" r="34" fill="#d2a463" opacity="0.22"/>
-    <circle cx="576" cy="277" r="19" fill="#d2a463"/>
+
+    <!-- live source: gold spark on the tallest peak (the family tie to the Rogue Oak avatar) -->
+    <circle cx="79" cy="49" r="7" fill="#d2a463" opacity="0.2"/>
+    <circle cx="79" cy="49" r="4" fill="#d2a463"/>
   </g>
+
+  <!-- wordmark -->
+  <text x="130" y="80" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="44" font-weight="650" letter-spacing="0.4" fill="#e6edf3">Thought Stream</text>
+  <rect x="132" y="93" width="150" height="2.5" rx="1.25" fill="url(#tsH)" opacity="0.85"/>
+  <text x="133" y="116" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="13.5" font-weight="500" letter-spacing="0.2" fill="#7d8896">hands-free dictation for iPhone and CarPlay</text>
 </svg>
