@@ -1,11 +1,14 @@
 # Features
 
 - **One-page site** (`/`): a dark-only landing page built on the Canopy design system.
-  - Hero: the Rogue Oak mark + name with the tagline "Tools built to stand on their own."
-  - The oak name story, rendered as a quote.
+  - Hero: the Rogue Oak mark + name with the tagline "Software built to last."
+  - The oak name story, rendered as a quote, tying the oak's longevity to a focus on value,
+    experience, and quality.
   - A single-column showcase of Spectra, Trellis, and Canopy - each a large product wordmark, its
     pitch, benefits, and a repo link.
-  - A "Subscribe for updates" section closes the page (spec 0008), below the projects.
+  - A "Coming soon" section (spec 0010) previews unshipped work - Thought Stream first, shown as a
+    rounded app-icon tile with an "In early development" badge and a GitHub link.
+  - A "Subscribe for updates" section closes the page (spec 0008), below Coming soon.
   - Footer: Subscribe + Privacy links, GitHub org, matthewmaynes.com (its favicon as the icon), and
     "built with Canopy" linking to the Canopy repo.
   - Sections fade/rise in on load (pure CSS).
@@ -20,6 +23,8 @@
     analytics) with a success card that points to the welcome email.
   - A branded, mobile-friendly welcome email at `emails/templates/welcome.html`, created in Constant
     Contact as "Rogue Oak Welcome Template".
+  - Announcement emails live in `emails/announcements/`; `thought-stream.html` announces the coming
+    Thought Stream app to the Rogue Oak list (spec 0010).
 - **Privacy policy** (`/privacy`, spec 0007): plain-language policy covering the two real data flows
   (analytics + mailing list); linked with Subscribe from the footer.
 - **Analytics**: PostHog (client only), gated so only a deployed, non-local production build reports.

@@ -83,7 +83,7 @@ export function SubscribeForm({
       onSubscribe={onSubscribe}
       onEvent={onEvent}
       title="Subscribe for updates"
-      description="The occasional note when a Rogue Oak tool ships or grows. No spam; unsubscribe anytime."
+      description="The occasional note when a Rogue Oak product ships or grows. No spam; unsubscribe anytime."
       successBadge="You are on the list"
       successMessage="Check your inbox for a welcome message. If you do not see it, look in your junk or spam folder, move it to your inbox, and mark it as not spam. That keeps these emails landing where you can find them. Thank you!"
     />
