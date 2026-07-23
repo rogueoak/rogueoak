@@ -35,13 +35,14 @@ services:
       # so it is deliberately not set here.
       NODE_ENV: production
     env_file:
-      # Subscribe secrets (spec 0008): CTCT_CLIENT_ID, CTCT_REFRESH_TOKEN,
-      # CTCT_LIST_ID (the "Rogue Oak" list). Created ONCE on the host at
-      # deploy/docker/.env.site (git-ignored via the .env* rule, chmod 600) and
-      # untracked, so it survives deploys and never lands in the image or git.
-      # Mirrors the cohosted matthewmaynes stack's .env.site. See deploy/README.md.
+      # Runtime secrets: subscribe (spec 0008) CTCT_CLIENT_ID / CTCT_REFRESH_TOKEN /
+      # CTCT_LIST_ID, and contact (spec 0011) RESEND_API_KEY / CONTACT_TO_EMAIL /
+      # CONTACT_FROM_EMAIL. GENERATED on the host at deploy/docker/.env.site by the
+      # deploy job from GitHub Actions Secrets each deploy (spec 0011), git-ignored
+      # (the .env* rule, chmod 600) and untracked, so it never lands in the image or
+      # git. The same file feeds the keepalive cron (spec 0009). See deploy/README.md.
       # `required: false` so a host without the file (or a local `compose up`) still
-      # starts - the subscribe route just fails closed until the secrets exist.
+      # starts - the affected route just fails closed until the secrets exist.
       - path: .env.site
         required: false
     networks:

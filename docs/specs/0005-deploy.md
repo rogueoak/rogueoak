@@ -32,10 +32,17 @@ deploy.
   `docker` group) + the authorized SSH key. The job clones the repo if absent, ensures the shared
   `edge` network is up, then deploys the site - no other manual host steps. It does **not** bring up
   Caddy (matthewmaynes owns the shared edge proxy).
-- Since spec 0008 the site stack reads the subscribe secrets from a host-side, git-ignored
-  `deploy/docker/.env.site` (`env_file`, `required: false`); missing file => subscribe fails closed,
-  the rest of the site is unaffected. No secrets live in the repo; the image is public on GHCR, so
-  the host pulls without login.
+- Since spec 0008 the site stack reads its runtime secrets from a host-side, git-ignored
+  `deploy/docker/.env.site` (`env_file`, `required: false`); missing file => the affected route
+  fails closed, the rest of the site is unaffected. No secrets live in the repo; the image is public
+  on GHCR, so the host pulls without login.
+- **Since spec 0011 that file is generated on every deploy from GitHub Actions Secrets** (it is no
+  longer hand-created on the box). The deploy job assembles the six runtime values
+  (`CTCT_CLIENT_ID`, `CTCT_REFRESH_TOKEN`, `CTCT_LIST_ID`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`,
+  `CONTACT_FROM_EMAIL`) into a base64 blob on the runner and decodes it into `.env.site` (chmod 600)
+  on the droplet, so no secret is interpolated into the remote script or the logs. GitHub Actions is
+  the single source of truth; a re-minted CTCT token is updated in the Secret, not on the box. See
+  `deploy/README.md` and spec 0011.
 
 ## Scope
 

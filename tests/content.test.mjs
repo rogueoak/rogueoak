@@ -6,7 +6,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { hero, notFound, oakStory, projects, comingSoon } from "../src/lib/content.ts";
+import {
+  hero,
+  nav,
+  notFound,
+  oakStory,
+  home,
+  about,
+  toolsPage,
+  productsPage,
+  contact,
+  tools,
+  products,
+} from "../src/lib/content.ts";
 
 // Resolve a "/foo.svg" public path to its file on disk. A referenced asset that
 // is not in public/ would 404 at runtime, so the tests fail the build instead.
@@ -14,9 +26,11 @@ function publicFileExists(publicPath) {
   return existsSync(fileURLToPath(new URL("../public" + publicPath, import.meta.url)));
 }
 
-// Em dash, en dash, and other non-ASCII: the language rules require ASCII only
-// with spaced hyphens " - ". This catches a stray Unicode dash slipping into copy.
+// Em dash, en dash, and other non-ASCII: the language rules require ASCII only.
 const NON_ASCII = /[^\x00-\x7F]/;
+// Spaced-dash sentence break (" - "): the language rules retire it in favour of a
+// colon, comma, or period. Guards the copy, not the comments (only strings here).
+const SPACED_DASH = / - /;
 
 function everyString(value) {
   if (typeof value === "string") return [value];
@@ -27,37 +41,115 @@ function everyString(value) {
   return [];
 }
 
-test("there are exactly three projects", () => {
-  assert.equal(projects.length, 3);
+// The copy objects (no functions), for the whole-copy sweeps below.
+const ALL_COPY = {
+  hero,
+  nav,
+  notFound,
+  oakStory,
+  home,
+  about,
+  toolsPage,
+  productsPage,
+  contact,
+  tools,
+  products,
+};
+
+/** Shared field checks for one tool or product record. */
+function assertItemShape(item, { org }) {
+  assert.match(item.slug, /^[a-z][a-z0-9-]*$/, "slug is a url-safe kebab string");
+  assert.ok(item.name.trim(), "name is present");
+  assert.match(item.logo, /^\/[\w-]+\.(svg|png)$/, "logo is a public asset path");
+  assert.ok(
+    publicFileExists(item.logo),
+    `logo file is missing from public/: ${item.logo}`,
+  );
+  assert.ok(item.pitch.trim(), "pitch is a non-empty string");
+  assert.ok(
+    item.benefits.length >= 2 && item.benefits.length <= 3,
+    "2-3 benefits",
+  );
+  for (const benefit of item.benefits) {
+    assert.ok(benefit.trim(), "each benefit is a non-empty string");
+  }
+  assert.ok(item.body.length >= 1, "at least one body paragraph");
+  for (const paragraph of item.body) {
+    assert.ok(paragraph.trim(), "each body paragraph is a non-empty string");
+  }
+  assert.match(item.href, /^https:\/\//, "href is an https url");
+  if (org) {
+    assert.match(item.href, org, "href points at the expected origin");
+  }
+  assert.ok(item.hrefLabel.trim(), "hrefLabel is present");
+}
+
+test("there are exactly three tools, in order", () => {
   assert.deepEqual(
-    projects.map((p) => p.name),
+    tools.map((t) => t.name),
     ["Spectra", "Trellis", "Canopy"],
   );
 });
 
-test("each project has the required fields", () => {
-  for (const project of projects) {
-    assert.ok(project.name.trim(), "name is present");
-    assert.match(project.logo, /^\/[\w-]+\.svg$/, "logo is a public svg path");
-    assert.ok(
-      publicFileExists(project.logo),
-      `logo file is missing from public/: ${project.logo}`,
-    );
-    assert.ok(project.pitch.trim(), "pitch is a non-empty string");
-    assert.ok(
-      project.benefits.length >= 2 && project.benefits.length <= 3,
-      "2-3 benefits",
-    );
-    for (const benefit of project.benefits) {
-      assert.ok(benefit.trim(), "each benefit is a non-empty string");
-    }
-    assert.match(
-      project.href,
-      /^https:\/\/github\.com\/rogueoak\//,
-      "href points at the rogueoak org",
-    );
-    assert.ok(project.hrefLabel.trim(), "hrefLabel is present");
+test("each tool has the required fields and a rogueoak repo link", () => {
+  for (const tool of tools) {
+    assertItemShape(tool, { org: /^https:\/\/github\.com\/rogueoak\// });
+    assert.equal(tool.status, undefined, "a shipped tool has no status marker");
   }
+});
+
+test("there are exactly two products, Thought Stream and Branch Out Games", () => {
+  assert.deepEqual(
+    products.map((p) => p.name),
+    ["Thought Stream", "Branch Out Games"],
+  );
+});
+
+test("each product has the required fields and a coming-soon status", () => {
+  for (const product of products) {
+    assertItemShape(product, { org: null });
+    assert.ok(product.status && product.status.trim(), "carries a status marker");
+  }
+});
+
+test("tool and product slugs are unique", () => {
+  const slugs = [...tools, ...products].map((i) => i.slug);
+  assert.equal(new Set(slugs).size, slugs.length, "no duplicate slugs");
+});
+
+test("the nav lists About, Tools, Products, Contact with hrefs", () => {
+  assert.deepEqual(
+    nav.map((link) => link.label),
+    ["About", "Tools", "Products", "Contact"],
+  );
+  for (const link of nav) {
+    assert.match(link.href, /^\/[a-z]+$/, "href is an absolute in-site path");
+  }
+});
+
+test("home routes to the tools and products lists", () => {
+  assert.ok(home.lead.trim(), "the pitch lead is present");
+  assert.equal(home.cards.length, 2, "two routing cards");
+  assert.deepEqual(
+    home.cards.map((c) => c.href).sort(),
+    ["/products", "/tools"],
+  );
+  for (const card of home.cards) {
+    assert.ok(card.title.trim() && card.blurb.trim() && card.cta.trim());
+  }
+});
+
+test("about carries an intro, a mission placeholder, and a story heading", () => {
+  assert.ok(about.heading.trim(), "heading present");
+  assert.ok(about.intro.trim(), "intro present");
+  assert.ok(about.missionPending.trim(), "mission placeholder present");
+  assert.ok(about.storyHeading.trim(), "story heading present");
+});
+
+test("the tools/products/contact pages have intros", () => {
+  assert.ok(toolsPage.heading.trim() && toolsPage.intro.trim());
+  assert.ok(productsPage.heading.trim() && productsPage.intro.trim());
+  assert.ok(contact.heading.trim() && contact.intro.trim());
 });
 
 test("the oak story ties back to value and quality", () => {
@@ -73,41 +165,12 @@ test("the hero carries the master tagline", () => {
 });
 
 test("no copy still frames the work as standalone tools", () => {
-  for (const value of everyString({ hero, notFound, oakStory, projects, comingSoon })) {
+  for (const value of everyString(ALL_COPY)) {
     assert.doesNotMatch(
       value,
       /stand on (their|its) own|built to stand on/i,
       `retired "stand on their own" framing found in copy: ${JSON.stringify(value)}`,
     );
-  }
-});
-
-test("coming soon leads with Thought Stream, marked as not yet shipped", () => {
-  assert.ok(comingSoon.heading.trim(), "the section has a heading");
-  assert.ok(comingSoon.items.length >= 1, "at least one upcoming item");
-  const [first] = comingSoon.items;
-  assert.equal(first.name, "Thought Stream");
-  assert.ok(first.status.trim(), "carries a development-status marker");
-  for (const item of comingSoon.items) {
-    assert.match(item.logo, /^\/[\w-]+\.(svg|png)$/, "logo is a public asset path");
-    assert.ok(
-      publicFileExists(item.logo),
-      `logo file is missing from public/: ${item.logo}`,
-    );
-    assert.ok(item.pitch.trim(), "pitch is a non-empty string");
-    assert.ok(
-      item.benefits.length >= 2 && item.benefits.length <= 3,
-      "2-3 benefits",
-    );
-    for (const benefit of item.benefits) {
-      assert.ok(benefit.trim(), "each benefit is a non-empty string");
-    }
-    assert.match(
-      item.href,
-      /^https:\/\/github\.com\/rogueoak\//,
-      "href points at the rogueoak org",
-    );
-    assert.ok(item.hrefLabel.trim(), "hrefLabel is present");
   }
 });
 
@@ -119,10 +182,19 @@ test("the 404 copy points a lost visitor back home", () => {
 });
 
 test("all copy is ASCII only (no em / en dash)", () => {
-  for (const value of everyString({ hero, notFound, oakStory, projects, comingSoon })) {
+  for (const value of everyString(ALL_COPY)) {
     assert.ok(
       !NON_ASCII.test(value),
       `non-ASCII character found in copy: ${JSON.stringify(value)}`,
+    );
+  }
+});
+
+test("no copy uses a spaced-dash sentence break", () => {
+  for (const value of everyString(ALL_COPY)) {
+    assert.ok(
+      !SPACED_DASH.test(value),
+      `spaced-dash sentence break found in copy (use a colon/comma/period): ${JSON.stringify(value)}`,
     );
   }
 });

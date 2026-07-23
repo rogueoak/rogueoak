@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   // repo as the workspace root and nest server.js. No-op in CI and Docker, where
   // the app is the only root.
   outputFileTracingRoot: import.meta.dirname,
+  // The contact route reads this HTML template at runtime (app/v1/contact). The
+  // standalone/Docker build only bundles files it can statically trace, so name it
+  // explicitly or the runtime read falls back to the plain-text body.
+  outputFileTracingIncludes: {
+    "/v1/contact": ["./emails/templates/contact-notification.html"],
+  },
   images: {
     formats: ["image/webp"],
     minimumCacheTTL: 31536000,

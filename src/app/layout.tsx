@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Header } from "@/components/header";
+import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { site } from "@/lib/site";
@@ -51,7 +51,7 @@ export default function RootLayout({
     <html lang="en" className="dark h-full antialiased">
       <body className="flex min-h-full flex-col bg-bg font-sans text-text">
         <PostHogProvider>
-          <Header />
+          <SiteNav />
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </PostHogProvider>

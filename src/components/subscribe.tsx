@@ -3,9 +3,9 @@ import { SubscribeForm } from "@/components/subscribe-form";
 
 /**
  * The "Subscribe for updates" section at the foot of the home page (spec 0008),
- * below the projects. Shares the Projects section's container width and the
- * on-load `Reveal` fade so it reads as the natural closing beat of the page. The
- * form itself is a client island; this wrapper stays a server component.
+ * below the pitch cards. Shares the home container width and the on-load `Reveal`
+ * fade so it reads as the natural closing beat of the page. The form itself is a
+ * client island; this wrapper stays a server component.
  */
 export function Subscribe() {
   return (
