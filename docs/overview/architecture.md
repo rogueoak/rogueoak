@@ -91,8 +91,9 @@ disclosure. Shared render components: `ProductList` (listings) and `ProductPage`
   git-ignored `deploy/docker/.env.site` (`env_file`, `required: false`), never tracked or baked into
   the image. **Since spec 0011 the deploy job generates that file on every deploy from GitHub Actions
   Secrets** (the six runtime values - `CTCT_*`, `RESEND_API_KEY`, `CONTACT_TO/FROM_EMAIL`), assembled
-  into a base64 blob on the runner and decoded into `.env.site` (chmod 600) on the droplet so no
-  secret touches the remote script or the logs. GHA is the single source of truth (a re-minted CTCT
+  into a base64 blob on the runner, piped to the box over stdin (not an argv, so no `ps` exposure),
+  and decoded into `.env.site` (chmod 600) on the droplet so no secret touches the remote command
+  line or the logs. A deploy warns if a required secret is empty rather than blanking it. GHA is the single source of truth (a re-minted CTCT
   token is updated in the Secret, not the box); this diverges intentionally from matthewmaynes, which
   still hand-creates its file. The same file feeds the keepalive cron (spec 0009). Missing file =>
   the affected route fails closed, the rest of the site is unaffected.
