@@ -142,9 +142,21 @@ export function ContactForm() {
         Subscribe for occasional Rogue Oak updates
       </label>
 
-      {/* Honeypot: hidden from users and assistive tech; a naive bot that fills
-          every input trips it and the server drops the message silently. */}
-      <div className="hidden" aria-hidden>
+      {/* Honeypot: positioned off-screen (not `display:none`, which aggressive
+          password managers may still autofill and so drop a real submission) and
+          hidden from assistive tech. A naive bot that fills every input trips it
+          and the server drops the message silently. `autoComplete="off"` +
+          `tabIndex={-1}` keep a real user's autofill and keyboard out of it. */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+        }}
+      >
         <label>
           Company
           <input type="text" name="company" tabIndex={-1} autoComplete="off" />

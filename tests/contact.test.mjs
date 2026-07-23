@@ -6,6 +6,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   LIMITS,
   validateContact,
@@ -13,6 +15,7 @@ import {
   renderContactNotification,
   buildResendPayload,
   sendViaResend,
+  shouldContactSubscribe,
 } from "../src/lib/contact.ts";
 
 test("validateContact accepts and trims a good submission", () => {
@@ -187,4 +190,33 @@ test("sendViaResend throws on a non-2xx response", async () => {
     () => sendViaResend({}, "key", fakeFetch),
     /Resend responded 422/,
   );
+});
+
+test("shouldContactSubscribe enrols only on a real boolean true", () => {
+  assert.equal(shouldContactSubscribe(true), true);
+  // A bot (or a stringified form value) must NOT enrol: only `true` counts, so a
+  // regression to a truthy check would fail here.
+  for (const v of ["on", "yes", "true", "false", 1, 0, {}, [], undefined, null, false]) {
+    assert.equal(shouldContactSubscribe(v), false, `expected ${JSON.stringify(v)} not to enrol`);
+  }
+});
+
+test("the shipped notification template renders with no leftover tokens", () => {
+  const template = readFileSync(
+    fileURLToPath(new URL("../emails/templates/contact-notification.html", import.meta.url)),
+    "utf8",
+  );
+  // Every placeholder the renderer substitutes must exist in the real file, or a
+  // field would silently drop (render leaves unknown tokens intact).
+  for (const token of ["[[NAME]]", "[[EMAIL]]", "[[MESSAGE]]", "[[DATE]]"]) {
+    assert.ok(template.includes(token), `template is missing ${token}`);
+  }
+  const out = renderContactNotification(template, {
+    name: "Ada",
+    email: "ada@x.co",
+    message: "hi",
+    date: "July 11, 2026",
+  });
+  assert.ok(!out.includes("[["), "no placeholder tokens should remain after render");
+  assert.match(out, /Ada/);
 });

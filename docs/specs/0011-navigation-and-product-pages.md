@@ -134,8 +134,10 @@ new page (desktop + mobile) for the PR.
   re-minted (device flow, see deploy/README), the new token must be updated **in the GHA Secret**,
   not on the box, or the next deploy overwrites it. This diverges from the matthewmaynes-symmetric
   deploy (that box still hand-creates its file); the divergence is intentional and could be ported
-  back later. Secrets reach the box without hitting the logs: the file is written via a quoted
-  heredoc from masked env, `chmod 600`, never echoed.
+  back later. Secrets reach the box without hitting the logs or the process list: the six values are
+  base64'd into one blob on the runner, piped to the remote over stdin (line 1, not an argv, so no
+  `ps` exposure), and decoded into `.env.site` under a `umask 077` (mode 600); no `set -x`. A deploy
+  warns if a required secret is empty rather than silently blanking a working credential.
 - **Per-page OG images are generated, not static.** Route-level `opengraph-image` renders each
   tool/product card from the same `content.ts` record that drives the page, so the preview can never
   drift from the page copy.

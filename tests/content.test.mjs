@@ -164,11 +164,16 @@ test("the hero carries the master tagline", () => {
   assert.equal(hero.tagline, "Software built to last.");
 });
 
-test("no copy still frames the work as standalone tools", () => {
-  for (const value of everyString(ALL_COPY)) {
+test("no product/tool copy frames the work as standalone tools", () => {
+  // The retired framing (spec 0010) is about how the PRODUCTS are pitched, so the
+  // sweep is scoped to the sales copy and excludes the oak story, where "a lone
+  // oak stands on its own" is the literal, intended image. Matches the singular
+  // ("stands") too, which the old regex missed.
+  const SALES_COPY = { home, toolsPage, productsPage, contact, tools, products };
+  for (const value of everyString(SALES_COPY)) {
     assert.doesNotMatch(
       value,
-      /stand on (their|its) own|built to stand on/i,
+      /stands? on (their|its) own|built to stand on/i,
       `retired "stand on their own" framing found in copy: ${JSON.stringify(value)}`,
     );
   }

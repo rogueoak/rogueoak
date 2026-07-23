@@ -12,6 +12,7 @@ import {
   buildResendPayload,
   renderContactNotification,
   sendViaResend,
+  shouldContactSubscribe,
   validateContact,
 } from "@/lib/contact";
 import { createTokenCache, submitSubscription } from "@/lib/subscribe";
@@ -166,7 +167,7 @@ export async function POST(req: Request): Promise<Response> {
   const clientId = process.env.CTCT_CLIENT_ID;
   const refreshToken = process.env.CTCT_REFRESH_TOKEN;
   const listId = process.env.CTCT_LIST_ID;
-  if (input.subscribe === true && clientId && refreshToken && listId) {
+  if (shouldContactSubscribe(input.subscribe) && clientId && refreshToken && listId) {
     try {
       await submitSubscription(
         {

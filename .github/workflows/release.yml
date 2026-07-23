@@ -106,12 +106,24 @@ jobs:
           # so a MITM on a deploy cannot impersonate it. No trust-on-first-use.
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+          # Warn (do NOT fail) if a required runtime secret is empty: an unset GHA
+          # Secret would silently blank a previously-working credential in the
+          # regenerated .env.site (e.g. an out-of-band-rotated CTCT token), surfacing
+          # only as a runtime fail-closed. A warning gives a deploy-time signal while
+          # a partial set (e.g. first bring-up) still deploys.
+          missing=""
+          for v in CTCT_CLIENT_ID CTCT_REFRESH_TOKEN CTCT_LIST_ID RESEND_API_KEY CONTACT_TO_EMAIL; do
+            [ -n "${!v:-}" ] || missing="$missing $v"
+          done
+          [ -z "$missing" ] || echo "::warning title=Empty deploy secrets::empty and will blank in .env.site:$missing"
           # Assemble the runtime env file and base64 it, so NO secret value is ever
-          # interpolated into the remote script text or printed (no `set -x` here). The
-          # blob crosses as ONE opaque env var on the remote command; the remote decodes
-          # it to deploy/docker/.env.site under a 077 umask (never world-readable). An
-          # unset secret just yields an empty value, so a partial set never breaks the
-          # deploy - the affected feature fails closed at runtime instead.
+          # interpolated into the remote script text, the command line, or the logs
+          # (no `set -x`). The blob is PIPED to the remote over stdin as line 1 (not
+          # passed as an argv, so it is never visible via `ps` on the box); the remote
+          # reads that line, then `bash -s` runs the rest as the deploy script, which
+          # decodes the blob to deploy/docker/.env.site under a 077 umask (never
+          # world-readable). An unset secret yields an empty value, so a partial set
+          # never breaks the deploy - the affected feature fails closed at runtime.
           ENV_SITE_B64=$(
             {
               printf 'CTCT_CLIENT_ID=%s\n'     "$CTCT_CLIENT_ID"
@@ -122,8 +134,9 @@ jobs:
               printf 'CONTACT_FROM_EMAIL=%s\n' "$CONTACT_FROM_EMAIL"
             } | base64 | tr -d '\n'
           )
-          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=10 \
-            "$USER@$HOST" "IMAGE_TAG='$IMAGE_TAG' ENV_SITE_B64='$ENV_SITE_B64' bash -se" <<'REMOTE'
+          {
+            printf '%s\n' "$ENV_SITE_B64"
+            cat <<'REMOTE'
             set -euo pipefail
             REPO="$HOME/rogueoak"
             # Self-bootstrap: clone on first deploy, else force-sync to origin/main
@@ -206,3 +219,5 @@ jobs:
             docker image prune -af \
               --filter "label=org.opencontainers.image.source=https://github.com/rogueoak/rogueoak"
           REMOTE
+          } | ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=10 \
+            "$USER@$HOST" "export IMAGE_TAG='$IMAGE_TAG'; IFS= read -r ENV_SITE_B64; export ENV_SITE_B64; bash -s"

@@ -155,3 +155,15 @@ export async function sendViaResend(
   }
   return res;
 }
+
+/**
+ * Whether a contact submission opted in to the mailing list. STRICT boolean: the
+ * form sends a real `true` only when the box is ticked, so anything else (a bot's
+ * `"on"` / `1` / `"true"`, or absence) is NOT a subscribe. Extracted as a pure leaf
+ * so the enrol/skip gate is unit-tested rather than living only in the route - a
+ * regression to a truthy `if (input.subscribe)` would silently enrol on `"on"`
+ * (learnings: keep regression-prone route decisions in a node-testable leaf).
+ */
+export function shouldContactSubscribe(value: unknown): boolean {
+  return value === true;
+}
