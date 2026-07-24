@@ -18,5 +18,6 @@ list (the "Rogue Oak" Constant Contact list); as of 0011 a Resend-backed contact
 multi-page structure, with all runtime secrets generated on deploy from GitHub Actions Secrets into a
 git-ignored host `.env.site`.
 
-Open before go-live (spec 0011): the About mission copy is a placeholder to be written, and the six
-GitHub Actions Secrets must be set for the contact form and subscribe to work in production.
+Spec 0011 is content-complete and ready to merge: the Rogue Oak mission is written (shared by the
+home pitch and the About page), and the six GitHub Actions Secrets are set so the contact form and
+subscribe work in production once deployed.

@@ -11,6 +11,7 @@ import {
   nav,
   notFound,
   oakStory,
+  mission,
   home,
   about,
   toolsPage,
@@ -139,10 +140,17 @@ test("home routes to the tools and products lists", () => {
   }
 });
 
-test("about carries an intro, a mission placeholder, and a story heading", () => {
+test("the home pitch and the About intro both carry the mission", () => {
+  assert.ok(mission.trim(), "the mission is written");
+  // The mission is the source of truth for both surfaces, so they cannot drift.
+  assert.equal(home.lead, mission, "home leads with the mission");
+  assert.equal(about.intro, mission, "About leads with the mission");
+  assert.match(mission, /not up for negotiation/, "the mission keeps its closing line");
+});
+
+test("about carries a heading, the mission intro, and a story heading", () => {
   assert.ok(about.heading.trim(), "heading present");
   assert.ok(about.intro.trim(), "intro present");
-  assert.ok(about.missionPending.trim(), "mission placeholder present");
   assert.ok(about.storyHeading.trim(), "story heading present");
 });
 

@@ -72,12 +72,19 @@ export const oakStory = {
 } as const;
 
 /**
- * Home - the pitch. A short lead on why Rogue Oak exists, then two cards that
- * route to the Tools and Products lists. Kept lean: home sells the idea and sends
- * you deeper; the About page carries the mission and the oak story.
+ * The Rogue Oak mission, stated plainly. Shared by the home pitch and the About
+ * page (both read it from here) so the two can never drift.
+ */
+export const mission =
+  "Rogue Oak builds what it believes in, not what would simply sell. It earns a relationship it is accountable for, not just your attention or your data. What is yours stays yours. That is not up for negotiation.";
+
+/**
+ * Home - the pitch. The mission up front, then two cards that route to the Tools
+ * and Products lists. Kept lean: home states what Rogue Oak stands for and sends
+ * you deeper; the About page carries the same mission plus the oak story.
  */
 export const home = {
-  lead: "Rogue Oak builds software with a relentless focus on value, experience, and quality. Open tools that make the building better, and products worth your time, all made to last.",
+  lead: mission,
   cards: [
     {
       title: "Tools",
@@ -89,7 +96,7 @@ export const home = {
     {
       title: "Products",
       blurb:
-        "Apps in the works, built the same careful way as the tools. See what is on the way.",
+        "Apps in the works, built the same way as the tools and just as accountable to you.",
       href: "/products",
       cta: "See the products",
     },
@@ -97,17 +104,12 @@ export const home = {
 } as const;
 
 /**
- * About - the mission and the oak story. The mission copy is deliberately a
- * placeholder for now (see `missionPending`): the page structure ships, the words
- * land before go-live. The oak story below it is the real anchor content.
+ * About - the mission and the oak story. Leads with the shared `mission`, then the
+ * oak name story as the "why we build this way".
  */
 export const about = {
   heading: "About Rogue Oak",
-  intro:
-    "The company, the mission, and why Rogue Oak builds the way it does: for value, experience, and quality that lasts.",
-  /** Shown as an honest placeholder until the full mission copy is written. */
-  missionPending:
-    "The fuller story, the mission and the why behind Rogue Oak, is being written. Check back soon.",
+  intro: mission,
   storyHeading: "Why the oak",
 } as const;
 

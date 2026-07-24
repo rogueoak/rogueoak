@@ -8,11 +8,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * About: the mission and the oak name story. The mission copy is a deliberate
- * placeholder (`about.missionPending`) until the full story is written; the oak
- * story below it is the real anchor content, rendered as a quote (the accent bar
- * and indent use inline styles so the border renders identically across browsers,
- * matching the old name-story block).
+ * About: the mission and the oak name story. Leads with the shared `mission` (the
+ * same statement the home page pitches), then the oak story as the "why we build
+ * this way", rendered as a quote (the accent bar and indent use inline styles so
+ * the border renders identically across browsers, matching the old name-story
+ * block).
  */
 export default function AboutPage() {
   return (
@@ -25,12 +25,6 @@ export default function AboutPage() {
           <p className="mt-5 text-h4 font-normal text-pretty text-text-muted">
             {about.intro}
           </p>
-        </Reveal>
-
-        <Reveal delay={100}>
-          <div className="mt-8 rounded-xl border border-dashed border-border bg-surface/60 px-5 py-4">
-            <p className="text-body-sm text-text-subtle">{about.missionPending}</p>
-          </div>
         </Reveal>
 
         <div className="mt-16">
