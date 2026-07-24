@@ -1,18 +1,28 @@
 # Features
 
-- **One-page site** (`/`): a dark-only landing page built on the Canopy design system.
-  - Hero: the Rogue Oak mark + name with the tagline "Software built to last."
-  - The oak name story, rendered as a quote, tying the oak's longevity to a focus on value,
-    experience, and quality.
-  - A single-column showcase of Spectra, Trellis, and Canopy - each a large product wordmark, its
-    pitch, benefits, and a repo link.
-  - A "Coming soon" section (spec 0010) previews unshipped work - Thought Stream first, shown as a
-    product wordmark (matching Spectra/Trellis/Canopy) with an "In early development" badge and a
-    GitHub link.
-  - A "Subscribe for updates" section closes the page (spec 0008), below Coming soon.
+- **Multi-page site** (spec 0011): a dark-only site built on the Canopy design system (v1.2), with a
+  persistent top nav (Canopy `TopNav`) linking About, Tools, Products, and Contact. The brand mark
+  links home; the active section is highlighted; the nav collapses to a mobile menu.
+  - **Home** (`/`): the pitch. Hero mark + tagline, the Rogue Oak mission up front, two cards
+    routing to Tools and Products, then the "Subscribe for updates" section (spec 0008).
+  - **About** (`/about`): leads with the Rogue Oak mission (the same statement the home page
+    pitches, so the two never drift), then the oak name story rendered as a quote.
+  - **Tools** (`/tools`): a listing of Spectra, Trellis, and Canopy, each a wordmark + pitch +
+    benefits linking to its own page. Each tool has a **detail page** (`/tools/<slug>`) with longer
+    copy and a repo link.
+  - **Products** (`/products`): a listing of Thought Stream and Branch Out Games, both marked
+    "Coming soon", each linking to its own **detail page** (`/products/<slug>`). Branch Out Games
+    uses its own logo (vendored from the branchout repo).
+  - Every tool and product page carries its own title, description, and a **custom Open Graph card**
+    (generated from the same content record, so the share preview matches the page).
+  - Sections fade/rise in on load (pure CSS).
   - Footer: Subscribe + Privacy links, GitHub org, matthewmaynes.com (its favicon as the icon), and
     "built with Canopy" linking to the Canopy repo.
-  - Sections fade/rise in on load (pure CSS).
+- **Contact** (`/contact`, spec 0011): a form that sends an on-brand HTML notification email to the
+  Rogue Oak inbox via Resend (reply-to the sender), mirroring matthewmaynes. An optional, unticked
+  "subscribe" box also adds the sender to the "Rogue Oak" Constant Contact list. Honeypot,
+  same-origin, per-IP rate limit, and a body cap guard the public endpoint; PII-free analytics.
+  Secrets are server-only; unset => the route fails closed.
 - **Subscribe** (spec 0008): a mailing list backed by the "Rogue Oak" Constant Contact list.
   - A dedicated `/subscribe` page (email + optional name, plus a taste of the three tools) and the
     same form at the foot of the home page.

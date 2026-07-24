@@ -11,7 +11,7 @@
  * Canopy from here, not from "@rogueoak/canopy/*" directly.
  */
 
-export { Badge, Button, Input } from "@rogueoak/canopy/seeds";
+export { Badge, Button, Checkbox, Input, Textarea } from "@rogueoak/canopy/seeds";
 export {
   Card,
   CardContent,
@@ -23,5 +23,13 @@ export {
   FormFieldControl,
   FormFieldLabel,
 } from "@rogueoak/canopy/twigs";
-export { SubscribeForm } from "@rogueoak/canopy/branches";
+export {
+  SubscribeForm,
+  TopNav,
+  TopNavBrand,
+  TopNavLinks,
+  TopNavLink,
+  TopNavActions,
+  TopNavMenuButton,
+} from "@rogueoak/canopy/branches";
 export type { SubscribeValues, SubscribeEventPhase } from "@rogueoak/canopy/branches";

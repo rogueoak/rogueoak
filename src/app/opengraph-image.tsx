@@ -1,10 +1,12 @@
 import { ImageResponse } from "next/og";
+import { logoDataUri } from "@/components/og-card";
 import { site } from "@/lib/site";
 
-// Node runtime so a later revision can read fonts / assets off disk if needed.
+// Node runtime so we can read the wordmark SVG off disk.
 export const runtime = "nodejs";
 
-// The branded card crawlers render for the link preview.
+// The branded card crawlers render for the link preview (home + the section pages
+// that inherit this root OG: about, tools, products, contact).
 export const alt = site.ogImageAlt;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -18,7 +20,12 @@ const SUBTLE = "#c9d2da";
 const SPARK_FROM = "#d2a463"; // amber accent
 const SPARK_TO = "#5fb98a"; // banner green
 
+// The Rogue Oak wordmark is 560x200; render it large, keeping that aspect ratio.
+const LOGO_W = 560;
+const LOGO_H = 200;
+
 export default function OpengraphImage() {
+  const logo = logoDataUri("/rogueoak-logo.svg");
   return new ImageResponse(
     (
       <div
@@ -41,25 +48,29 @@ export default function OpengraphImage() {
             backgroundImage: `linear-gradient(90deg, ${SPARK_FROM}, ${SPARK_TO})`,
           }}
         />
-        <div
-          style={{
-            display: "flex",
-            fontSize: 92,
-            fontWeight: 700,
-            color: TEXT,
-            letterSpacing: "-0.02em",
-            marginTop: 32,
-          }}
-        >
-          {site.name}
-        </div>
+        {logo ? (
+          <img src={logo} width={LOGO_W} height={LOGO_H} alt={site.name} style={{ marginTop: 24 }} />
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              fontSize: 92,
+              fontWeight: 700,
+              color: TEXT,
+              letterSpacing: "-0.02em",
+              marginTop: 32,
+            }}
+          >
+            {site.name}
+          </div>
+        )}
         <div
           style={{
             display: "flex",
             fontSize: 44,
             fontWeight: 500,
             color: SUBTLE,
-            marginTop: 16,
+            marginTop: 20,
           }}
         >
           {site.title}

@@ -1,9 +1,17 @@
 # Architecture
 
 Next.js 16 (App Router) + React 19 + TypeScript, `output: "standalone"`, npm. Mirrors
-matthewmaynes.com, the reference Canopy consumer.
+matthewmaynes.com, the reference Canopy consumer. A multi-page site (spec 0011): a shared root
+layout wraps a Canopy `TopNav` (About / Tools / Products / Contact) and the footer around each
+route. Routes: `/` (pitch), `/about`, `/tools` + `/tools/[slug]` (spectra/trellis/canopy),
+`/products` + `/products/[slug]` (thought-stream/branch-out), `/contact`, plus `/subscribe` and
+`/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
+404) and each ships a route-level `opengraph-image` that renders the item's card from its content
+record, so tool/product pages, their metadata, and their share previews all derive from one source.
+`SiteNav` is the only nav client island (`usePathname` for the active link); TopNav owns the mobile
+disclosure. Shared render components: `ProductList` (listings) and `ProductPage` (detail).
 
-- **Design system**: Canopy via published npm packages - `@rogueoak/roots` (design tokens + a
+- **Design system**: Canopy 1.2 via published npm packages - `@rogueoak/roots` (design tokens + a
   Tailwind v4 preset), `@rogueoak/canopy` (React components), `@rogueoak/icons`. `globals.css`
   imports Tailwind, the roots tokens + preset, then the Rogue Oak brand
   (`brand-rogueoak.generated.css`), `theme-rogueoak.css`, and the Figtree/Geist Mono fonts. The
@@ -32,6 +40,16 @@ matthewmaynes.com, the reference Canopy consumer.
   island using Canopy `Input` / `FormField` (re-exported through `ui.ts`). Mirrors matthewmaynes spec
   0018, trimmed to one list / opt-in only (no CRM record). The welcome email lives in `emails/` as a
   standalone HTML file (created in Constant Contact via the `ctct` CLI, not read at runtime).
+- **Contact (spec 0011)**: mirrors matthewmaynes' contact flow. The pure, import-free
+  `src/lib/contact.ts` (validate, HTML-escape, notification render, Resend payload + injectable
+  send) carries the logic; `app/v1/contact/route.ts` is a thin shell reusing `http-guards.ts`
+  (honeypot, same-origin, per-IP rate limit, actual-byte body cap), reading `RESEND_API_KEY` /
+  `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` from server env (fail closed), and - when the opt-in box
+  is ticked - calling the existing `submitSubscription` against the single "Rogue Oak" list. The
+  on-brand `emails/templates/contact-notification.html` is read at runtime (bundled via
+  `next.config.ts` `outputFileTracingIncludes`). The form (`contact-form.tsx`) is a `"use client"`
+  island using Canopy `Input` / `Textarea` / `Checkbox` / `FormField` (through `ui.ts`), posting
+  JSON with PII-free analytics.
 - **Reveal**: a pure-CSS fade-up on load (`.reveal` + a keyframe, `both` fill). JS/observer/scroll
   approaches were tried and dropped - see learnings.
 - **Assets**: brand SVGs (org + product logos, matthewmaynes.com favicon) live in `public/`; the
@@ -69,7 +87,13 @@ matthewmaynes.com, the reference Canopy consumer.
   repo never manages the shared Caddy, has no image prewarm job, and uses rogueoak names). A
   per-service `mem_limit` keeps a rollout's transient 2x footprint from OOM-ing the shared VM and
   taking down the cohosted site (matthewmaynes feedback 0015). Serves `https://rogueoak.com`
-  (`www` -> apex). Since spec 0008 the site stack reads the subscribe secrets from a host-side,
-  git-ignored `deploy/docker/.env.site` (`env_file`, `required: false`), created once on the droplet
-  and never tracked or baked into the image - mirroring the cohosted matthewmaynes stack. Missing
-  file => subscribe fails closed, the rest of the site is unaffected.
+  (`www` -> apex). Since spec 0008 the site stack reads its runtime secrets from a host-side,
+  git-ignored `deploy/docker/.env.site` (`env_file`, `required: false`), never tracked or baked into
+  the image. **Since spec 0011 the deploy job generates that file on every deploy from GitHub Actions
+  Secrets** (the six runtime values - `CTCT_*`, `RESEND_API_KEY`, `CONTACT_TO/FROM_EMAIL`), assembled
+  into a base64 blob on the runner, piped to the box over stdin (not an argv, so no `ps` exposure),
+  and decoded into `.env.site` (chmod 600) on the droplet so no secret touches the remote command
+  line or the logs. A deploy warns if a required secret is empty rather than blanking it. GHA is the single source of truth (a re-minted CTCT
+  token is updated in the Secret, not the box); this diverges intentionally from matthewmaynes, which
+  still hand-creates its file. The same file feeds the keepalive cron (spec 0009). Missing file =>
+  the affected route fails closed, the rest of the site is unaffected.

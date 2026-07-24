@@ -84,6 +84,19 @@ jobs:
           # Pin the exact image built in this run (full-SHA tag from metadata-action),
           # so the running version is auditable and rollback is a one-line tag change.
           IMAGE_TAG: sha-${{ github.sha }}
+          # Runtime site secrets (spec 0011). GitHub Actions Secrets are the SINGLE
+          # source of truth; the deploy regenerates deploy/docker/.env.site on the box
+          # from these each run (it no longer lives as a hand-created file). All six
+          # are stored as Secrets so they are encrypted and masked in logs. A re-minted
+          # CTCT refresh token must be updated HERE, not on the box, or the next deploy
+          # overwrites it. Subscribe (spec 0008): the CTCT_* trio. Contact (spec 0011)
+          # + keepalive cron (spec 0009): RESEND_API_KEY / CONTACT_TO/FROM_EMAIL.
+          CTCT_CLIENT_ID: ${{ secrets.CTCT_CLIENT_ID }}
+          CTCT_REFRESH_TOKEN: ${{ secrets.CTCT_REFRESH_TOKEN }}
+          CTCT_LIST_ID: ${{ secrets.CTCT_LIST_ID }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CONTACT_TO_EMAIL: ${{ secrets.CONTACT_TO_EMAIL }}
+          CONTACT_FROM_EMAIL: ${{ secrets.CONTACT_FROM_EMAIL }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
@@ -93,8 +106,37 @@ jobs:
           # so a MITM on a deploy cannot impersonate it. No trust-on-first-use.
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=10 \
-            "$USER@$HOST" "IMAGE_TAG='$IMAGE_TAG' bash -se" <<'REMOTE'
+          # Warn (do NOT fail) if a required runtime secret is empty: an unset GHA
+          # Secret would silently blank a previously-working credential in the
+          # regenerated .env.site (e.g. an out-of-band-rotated CTCT token), surfacing
+          # only as a runtime fail-closed. A warning gives a deploy-time signal while
+          # a partial set (e.g. first bring-up) still deploys.
+          missing=""
+          for v in CTCT_CLIENT_ID CTCT_REFRESH_TOKEN CTCT_LIST_ID RESEND_API_KEY CONTACT_TO_EMAIL; do
+            [ -n "${!v:-}" ] || missing="$missing $v"
+          done
+          [ -z "$missing" ] || echo "::warning title=Empty deploy secrets::empty and will blank in .env.site:$missing"
+          # Assemble the runtime env file and base64 it, so NO secret value is ever
+          # interpolated into the remote script text, the command line, or the logs
+          # (no `set -x`). The blob is PIPED to the remote over stdin as line 1 (not
+          # passed as an argv, so it is never visible via `ps` on the box); the remote
+          # reads that line, then `bash -s` runs the rest as the deploy script, which
+          # decodes the blob to deploy/docker/.env.site under a 077 umask (never
+          # world-readable). An unset secret yields an empty value, so a partial set
+          # never breaks the deploy - the affected feature fails closed at runtime.
+          ENV_SITE_B64=$(
+            {
+              printf 'CTCT_CLIENT_ID=%s\n'     "$CTCT_CLIENT_ID"
+              printf 'CTCT_REFRESH_TOKEN=%s\n' "$CTCT_REFRESH_TOKEN"
+              printf 'CTCT_LIST_ID=%s\n'       "$CTCT_LIST_ID"
+              printf 'RESEND_API_KEY=%s\n'     "$RESEND_API_KEY"
+              printf 'CONTACT_TO_EMAIL=%s\n'   "$CONTACT_TO_EMAIL"
+              printf 'CONTACT_FROM_EMAIL=%s\n' "$CONTACT_FROM_EMAIL"
+            } | base64 | tr -d '\n'
+          )
+          {
+            printf '%s\n' "$ENV_SITE_B64"
+            cat <<'REMOTE'
             set -euo pipefail
             REPO="$HOME/rogueoak"
             # Self-bootstrap: clone on first deploy, else force-sync to origin/main
@@ -105,6 +147,13 @@ jobs:
             cd "$REPO"
             git fetch --prune origin
             git reset --hard origin/main
+            # Generate the runtime secrets file from the passed blob (spec 0011). GHA
+            # Secrets are the single source of truth, so this OVERWRITES any prior file
+            # each deploy. The 077 umask means it is 600 from the instant it exists; the
+            # value is decoded from the blob so no secret hits the shell beyond the one
+            # base64 arg. compose reads it via env_file (required:false), so the app and
+            # the keepalive cron both pick up the refreshed values.
+            ( umask 077; printf '%s' "$ENV_SITE_B64" | base64 -d > deploy/docker/.env.site )
             # Cohosted with matthewmaynes.com: that repo owns the shared edge TLS
             # proxy and routes rogueoak.com -> rogueoak:3000, so this deploy no
             # longer brings up Caddy (doing so would swap the proxy config and take
@@ -170,3 +219,5 @@ jobs:
             docker image prune -af \
               --filter "label=org.opencontainers.image.source=https://github.com/rogueoak/rogueoak"
           REMOTE
+          } | ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=10 \
+            "$USER@$HOST" "export IMAGE_TAG='$IMAGE_TAG'; IFS= read -r ENV_SITE_B64; export ENV_SITE_B64; bash -s"

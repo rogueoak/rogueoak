@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "@rogueoak/icons";
 import { SubscribeForm } from "@/components/subscribe-form";
-import { projects } from "@/lib/content";
+import { tools } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Subscribe",
@@ -35,7 +35,7 @@ export default function SubscribePage() {
           While you are here
         </h2>
         <ul className="mt-5 space-y-4">
-          {projects.map((project) => (
+          {tools.map((project) => (
             <li key={project.name}>
               <a
                 href={project.href}
