@@ -1,15 +1,28 @@
 # Architecture
 
 Next.js 16 (App Router) + React 19 + TypeScript, `output: "standalone"`, npm. Mirrors
-matthewmaynes.com, the reference Canopy consumer. A multi-page site (spec 0011): a shared root
-layout wraps a Canopy `TopNav` (About / Tools / Products / Contact) and the footer around each
-route. Routes: `/` (pitch), `/about`, `/tools` + `/tools/[slug]` (spectra/trellis/canopy),
-`/products` + `/products/[slug]` (thought-stream/branch-out), `/contact`, plus `/subscribe` and
-`/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
+matthewmaynes.com, the reference Canopy consumer. A multi-page site (spec 0011): the rogueoak.com
+pages live in the `(main)` route group, whose layout wraps a Canopy `TopNav`
+(About / Tools / Products / Contact) and the footer around each route. Routes: `/` (pitch),
+`/about`, `/tools` + `/tools/[slug]` (spectra/trellis/canopy), `/products` + `/products/[slug]`
+(thought-buffer/branch-out), `/contact`, plus `/subscribe` and `/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
 404) and each ships a route-level `opengraph-image` that renders the item's card from its content
 record, so tool/product pages, their metadata, and their share previews all derive from one source.
 `SiteNav` is the only nav client island (`usePathname` for the active link); TopNav owns the mobile
 disclosure. Shared render components: `ProductList` (listings) and `ProductPage` (detail).
+
+- **Two domains, one container** (spec 0012): the same container also serves **thoughtbuffer.app**,
+  the Thought Buffer product site. `src/proxy.ts` (Next 16's proxy, formerly `middleware`) is the
+  ONLY host-aware code: it rewrites thoughtbuffer.app into the fixed `/thoughtbuffer` route subtree
+  and remaps that host's `/robots.txt` + `/sitemap.xml` onto the subtree's own. The subtree has its
+  own nested layout, metadata, OG card, favicon, robots, and sitemap, all hardcoded to
+  thoughtbuffer.app, and wraps its pages in `.theme-thoughtbuffer` - the Thought Buffer brand palette
+  (`theme-thoughtbuffer.css`, the `thoughtbuffer` Roots brand's semantic colors) remapping the same
+  Canopy variables - so nothing derives a base URL from the request host and the two sites never
+  share chrome. The internal `/thoughtbuffer` prefix 404s on rogueoak.com. The proxy RE-RUNS on its
+  own rewrite (as the server's host, not thoughtbuffer.app), so the rewrite is tagged `x-tb-rewrite`
+  and short-circuited on the second pass rather than blocked. The waitlist reuses `/v1/subscribe`
+  with an `audience` field that selects a separate Constant Contact list.
 
 - **Design system**: Canopy 1.2 via published npm packages - `@rogueoak/roots` (design tokens + a
   Tailwind v4 preset), `@rogueoak/canopy` (React components), `@rogueoak/icons`. `globals.css`

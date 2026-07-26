@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" width="520" height="150" role="img" aria-label="Thought Stream - hands-free dictation for iPhone and CarPlay">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" width="520" height="150" role="img" aria-label="Thought Buffer - hands-free dictation for iPhone and CarPlay">
   <defs>
     <!-- River Mist wave: bright at the peaks, deeper at the base (matches the app icon) -->
-    <linearGradient id="tsWave" gradientUnits="userSpaceOnUse" x1="68" y1="49" x2="68" y2="101">
+    <linearGradient id="tbWave" gradientUnits="userSpaceOnUse" x1="68" y1="49" x2="68" y2="101">
       <stop offset="0"    stop-color="#9DBBBF"/>
       <stop offset="0.55" stop-color="#6F979E"/>
       <stop offset="1"    stop-color="#4E7882"/>
@@ -33,10 +33,10 @@
   <g>
     <!-- the stream the sound rides on -->
     <path d="M44 75 C 54 70, 62 80, 68 75 C 74 70, 82 80, 92 75"
-          fill="none" stroke="url(#tsWave)" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+          fill="none" stroke="url(#tbWave)" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
 
     <!-- soundwave bars, irregular like a real voice -->
-    <g stroke="url(#tsWave)" stroke-width="4" stroke-linecap="round" fill="none">
+    <g stroke="url(#tbWave)" stroke-width="4" stroke-linecap="round" fill="none">
       <path d="M46 63 L46 87"/>
       <path d="M57 53 L57 97"/>
       <path d="M68 59 L68 91"/>
@@ -59,7 +59,7 @@
 
   <!-- wordmark -->
   <text x="130" y="80" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
-        font-size="44" font-weight="650" letter-spacing="0.4" fill="#e6edf3">Thought Stream</text>
+        font-size="44" font-weight="650" letter-spacing="0.4" fill="#e6edf3">Thought Buffer</text>
   <rect x="132" y="93" width="150" height="2.5" rx="1.25" fill="url(#tsH)" opacity="0.85"/>
   <text x="133" y="116" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
         font-size="13.5" font-weight="500" letter-spacing="0.2" fill="#7d8896">hands-free dictation for iPhone and CarPlay</text>

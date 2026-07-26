@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: productsPage.intro,
 };
 
-/** Products listing: Thought Stream and Branch Out Games, each linking to its page. */
+/** Products listing: Thought Buffer and Branch Out Games, each linking to its page. */
 export default function ProductsPage() {
   return (
     <section className="px-6 pt-10 pb-20 sm:pt-14 sm:pb-28">

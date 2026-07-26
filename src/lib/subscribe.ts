@@ -100,6 +100,22 @@ export function isTestEmail(email: string): boolean {
 }
 
 /**
+ * The subscribe audiences (spec 0012): the Rogue Oak newsletter (default) and the
+ * Thought Buffer waitlist, each backed by its OWN Constant Contact list so the two
+ * audiences stay separate. The route maps the audience to a list id from env.
+ */
+export type Audience = "rogueoak" | "thought-buffer";
+
+/**
+ * Narrow an untrusted `audience` field to a known audience, defaulting to the Rogue
+ * Oak newsletter. Closed by design: an unknown or missing value never selects the
+ * Thought Buffer list, so a stray body can't cross the audiences.
+ */
+export function parseAudience(value: unknown): Audience {
+  return value === "thought-buffer" ? "thought-buffer" : "rogueoak";
+}
+
+/**
  * Split an optional free-text name into Constant Contact first/last name parts.
  * Low-friction single field: the FIRST whitespace-separated token is the first
  * name and the remainder (if any) the last name; a middle name folds into the

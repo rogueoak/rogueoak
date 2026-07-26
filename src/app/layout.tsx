@@ -1,44 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { SiteNav } from "@/components/site-nav";
-import { SiteFooter } from "@/components/site-footer";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { site } from "@/lib/site";
 
+/**
+ * Root shell shared by every domain this container serves (spec 0012): the
+ * `<html>`/`<body>` element, the dark theme class, the shared fonts, and the
+ * PostHog provider. It deliberately renders NO nav or footer and carries no
+ * brand-specific metadata: rogueoak.com's chrome + metadata live in the `(main)`
+ * route group, and thoughtbuffer.app's live in the `thoughtbuffer` subtree, so
+ * neither leaks onto the other. `metadataBase` is a rogueoak.com default that each
+ * subtree overrides.
+ */
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: {
-    default: `${site.name} - ${site.title}`,
-    template: `%s - ${site.name}`,
-  },
-  description: site.description,
-  applicationName: site.name,
-  authors: [{ name: site.name, url: site.url }],
-  creator: site.name,
-  // Open Graph: the card shown when the link is pasted into iMessage, Slack,
-  // LinkedIn, Discord, etc. The image comes from app/opengraph-image.tsx.
-  openGraph: {
-    type: "website",
-    siteName: site.name,
-    locale: "en_US",
-    url: site.url,
-    title: `${site.name} - ${site.title}`,
-    description: site.description,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${site.name} - ${site.title}`,
-    description: site.description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
 };
 
 export const viewport: Viewport = {
-  // The site is dark-only; tint the mobile browser chrome to the navy base.
+  // Dark-only default; the thoughtbuffer subtree overrides with its own tint.
   themeColor: "#0a0d13",
 };
 
@@ -50,11 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark h-full antialiased">
       <body className="flex min-h-full flex-col bg-bg font-sans text-text">
-        <PostHogProvider>
-          <SiteNav />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </PostHogProvider>
+        <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>
   );
