@@ -10,7 +10,7 @@
   - **Tools** (`/tools`): a listing of Spectra, Trellis, and Canopy, each a wordmark + pitch +
     benefits linking to its own page. Each tool has a **detail page** (`/tools/<slug>`) with longer
     copy and a repo link.
-  - **Products** (`/products`): a listing of Thought Stream and Branch Out Games, both marked
+  - **Products** (`/products`): a listing of Thought Buffer and Branch Out Games, both marked
     "Coming soon", each linking to its own **detail page** (`/products/<slug>`). Branch Out Games
     uses its own logo (vendored from the branchout repo).
   - Every tool and product page carries its own title, description, and a **custom Open Graph card**

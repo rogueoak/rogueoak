@@ -2,7 +2,7 @@
 
 Rogue Oak's home base on the web (rogueoak.com) and the repository that hosts it. The site is a
 short pitch for Rogue Oak that routes visitors into dedicated pages: About (mission + the name
-story), Tools (Spectra, Trellis, Canopy, each with its own page), Products (Thought Stream and
+story), Tools (Spectra, Trellis, Canopy, each with its own page), Products (Thought Buffer and
 Branch Out Games, both coming soon, each with its own page), and Contact.
 
 Hosting mirrors matthewmaynes.com: a standalone container deployed to a DigitalOcean droplet behind
