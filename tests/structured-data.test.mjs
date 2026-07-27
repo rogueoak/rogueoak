@@ -9,6 +9,7 @@ import {
   websiteSchema,
   softwareApplicationSchema,
   breadcrumbSchema,
+  serializeJsonLd,
   ORG_ID,
   SITE_ID,
 } from "../src/lib/structured-data.ts";
@@ -60,6 +61,22 @@ test("softwareApplicationSchema asserts no price or availability", () => {
   );
   assert.equal(app.offers, undefined);
   assert.equal(app.price, undefined);
+});
+
+test("serializeJsonLd escapes every < so no script-breakout survives", () => {
+  // A payload carrying each of the three breakout sequences; all start with '<'.
+  const out = serializeJsonLd({ a: "</script>", b: "<!--", c: "<![CDATA[" });
+  assert.ok(!out.includes("<"), "a raw < leaked into the serialized JSON-LD");
+  assert.ok(out.includes("\\u003c/script>"), "</script> was not escaped");
+  assert.ok(out.includes("\\u003c!--"));
+  assert.ok(out.includes("\\u003c![CDATA["));
+});
+
+test("serializeJsonLd round-trips to the original data once unescaped", () => {
+  const data = [{ "@type": "Thing", name: "a < b" }];
+  const out = serializeJsonLd(data);
+  // The escape is reversible: a JSON parser reads < back as '<'.
+  assert.deepEqual(JSON.parse(out), data);
 });
 
 test("breadcrumbSchema numbers crumbs from 1 in order", () => {

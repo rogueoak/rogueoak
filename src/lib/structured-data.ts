@@ -81,6 +81,18 @@ export function softwareApplicationSchema(
   };
 }
 
+/**
+ * Serialize JSON-LD for embedding in a `<script type="application/ld+json">` tag.
+ * Escaping every `<` to its `<` unicode form neutralizes the only sequences
+ * that could break out of the script element (`</script>`, `<!--`, `<![CDATA[`),
+ * since each begins with `<`. The payload is our own stringified data, never user
+ * input; the escape is defense in depth. Kept here (not in the component) so it is
+ * unit-testable without a DOM.
+ */
+export function serializeJsonLd(data: object | readonly object[]): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
 /** One crumb in a breadcrumb trail. */
 export type Crumb = { name: string; url: string };
 

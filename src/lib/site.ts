@@ -25,3 +25,16 @@ export const site = {
   // The person behind Rogue Oak; linked from the footer.
   personalSite: "https://matthewmaynes.com",
 } as const;
+
+/**
+ * The Rogue Oak identity as JSON-LD structured data reads it (spec 0013). Derived
+ * once from `site` so the Organization node on rogueoak.com pages and the publisher
+ * reference on the Thought Buffer landing use the same source and can never drift.
+ */
+export const schemaSite = {
+  name: site.name,
+  description: site.description,
+  url: site.url,
+  logo: site.logo,
+  sameAs: [site.githubOrg, site.personalSite],
+} as const;

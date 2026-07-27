@@ -46,13 +46,16 @@
   reverse). **How to apply:** if `node --test` fails with ERR_MODULE_NOT_FOUND, invert the import
   direction so the tested module stays a leaf.
 
-- **Do not leave security-relevant logic inline in a Next route handler - it is not node-testable.**
-  A route handler imports `next/server` and uses `@/` aliases, so `node --test` cannot load it; any
-  logic inside it (IP keying, body caps, guard ordering, status mapping) is untestable at the unit
-  level and drifts unnoticed (feedback 0001, spec 0008). **How to apply:** extract the
-  regression-prone, pure decisions into an import-free `lib` leaf and unit-test them there; keep the
-  handler a thin orchestrator and cover its wiring with a production-build smoke test. Bound a
-  request body on ACTUAL bytes read, not the client-declared `Content-Length` (absent/spoofable).
+- **Do not leave non-trivial logic in a layer `node --test` cannot load - a route handler OR a
+  React component.** Both import `@/` aliases (and `next/server` / the JSX runtime), so `node --test`
+  cannot load them; any logic inside (IP keying, body caps, guard ordering, status mapping, document
+  assembly, a `<`-escape) is untestable at the unit level and drifts unnoticed (feedback 0001, 0003,
+  0004). "It is a thin shell" holds only if the shell carries no transform, decision, or escape; if
+  it does, that is a real code path. **How to apply:** extract the regression-prone, pure logic into
+  an import-free `lib` leaf and unit-test it there (e.g. `serializeJsonLd`, `buildSiteLlmsDoc`,
+  `shouldContactSubscribe`); keep the handler/component a thin orchestrator and cover its wiring with
+  a production-build smoke test. Bound a request body on ACTUAL bytes read, not the client-declared
+  `Content-Length` (absent/spoofable).
 
 ## Zero-downtime deploy on a cohosted box (spec 0005)
 

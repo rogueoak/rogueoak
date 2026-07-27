@@ -5,8 +5,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { renderLlmsTxt } from "../src/lib/llms.ts";
-import { tools, products, mission } from "../src/lib/content.ts";
+import {
+  renderLlmsTxt,
+  buildSiteLlmsDoc,
+  buildThoughtBufferLlmsDoc,
+  itemNote,
+} from "../src/lib/llms.ts";
+import { tools, products, mission, productBySlug } from "../src/lib/content.ts";
 
 const sampleDoc = {
   title: "Rogue Oak",
@@ -58,42 +63,138 @@ test("blocks are separated by a blank line", () => {
   assert.ok(out.includes("# Rogue Oak\n\n> Software built to last."));
 });
 
-test("every tool and product from content appears when the doc is built from it", () => {
-  const url = (path) => `https://rogueoak.com${path}`;
-  const out = renderLlmsTxt({
-    title: "Rogue Oak",
-    summary: "Software built to last.",
-    details: [mission],
-    sections: [
-      {
-        title: "Tools",
-        links: tools.map((t) => ({ title: t.name, url: url(`/tools/${t.slug}`), note: t.pitch })),
-      },
-      {
-        title: "Products",
-        links: products.map((p) => ({ title: p.name, url: url(`/products/${p.slug}`), note: p.pitch })),
-      },
-    ],
-  });
+// --- renderLlmsTxt boundary cases -------------------------------------------
 
+test("a section with no links renders as a bare heading", () => {
+  const out = renderLlmsTxt({ title: "T", summary: "S", sections: [{ title: "Empty", links: [] }] });
+  assert.ok(out.includes("## Empty"));
+  // No stray link bullets, and the trailing newline is still single.
+  assert.ok(!out.includes("- ["));
+  assert.ok(out.endsWith("## Empty\n"));
+});
+
+test("omitted details render no detail block; empty details is the same as omitted", () => {
+  const omitted = renderLlmsTxt({ title: "T", summary: "S", sections: [] });
+  const empty = renderLlmsTxt({ title: "T", summary: "S", details: [], sections: [] });
+  assert.equal(omitted, "# T\n\n> S\n");
+  assert.equal(empty, omitted);
+});
+
+test("an empty summary still renders the blockquote marker", () => {
+  const out = renderLlmsTxt({ title: "T", summary: "", sections: [] });
+  assert.ok(out.includes("\n> \n") || out.startsWith("# T\n\n> \n"));
+});
+
+// --- buildSiteLlmsDoc (the rogueoak.com assembly the route handler runs) -----
+
+test("buildSiteLlmsDoc includes every tool and product with a canonical link", () => {
+  const doc = buildSiteLlmsDoc({
+    name: "Rogue Oak",
+    title: "Software built to last.",
+    description: "desc.",
+    mission,
+    base: "https://rogueoak.com",
+    tools,
+    products,
+    pages: [{ title: "About", path: "/about", note: "about." }],
+  });
+  const out = renderLlmsTxt(doc);
+  assert.ok(out.includes("> Software built to last. desc."), "summary should join title + description");
   for (const tool of tools) {
-    assert.ok(out.includes(tool.name), `missing tool ${tool.name}`);
-    assert.ok(out.includes(`/tools/${tool.slug}`), `missing link for ${tool.slug}`);
+    assert.ok(out.includes(`- [${tool.name}](https://rogueoak.com/tools/${tool.slug}): ${tool.pitch}`));
   }
   for (const product of products) {
-    assert.ok(out.includes(product.name), `missing product ${product.name}`);
-    assert.ok(out.includes(`/products/${product.slug}`), `missing link for ${product.slug}`);
+    assert.ok(out.includes(`https://rogueoak.com/products/${product.slug}`), `missing ${product.slug}`);
+  }
+  assert.ok(out.includes("- [About](https://rogueoak.com/about): about."));
+});
+
+test("buildSiteLlmsDoc appends a coming-soon product's status to its note", () => {
+  // Every current product is unshipped, so the (status) suffix must show.
+  const doc = buildSiteLlmsDoc({
+    name: "Rogue Oak",
+    title: "t",
+    description: "d",
+    mission,
+    base: "https://rogueoak.com",
+    tools: [],
+    products,
+    pages: [],
+  });
+  const out = renderLlmsTxt(doc);
+  for (const product of products.filter((p) => p.status)) {
+    assert.ok(out.includes(`${product.pitch} (${product.status})`), `missing status for ${product.slug}`);
   }
 });
 
-test("rendered output stays ASCII-only (language rules)", () => {
-  const out = renderLlmsTxt({
-    title: "Rogue Oak",
-    summary: "Software built to last.",
-    details: [mission],
-    sections: [
-      { title: "Tools", links: tools.map((t) => ({ title: t.name, url: "https://rogueoak.com", note: t.pitch })) },
-    ],
+test("itemNote appends status only when present", () => {
+  assert.equal(itemNote({ pitch: "P" }), "P");
+  assert.equal(itemNote({ pitch: "P", status: "Coming soon" }), "P (Coming soon)");
+});
+
+// --- buildThoughtBufferLlmsDoc (the thoughtbuffer.app assembly) --------------
+
+test("buildThoughtBufferLlmsDoc renders body paragraphs then a benefits bullet block", () => {
+  const product = productBySlug("thought-buffer");
+  const doc = buildThoughtBufferLlmsDoc({
+    name: "Thought Buffer",
+    tagline: "Think out loud.",
+    description: "On-device dictation.",
+    url: "https://thoughtbuffer.app",
+    rogueOakUrl: "https://rogueoak.com",
+    body: product.body,
+    benefits: product.benefits,
   });
+  const out = renderLlmsTxt(doc);
+  for (const paragraph of product.body) assert.ok(out.includes(paragraph));
+  for (const benefit of product.benefits) assert.ok(out.includes(`- ${benefit}`));
+  // The Links section carries both the app and its publisher.
+  assert.ok(out.includes("- [Thought Buffer](https://thoughtbuffer.app): Think out loud."));
+  assert.ok(out.includes("- [Rogue Oak](https://rogueoak.com): The company behind Thought Buffer."));
+});
+
+test("buildThoughtBufferLlmsDoc omits the bullet block when there are no benefits", () => {
+  const doc = buildThoughtBufferLlmsDoc({
+    name: "TB",
+    tagline: "t",
+    description: "d",
+    url: "https://thoughtbuffer.app",
+    rogueOakUrl: "https://rogueoak.com",
+    body: ["Only body."],
+    benefits: [],
+  });
+  const out = renderLlmsTxt(doc);
+  assert.ok(out.includes("Only body."));
+  // The details region is everything before the Links section. With no benefits,
+  // it must hold no bullet lines (the only bullets left are the Links themselves).
+  const details = out.split("## Links")[0];
+  assert.ok(!details.includes("\n- "), "no benefit bullets should render when benefits is empty");
+});
+
+// --- language rules ----------------------------------------------------------
+
+test("the assembled rogueoak.com doc is ASCII-only with no spaced-dash breaks", () => {
+  const out = renderLlmsTxt(
+    buildSiteLlmsDoc({
+      name: "Rogue Oak",
+      title: "Software built to last.",
+      description: mission,
+      mission,
+      base: "https://rogueoak.com",
+      tools,
+      products,
+      pages: [],
+    }),
+  );
   assert.ok(!/[^\x00-\x7F]/.test(out), "found a non-ASCII character in llms.txt output");
+  assert.ok(!out.includes(" - "), "found a spaced-dash sentence break (docs/rules/language.md)");
+});
+
+test("the spaced-dash assertion has teeth (a ' - ' note is caught)", () => {
+  const out = renderLlmsTxt({
+    title: "T",
+    summary: "S",
+    sections: [{ title: "X", links: [{ title: "L", url: "u", note: "a - b" }] }],
+  });
+  assert.ok(out.includes(" - "), "sanity: the guard must be able to see a spaced dash");
 });

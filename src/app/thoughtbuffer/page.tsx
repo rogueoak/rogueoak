@@ -4,7 +4,7 @@ import { SubscribeForm } from "@/components/subscribe-form";
 import { JsonLd } from "@/components/json-ld";
 import { productBySlug } from "@/lib/content";
 import { thoughtBuffer } from "@/lib/thought-buffer";
-import { site } from "@/lib/site";
+import { site, schemaSite } from "@/lib/site";
 import { organizationSchema, softwareApplicationSchema } from "@/lib/structured-data";
 
 /**
@@ -26,13 +26,7 @@ export default function ThoughtBufferLanding() {
       pageUrl: thoughtBuffer.url,
       publisherUrl: site.url,
     }),
-    organizationSchema({
-      name: site.name,
-      description: site.description,
-      url: site.url,
-      logo: site.logo,
-      sameAs: [site.githubOrg, site.personalSite],
-    }),
+    organizationSchema(schemaSite),
   ];
 
   return (
