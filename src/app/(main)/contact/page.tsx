@@ -6,6 +6,7 @@ import { contact } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Contact",
   description: contact.intro,
+  alternates: { canonical: "/contact" },
 };
 
 /** Contact: a note straight to the Rogue Oak inbox (Resend), with an opt-in to the list. */

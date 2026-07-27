@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Subscribe",
   description:
     "Subscribe to the Rogue Oak mailing list for the occasional update when a tool ships or grows.",
+  alternates: { canonical: "/subscribe" },
 };
 
 // A focused, shareable landing page for the mailing list (spec 0008). Not in the

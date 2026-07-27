@@ -39,4 +39,9 @@
 - **Privacy policy** (`/privacy`, spec 0007): plain-language policy covering the two real data flows
   (analytics + mailing list); linked with Subscribe from the footer.
 - **Analytics**: PostHog (client only), gated so only a deployed, non-local production build reports.
-- **SEO / sharing**: metadata, `sitemap.ts`, `robots.ts`, an OpenGraph image, web manifest, icon.
+- **SEO / sharing**: metadata, `sitemap.ts` (with image entries), `robots.ts`, an OpenGraph image,
+  web manifest, icon. Every page sets an explicit canonical; detail pages carry per-page OG/Twitter.
+- **AEO / machine discoverability** (spec 0013): a curated `llms.txt` on both domains (generated from
+  `content.ts`, so it never drifts from the pages) and JSON-LD structured data across the site:
+  `Organization` + `WebSite` site-wide, `SoftwareApplication` + `BreadcrumbList` on each tool/product
+  page, and a `SoftwareApplication` + `Organization` on the Thought Buffer landing.

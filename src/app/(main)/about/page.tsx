@@ -5,6 +5,7 @@ import { about, oakStory } from "@/lib/content";
 export const metadata: Metadata = {
   title: "About",
   description: about.intro,
+  alternates: { canonical: "/about" },
 };
 
 /**

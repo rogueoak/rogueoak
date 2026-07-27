@@ -16,10 +16,25 @@ export const site = {
     "Rogue Oak builds software with a relentless focus on value, experience, and quality. Spectra for spec-driven development, Trellis for shared agent conventions, and Canopy, a tree-themed design system.",
   // Alt text for the generated share card (opengraph-image).
   ogImageAlt: "Rogue Oak - Software built to last.",
+  // The wordmark (served from public/); used as the Organization logo in JSON-LD.
+  logo: "/rogueoak-logo.svg",
   // Read at build time for static metadata (metadataBase). Use `||` (not `??`)
   // so an empty-string SITE_URL falls back instead of throwing in new URL("").
   url: process.env.SITE_URL || "https://rogueoak.com",
   githubOrg: "https://github.com/rogueoak",
   // The person behind Rogue Oak; linked from the footer.
   personalSite: "https://matthewmaynes.com",
+} as const;
+
+/**
+ * The Rogue Oak identity as JSON-LD structured data reads it (spec 0013). Derived
+ * once from `site` so the Organization node on rogueoak.com pages and the publisher
+ * reference on the Thought Buffer landing use the same source and can never drift.
+ */
+export const schemaSite = {
+  name: site.name,
+  description: site.description,
+  url: site.url,
+  logo: site.logo,
+  sameAs: [site.githubOrg, site.personalSite],
 } as const;

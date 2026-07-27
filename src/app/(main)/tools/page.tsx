@@ -6,6 +6,7 @@ import { tools, toolsPage } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Tools",
   description: toolsPage.intro,
+  alternates: { canonical: "/tools" },
 };
 
 /** Tools listing: Spectra, Trellis, and Canopy, each linking to its own page. */

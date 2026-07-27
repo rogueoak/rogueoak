@@ -11,11 +11,20 @@ record, so tool/product pages, their metadata, and their share previews all deri
 `SiteNav` is the only nav client island (`usePathname` for the active link); TopNav owns the mobile
 disclosure. Shared render components: `ProductList` (listings) and `ProductPage` (detail).
 
+- **Discoverability seam** (spec 0013): `llms.txt` and JSON-LD both derive from the same content
+  model rather than being hand-maintained. `src/lib/llms.ts` (`renderLlmsTxt`, import-free and
+  unit-tested like `content.ts`) renders the llmstxt.org format; route handlers at `app/llms.txt`
+  and `app/thoughtbuffer/llms.txt` assemble the document from `content.ts` / `site.ts` /
+  `thought-buffer.ts`. `src/lib/structured-data.ts` holds import-free JSON-LD builders
+  (`organizationSchema`, `websiteSchema`, `softwareApplicationSchema`, `breadcrumbSchema`), and the
+  `JsonLd` component serializes them into a `<script type="application/ld+json">` tag - the org/site
+  graph in the `(main)` layout, the per-item nodes in the detail pages where the slug is in scope.
+
 - **Two domains, one container** (spec 0012): the same container also serves **thoughtbuffer.app**,
   the Thought Buffer product site. `src/proxy.ts` (Next 16's proxy, formerly `middleware`) is the
   ONLY host-aware code: it rewrites thoughtbuffer.app into the fixed `/thoughtbuffer` route subtree
-  and remaps that host's `/robots.txt` + `/sitemap.xml` onto the subtree's own. The subtree has its
-  own nested layout, metadata, OG card, favicon, robots, and sitemap, all hardcoded to
+  and remaps that host's `/robots.txt` + `/sitemap.xml` + `/llms.txt` onto the subtree's own. The
+  subtree has its own nested layout, metadata, OG card, favicon, robots, sitemap, and llms.txt, all hardcoded to
   thoughtbuffer.app, and wraps its pages in `.theme-thoughtbuffer` - the Thought Buffer brand palette
   (`theme-thoughtbuffer.css`, the `thoughtbuffer` Roots brand's semantic colors) remapping the same
   Canopy variables - so nothing derives a base URL from the request host and the two sites never
