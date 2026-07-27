@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { JsonLd } from "@/components/json-ld";
+import { organizationSchema, websiteSchema } from "@/lib/structured-data";
 import { site } from "@/lib/site";
+
+// The identity every rogueoak.com page advertises as JSON-LD (spec 0013): who
+// Rogue Oak is (Organization) and the site itself (WebSite), linked by a stable
+// @id. Built from `site.ts` so it can never drift from the metadata.
+const schemaSite = {
+  name: site.name,
+  description: site.description,
+  url: site.url,
+  logo: site.logo,
+  sameAs: [site.githubOrg, site.personalSite],
+} as const;
 
 /**
  * rogueoak.com chrome + metadata (spec 0012). This route group holds every
@@ -19,6 +32,18 @@ export const metadata: Metadata = {
   applicationName: site.name,
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
+  category: "technology",
+  keywords: [
+    "Rogue Oak",
+    "software",
+    "developer tools",
+    "spec-driven development",
+    "Spectra",
+    "Trellis",
+    "Canopy",
+    "design system",
+    "AI agent conventions",
+  ],
   openGraph: {
     type: "website",
     siteName: site.name,
@@ -46,6 +71,7 @@ export default function MainLayout({
 }>) {
   return (
     <>
+      <JsonLd data={[organizationSchema(schemaSite), websiteSchema(schemaSite)]} />
       <SiteNav />
       <main className="flex-1">{children}</main>
       <SiteFooter />

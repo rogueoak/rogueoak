@@ -6,6 +6,7 @@ import { products, productsPage } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Products",
   description: productsPage.intro,
+  alternates: { canonical: "/products" },
 };
 
 /** Products listing: Thought Buffer and Branch Out Games, each linking to its page. */

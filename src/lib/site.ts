@@ -16,6 +16,8 @@ export const site = {
     "Rogue Oak builds software with a relentless focus on value, experience, and quality. Spectra for spec-driven development, Trellis for shared agent conventions, and Canopy, a tree-themed design system.",
   // Alt text for the generated share card (opengraph-image).
   ogImageAlt: "Rogue Oak - Software built to last.",
+  // The wordmark (served from public/); used as the Organization logo in JSON-LD.
+  logo: "/rogueoak-logo.svg",
   // Read at build time for static metadata (metadataBase). Use `||` (not `??`)
   // so an empty-string SITE_URL falls back instead of throwing in new URL("").
   url: process.env.SITE_URL || "https://rogueoak.com",

@@ -30,8 +30,13 @@ export function proxy(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
 
   if (THOUGHT_BUFFER_HOSTS.has(host)) {
-    // Its robots and sitemap live under the prefix; map the well-known files on.
-    if (pathname === "/robots.txt" || pathname === "/sitemap.xml") {
+    // Its robots, sitemap, and llms.txt live under the prefix; map those
+    // well-known files on.
+    if (
+      pathname === "/robots.txt" ||
+      pathname === "/sitemap.xml" ||
+      pathname === "/llms.txt"
+    ) {
       return rewrite(req, `${PREFIX}${pathname}`);
     }
     // Static/public assets (they carry a file extension) serve as-is; only page

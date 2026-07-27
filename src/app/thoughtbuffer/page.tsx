@@ -1,8 +1,11 @@
 import Image from "next/image";
 import { Reveal } from "@/components/reveal";
 import { SubscribeForm } from "@/components/subscribe-form";
+import { JsonLd } from "@/components/json-ld";
 import { productBySlug } from "@/lib/content";
 import { thoughtBuffer } from "@/lib/thought-buffer";
+import { site } from "@/lib/site";
+import { organizationSchema, softwareApplicationSchema } from "@/lib/structured-data";
 
 /**
  * thoughtbuffer.app landing (spec 0012): a coming-soon page with a waitlist. The
@@ -15,8 +18,26 @@ export default function ThoughtBufferLanding() {
   const product = productBySlug("thought-buffer");
   if (!product) return null;
 
+  // The app as an entity, published by Rogue Oak (spec 0013). The publisher @id
+  // points at rogueoak.com, so the accompanying Organization node resolves it.
+  const schemas = [
+    softwareApplicationSchema(product, {
+      category: "MobileApplication",
+      pageUrl: thoughtBuffer.url,
+      publisherUrl: site.url,
+    }),
+    organizationSchema({
+      name: site.name,
+      description: site.description,
+      url: site.url,
+      logo: site.logo,
+      sameAs: [site.githubOrg, site.personalSite],
+    }),
+  ];
+
   return (
     <div className="px-6 pt-16 pb-24 sm:pt-24 sm:pb-32">
+      <JsonLd data={schemas} />
       <div className="mx-auto max-w-3xl">
         <Reveal>
           <Image

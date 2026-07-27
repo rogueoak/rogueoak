@@ -9,14 +9,17 @@ import { site } from "@/lib/site";
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   const url = (path: string) => new URL(path, site.url).toString();
+  // The site share card, attached to the section entries so image search and rich
+  // results have something to anchor to. Detail entries use the item wordmark.
+  const siteImage = url(site.logo);
 
   const sections: MetadataRoute.Sitemap = [
-    { url: url("/"), lastModified, changeFrequency: "monthly", priority: 1 },
-    { url: url("/about"), lastModified, changeFrequency: "monthly", priority: 0.7 },
-    { url: url("/tools"), lastModified, changeFrequency: "monthly", priority: 0.8 },
-    { url: url("/products"), lastModified, changeFrequency: "monthly", priority: 0.8 },
-    { url: url("/contact"), lastModified, changeFrequency: "yearly", priority: 0.6 },
-    { url: url("/subscribe"), lastModified, changeFrequency: "monthly", priority: 0.6 },
+    { url: url("/"), lastModified, changeFrequency: "monthly", priority: 1, images: [siteImage] },
+    { url: url("/about"), lastModified, changeFrequency: "monthly", priority: 0.7, images: [siteImage] },
+    { url: url("/tools"), lastModified, changeFrequency: "monthly", priority: 0.8, images: [siteImage] },
+    { url: url("/products"), lastModified, changeFrequency: "monthly", priority: 0.8, images: [siteImage] },
+    { url: url("/contact"), lastModified, changeFrequency: "yearly", priority: 0.6, images: [siteImage] },
+    { url: url("/subscribe"), lastModified, changeFrequency: "monthly", priority: 0.6, images: [siteImage] },
     { url: url("/privacy"), lastModified, changeFrequency: "yearly", priority: 0.3 },
   ];
 
@@ -25,6 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
     changeFrequency: "monthly",
     priority: 0.7,
+    images: [url(tool.logo)],
   }));
 
   const productPages: MetadataRoute.Sitemap = products.map((product) => ({
@@ -32,6 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
     changeFrequency: "monthly",
     priority: 0.7,
+    images: [url(product.logo)],
   }));
 
   return [...sections, ...toolPages, ...productPages];
