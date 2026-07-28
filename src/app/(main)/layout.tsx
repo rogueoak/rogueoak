@@ -6,11 +6,9 @@ import { organizationSchema, websiteSchema } from "@/lib/structured-data";
 import { site, schemaSite } from "@/lib/site";
 
 /**
- * rogueoak.com chrome + metadata (spec 0012). This route group holds every
- * rogueoak.com page; its layout supplies the nav, footer, and the site-wide
- * metadata that used to live in the root layout. Keeping it here (rather than the
- * shared root) is what stops the Rogue Oak nav/title/OG from leaking onto
- * thoughtbuffer.app, which is served from a sibling subtree under the same root.
+ * rogueoak.com chrome + metadata. This route group holds every rogueoak.com page;
+ * its layout supplies the nav, footer, and the site-wide metadata. Keeping it in
+ * the route group (rather than the shared root) keeps the shell composable.
  */
 export const metadata: Metadata = {
   title: {

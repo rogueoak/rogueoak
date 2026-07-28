@@ -9,7 +9,6 @@ import {
 import {
   createTokenCache,
   isTestEmail,
-  parseAudience,
   submitSubscription,
   validateSubscribe,
 } from "@/lib/subscribe";
@@ -113,19 +112,13 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   // 7. Config from server-only env. Missing => fail closed, never leak which. The
-  //    audience selects the target list: the Rogue Oak newsletter (CTCT_LIST_ID) or
-  //    the Thought Buffer waitlist (CTCT_THOUGHT_BUFFER_LIST_ID), kept as separate
-  //    Constant Contact lists (spec 0012).
-  const audience = parseAudience(input.audience);
+  //    target is the Rogue Oak newsletter list (CTCT_LIST_ID).
   const clientId = process.env.CTCT_CLIENT_ID;
   const refreshToken = process.env.CTCT_REFRESH_TOKEN;
-  const listId =
-    audience === "thought-buffer"
-      ? process.env.CTCT_THOUGHT_BUFFER_LIST_ID
-      : process.env.CTCT_LIST_ID;
+  const listId = process.env.CTCT_LIST_ID;
   if (!clientId || !refreshToken || !listId) {
     console.error(
-      `subscribe: Constant Contact credentials and/or the list id for audience "${audience}" are not set; cannot subscribe.`,
+      "subscribe: Constant Contact credentials and/or the list id are not set; cannot subscribe.",
     );
     return NextResponse.json(
       { ok: false, error: "Sorry, subscribing is unavailable right now." },

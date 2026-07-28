@@ -10,9 +10,9 @@
   - **Tools** (`/tools`): a listing of Spectra, Trellis, and Canopy, each a wordmark + pitch +
     benefits linking to its own page. Each tool has a **detail page** (`/tools/<slug>`) with longer
     copy and a repo link.
-  - **Products** (`/products`): a listing of Thought Buffer and Branch Out Games, both marked
-    "Coming soon", each linking to its own **detail page** (`/products/<slug>`). Branch Out Games
-    uses its own logo (vendored from the branchout repo).
+  - **Products** (`/products`): a listing of Branch Out Games, marked "Coming soon", linking to its
+    own **detail page** (`/products/<slug>`). Branch Out Games uses its own logo (vendored from the
+    branchout repo).
   - Every tool and product page carries its own title, description, and a **custom Open Graph card**
     (generated from the same content record, so the share preview matches the page).
   - Sections fade/rise in on load (pure CSS).
@@ -34,14 +34,11 @@
     analytics) with a success card that points to the welcome email.
   - A branded, mobile-friendly welcome email at `emails/templates/welcome.html`, created in Constant
     Contact as "Rogue Oak Welcome Template".
-  - Announcement emails live in `emails/announcements/`; `thought-stream.html` announces the coming
-    Thought Stream app to the Rogue Oak list (spec 0010).
 - **Privacy policy** (`/privacy`, spec 0007): plain-language policy covering the two real data flows
   (analytics + mailing list); linked with Subscribe from the footer.
 - **Analytics**: PostHog (client only), gated so only a deployed, non-local production build reports.
 - **SEO / sharing**: metadata, `sitemap.ts` (with image entries), `robots.ts`, an OpenGraph image,
   web manifest, icon. Every page sets an explicit canonical; detail pages carry per-page OG/Twitter.
-- **AEO / machine discoverability** (spec 0013): a curated `llms.txt` on both domains (generated from
-  `content.ts`, so it never drifts from the pages) and JSON-LD structured data across the site:
-  `Organization` + `WebSite` site-wide, `SoftwareApplication` + `BreadcrumbList` on each tool/product
-  page, and a `SoftwareApplication` + `Organization` on the Thought Buffer landing.
+- **AEO / machine discoverability** (spec 0013): a curated `llms.txt` (generated from `content.ts`, so
+  it never drifts from the pages) and JSON-LD structured data across the site: `Organization` +
+  `WebSite` site-wide, and `SoftwareApplication` + `BreadcrumbList` on each tool/product page.

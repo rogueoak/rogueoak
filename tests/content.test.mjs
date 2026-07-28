@@ -99,10 +99,10 @@ test("each tool has the required fields and a rogueoak repo link", () => {
   }
 });
 
-test("there are exactly two products, Thought Buffer and Branch Out Games", () => {
+test("there is exactly one product, Branch Out Games", () => {
   assert.deepEqual(
     products.map((p) => p.name),
-    ["Thought Buffer", "Branch Out Games"],
+    ["Branch Out Games"],
   );
 });
 

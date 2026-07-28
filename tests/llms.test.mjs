@@ -1,17 +1,16 @@
 // Unit tests for the llms.txt renderer (src/lib/llms.ts) and its integration with
-// the content model. The route handlers (app/llms.txt, app/thoughtbuffer/llms.txt)
-// are thin shells that assemble a document from content.ts / site.ts and hand it to
-// renderLlmsTxt, so proving the renderer + the content wiring here covers the file.
+// the content model. The app/llms.txt route handler is a thin shell that assembles
+// a document from content.ts / site.ts and hands it to renderLlmsTxt, so proving the
+// renderer + the content wiring here covers the file.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   renderLlmsTxt,
   buildSiteLlmsDoc,
-  buildThoughtBufferLlmsDoc,
   itemNote,
 } from "../src/lib/llms.ts";
-import { tools, products, mission, productBySlug } from "../src/lib/content.ts";
+import { tools, products, mission } from "../src/lib/content.ts";
 
 const sampleDoc = {
   title: "Rogue Oak",
@@ -130,45 +129,6 @@ test("buildSiteLlmsDoc appends a coming-soon product's status to its note", () =
 test("itemNote appends status only when present", () => {
   assert.equal(itemNote({ pitch: "P" }), "P");
   assert.equal(itemNote({ pitch: "P", status: "Coming soon" }), "P (Coming soon)");
-});
-
-// --- buildThoughtBufferLlmsDoc (the thoughtbuffer.app assembly) --------------
-
-test("buildThoughtBufferLlmsDoc renders body paragraphs then a benefits bullet block", () => {
-  const product = productBySlug("thought-buffer");
-  const doc = buildThoughtBufferLlmsDoc({
-    name: "Thought Buffer",
-    tagline: "Think out loud.",
-    description: "On-device dictation.",
-    url: "https://thoughtbuffer.app",
-    rogueOakUrl: "https://rogueoak.com",
-    body: product.body,
-    benefits: product.benefits,
-  });
-  const out = renderLlmsTxt(doc);
-  for (const paragraph of product.body) assert.ok(out.includes(paragraph));
-  for (const benefit of product.benefits) assert.ok(out.includes(`- ${benefit}`));
-  // The Links section carries both the app and its publisher.
-  assert.ok(out.includes("- [Thought Buffer](https://thoughtbuffer.app): Think out loud."));
-  assert.ok(out.includes("- [Rogue Oak](https://rogueoak.com): The company behind Thought Buffer."));
-});
-
-test("buildThoughtBufferLlmsDoc omits the bullet block when there are no benefits", () => {
-  const doc = buildThoughtBufferLlmsDoc({
-    name: "TB",
-    tagline: "t",
-    description: "d",
-    url: "https://thoughtbuffer.app",
-    rogueOakUrl: "https://rogueoak.com",
-    body: ["Only body."],
-    benefits: [],
-  });
-  const out = renderLlmsTxt(doc);
-  assert.ok(out.includes("Only body."));
-  // The details region is everything before the Links section. With no benefits,
-  // it must hold no bullet lines (the only bullets left are the Links themselves).
-  const details = out.split("## Links")[0];
-  assert.ok(!details.includes("\n- "), "no benefit bullets should render when benefits is empty");
 });
 
 // --- language rules ----------------------------------------------------------

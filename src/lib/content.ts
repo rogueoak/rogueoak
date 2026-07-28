@@ -193,25 +193,6 @@ export const tools: readonly Item[] = [
 
 export const products: readonly Item[] = [
   {
-    slug: "thought-buffer",
-    name: "Thought Buffer",
-    logo: "/thought-buffer-logo.svg",
-    status: "Coming soon",
-    pitch:
-      "Hands-free, on-device dictation for capturing your thinking out loud on iPhone and in CarPlay.",
-    benefits: [
-      "Tap once, ask Siri, or press Start in CarPlay, then just talk. Pause to think; it waits for you.",
-      "Edit entirely by voice with a control word, so you never have to touch the screen.",
-      "Speech-to-text runs on the device, so your words never leave your phone, and your thoughts stay yours as plain Markdown.",
-    ],
-    body: [
-      "Thought Buffer is for the ideas that arrive when your hands are busy: driving, walking, cooking. Start a thought and talk. It waits through your pauses instead of cutting you off, so a long train of thought stays in one piece.",
-      "Nothing leaves the phone. The speech-to-text runs on the device and your thoughts land as plain Markdown you own, ready to move anywhere. Still in early development.",
-    ],
-    href: "https://thoughtbuffer.app",
-    hrefLabel: "Visit thoughtbuffer.app",
-  },
-  {
     slug: "branch-out",
     name: "Branch Out Games",
     logo: "/branchout-logo.svg",

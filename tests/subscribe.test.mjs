@@ -12,7 +12,6 @@ import {
   SUBSCRIBE_LIMITS,
   TEST_EMAIL_DOMAIN,
   validateSubscribe,
-  parseAudience,
   isTestEmail,
   splitName,
   buildSignUpPayload,
@@ -21,15 +20,6 @@ import {
   createTokenCache,
   submitSubscription,
 } from "../src/lib/subscribe.ts";
-
-test("parseAudience maps only the exact thought-buffer value, else defaults to rogueoak", () => {
-  assert.equal(parseAudience("thought-buffer"), "thought-buffer");
-  // Anything else - missing, unknown, wrong case, wrong type - is the newsletter,
-  // so a stray body can never cross onto the Thought Buffer list.
-  for (const v of [undefined, null, "", "rogueoak", "Thought-Buffer", "thoughtbuffer", 1, {}]) {
-    assert.equal(parseAudience(v), "rogueoak");
-  }
-});
 
 test("validateSubscribe accepts and trims a good email (name defaults empty)", () => {
   const r = validateSubscribe({ email: "  reader@example.com  " });

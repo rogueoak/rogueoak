@@ -2,12 +2,12 @@
 
 ## Problem
 
-rogueoak.com and thoughtbuffer.app already carry the SEO basics: a sitemap, a robots.txt, per-page
+rogueoak.com already carries the SEO basics: a sitemap, a robots.txt, per-page
 titles and descriptions, generated Open Graph cards, and a manifest. But two things that matter most
 for how modern search engines and language models understand a site are missing entirely, and a few
 per-page signals are thinner than they should be.
 
-- There is **no `llms.txt`** on either domain. That file is the emerging convention for handing an
+- There is **no `llms.txt`**. That file is the emerging convention for handing an
   LLM a clean, curated map of a site: what the company is, what it makes, and where to read more.
   Without it a model has to guess the shape of the site from raw HTML.
 - There is **no structured data (JSON-LD)** anywhere. Search engines and answer engines read
@@ -23,15 +23,13 @@ does it make, is each thing a tool or a product, and where is the authoritative 
 
 ## Outcome
 
-- **`llms.txt` on both domains.** `https://rogueoak.com/llms.txt` is a curated, link-first map:
+- **`llms.txt`.** `https://rogueoak.com/llms.txt` is a curated, link-first map:
   the brand and tagline, the mission, every tool and every product with its one-line pitch and
   canonical link, and pointers to the key pages (About, Tools, Products, Contact). It is generated
   from `content.ts` / `site.ts`, so a new tool or product appears in it automatically and it can
-  never drift from the pages. `https://thoughtbuffer.app/llms.txt` is the Thought Buffer equivalent,
-  hardcoded to that domain the same way its robots/sitemap already are.
+  never drift from the pages.
 - **JSON-LD across the site.** An `Organization` + `WebSite` graph on every rogueoak.com page; a
-  `SoftwareApplication` + `BreadcrumbList` on each tool and product detail page; a
-  `SoftwareApplication` (mobile app) + `Organization` publisher on the Thought Buffer landing. All
+  `SoftwareApplication` + `BreadcrumbList` on each tool and product detail page. All
   built from the same `content.ts` records that drive the copy.
 - **Richer per-page metadata.** Every tool/product detail page and every section page gets an
   explicit `alternates.canonical` and a per-page `openGraph` / `twitter` block (title + description
@@ -48,18 +46,14 @@ does it make, is each thing a tool or a product, and where is the authoritative 
 **In**
 - New pure builder `src/lib/llms.ts`: `renderLlmsTxt(doc)` turns a `{ title, summary, details[],
   sections[] }` document into the llms.txt text format. Import-free so `node --test` loads it.
-- New route handlers: `src/app/llms.txt/route.ts` (rogueoak.com, built from `site.ts` + `content.ts`)
-  and `src/app/thoughtbuffer/llms.txt/route.ts` (thoughtbuffer.app, built from `thought-buffer.ts` +
-  the `thought-buffer` content record). Both served as `text/plain; charset=utf-8`.
-- `proxy.ts`: add `/llms.txt` to the set of well-known files remapped onto the `/thoughtbuffer`
-  subtree, exactly as `/robots.txt` and `/sitemap.xml` already are.
+- New route handler: `src/app/llms.txt/route.ts` (rogueoak.com, built from `site.ts` + `content.ts`),
+  served as `text/plain; charset=utf-8`.
 - New pure builders `src/lib/structured-data.ts`: `organizationSchema`, `websiteSchema`,
   `softwareApplicationSchema`, `breadcrumbSchema`. Import-free, unit-tested.
 - New presentational component `src/components/json-ld.tsx`: renders a single
   `<script type="application/ld+json">` tag from a data object or array.
 - Inject JSON-LD: Organization + WebSite in `(main)/layout.tsx`; SoftwareApplication + BreadcrumbList
-  in the tool and product detail pages; SoftwareApplication + Organization on the Thought Buffer
-  landing.
+  in the tool and product detail pages.
 - Enrich metadata: `alternates.canonical` + per-page `openGraph`/`twitter` on tool/product detail
   pages (`generateMetadata`) and on the section pages (`about`, `tools`, `products`, `contact`,
   `subscribe`, `privacy`); explicit canonical on home; `keywords` + `category` in the `(main)`
@@ -76,7 +70,7 @@ does it make, is each thing a tool or a product, and where is the authoritative 
   can follow if it proves useful. Decided with the owner.
 - New OG images or changes to the existing generated cards.
 - hreflang / i18n (site is English-only), and any noindex changes to existing pages.
-- Marking Thought Buffer or Branch Out Games as anything other than "coming soon".
+- Marking Branch Out Games as anything other than "coming soon".
 
 ## Approach
 
@@ -85,11 +79,8 @@ summary rendered as the `>` blockquote, optional detail paragraphs, then `##` se
 `- [title](url): note` links) following the llmstxt.org convention. The rogueoak route handler
 assembles that document from `site.ts` (name, tagline, description, url) and `content.ts` (the
 `mission`, the `tools` and `products` arrays, the section pages), so the file is always in step with
-the site. The thoughtbuffer handler assembles a smaller document from `thought-buffer.ts` and the
-`thought-buffer` product record. Both live as route handlers (not the metadata-file convention) for
-the same reason the thoughtbuffer robots/sitemap do: they must sit where `proxy.ts` can remap them
-per host. Adding `/llms.txt` to the proxy's well-known list is a one-line change; the matcher already
-lets `.txt` paths through (it only excludes image/font/manifest extensions).
+the site. It lives as a route handler (not the metadata-file convention) so it is assembled from the
+content model at request time.
 
 **Structured data.** Four small pure builders return plain JSON-LD objects. `organizationSchema` and
 `websiteSchema` describe Rogue Oak once, with a stable `@id` the other nodes reference.
@@ -99,8 +90,7 @@ Organization `@id`. `breadcrumbSchema` builds the Home > Tools > Spectra trail. 
 component serializes a node (or array of nodes) into a script tag via `dangerouslySetInnerHTML`, the
 standard Next.js App Router pattern. The Organization + WebSite graph renders once in the `(main)`
 layout so it is present on every page; the per-item nodes render in the detail pages where the slug
-is known. Thought Buffer gets its own SoftwareApplication (a mobile `iOS` app) plus the Organization
-as publisher.
+is known.
 
 **Metadata.** The detail pages' `generateMetadata` gains `alternates.canonical` (the item's own
 path) and an `openGraph` / `twitter` block carrying the item name + pitch; the generated
@@ -112,8 +102,8 @@ gain an explicit canonical alongside their existing title/description, and home 
 and product name and link is present, and that the output is ASCII-only with no spaced-dash breaks
 (the language rules). The schema builders are asserted for `@type`, required fields, the publisher
 `@id` linkage, and the breadcrumb ordering. Existing tests stay green; `lint`, `build`, `test` all
-pass before the PR. Manual check: fetch `/llms.txt` on both hosts in the dev build and view-source a
-detail page to confirm the JSON-LD renders.
+pass before the PR. Manual check: fetch `/llms.txt` in the dev build and view-source a
+detail page to confirm the JSON-LD renders on rogueoak.com.
 
 ## Key decisions & trade-offs
 
@@ -140,11 +130,8 @@ detail page to confirm the JSON-LD renders.
 - [ ] `https://rogueoak.com/llms.txt` returns `text/plain` with the brand, tagline, mission, every
       tool and product (name, pitch, canonical link), and the key page links; a new `content.ts`
       item would appear automatically.
-- [ ] `https://thoughtbuffer.app/llms.txt` returns the Thought Buffer map, hardcoded to that domain;
-      `proxy.ts` remaps it and the rogueoak internal prefix stays private.
 - [ ] Every rogueoak.com page carries `Organization` + `WebSite` JSON-LD; each tool/product detail
-      page carries `SoftwareApplication` + `BreadcrumbList`; the Thought Buffer landing carries
-      `SoftwareApplication` + `Organization`. All validate as well-formed JSON-LD.
+      page carries `SoftwareApplication` + `BreadcrumbList`. All validate as well-formed JSON-LD.
 - [ ] Tool/product detail pages and section pages set an explicit `alternates.canonical` and a
       per-page `openGraph`/`twitter` block; home sets a `/` canonical; the `(main)` layout sets
       `keywords` + `category`.

@@ -2,7 +2,6 @@
 
 import { usePostHog } from "posthog-js/react";
 import { clientAnalyticsEnabled } from "@/lib/posthog-browser";
-import type { Audience } from "@/lib/subscribe";
 import {
   SubscribeForm as CanopySubscribeForm,
   type SubscribeEventPhase,
@@ -26,7 +25,6 @@ export function SubscribeForm({
   source,
   alwaysShowName = false,
   heading = true,
-  audience,
   title = "Subscribe for updates",
   description = "The occasional note when a Rogue Oak product ships or grows. No spam; unsubscribe anytime.",
   successBadge = "You are on the list",
@@ -35,19 +33,15 @@ export function SubscribeForm({
   className?: string;
   /** Which surface this instance renders on - a PII-free analytics dimension so
    *  the home section vs. the dedicated page are attributable. Never the email. */
-  source: "home" | "subscribe_page" | "thought_buffer";
+  source: "home" | "subscribe_page";
   /** Show the optional Name field from first paint instead of on email focus -
    *  used by the dedicated `/subscribe` page, which leads with the full ask. */
   alwaysShowName?: boolean;
   /** Render the box's own heading + subtext. The dedicated `/subscribe` page
    *  supplies its own page-level copy, so it turns this off. */
   heading?: boolean;
-  /** Which Constant Contact list this signup joins (spec 0012). Omitted / undefined
-   *  is the Rogue Oak newsletter; `"thought-buffer"` is the Thought Buffer waitlist.
-   *  Forwarded to the route, which maps it to a separate list. */
-  audience?: Audience;
-  /** Copy overrides so the same form serves the Rogue Oak newsletter and the
-   *  Thought Buffer waitlist with the right words. Defaults are the newsletter's. */
+  /** Copy overrides for the box's heading and success states. Defaults are the
+   *  Rogue Oak newsletter's. */
   title?: string;
   description?: string;
   successBadge?: string;
@@ -73,7 +67,7 @@ export function SubscribeForm({
       res = await fetch("/v1/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, company, audience }),
+        body: JSON.stringify({ email, name, company }),
       });
     } catch {
       throw Object.assign(new Error("Could not reach the server. Please try again."), {

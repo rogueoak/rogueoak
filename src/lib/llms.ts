@@ -7,10 +7,9 @@
  *
  * This module is import-free on purpose, exactly like `content.ts`: `node --test`
  * loads it directly to assert on the output, so it must not pull in path-aliased
- * or extensionless modules. The route handlers (app/llms.txt and
- * app/thoughtbuffer/llms.txt) assemble the document from `content.ts` / `site.ts`
- * / `thought-buffer.ts` and hand it here, so the file can never drift from the
- * pages. Keep the copy ASCII-only with no spaced-dash sentence breaks, per
+ * or extensionless modules. The `app/llms.txt` route handler assembles the document
+ * from `content.ts` / `site.ts` and hands it here, so the file can never drift from
+ * the pages. Keep the copy ASCII-only with no spaced-dash sentence breaks, per
  * docs/rules/language.md.
  */
 
@@ -110,46 +109,6 @@ export function buildSiteLlmsDoc(input: {
           url: link(page.path),
           note: page.note,
         })),
-      },
-    ],
-  };
-}
-
-/**
- * Assemble the thoughtbuffer.app llms.txt document. The body paragraphs come first,
- * then the benefits as a Markdown bullet block (so a model gets the concrete
- * capabilities without a fake link per benefit), then a small Links section.
- */
-export function buildThoughtBufferLlmsDoc(input: {
-  name: string;
-  tagline: string;
-  description: string;
-  url: string;
-  rogueOakUrl: string;
-  body?: readonly string[];
-  benefits?: readonly string[];
-}): LlmsDoc {
-  const details = [
-    ...(input.body ?? []),
-    ...(input.benefits?.length
-      ? [input.benefits.map((benefit) => `- ${benefit}`).join("\n")]
-      : []),
-  ];
-  return {
-    title: input.name,
-    summary: `${input.tagline} ${input.description}`,
-    details,
-    sections: [
-      {
-        title: "Links",
-        links: [
-          { title: input.name, url: input.url, note: input.tagline },
-          {
-            title: "Rogue Oak",
-            url: input.rogueOakUrl,
-            note: "The company behind Thought Buffer.",
-          },
-        ],
       },
     ],
   };

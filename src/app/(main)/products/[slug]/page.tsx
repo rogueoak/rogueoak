@@ -8,14 +8,13 @@ import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/structured-da
 
 type PageProps = { params: Promise<{ slug: string }> };
 
-// The schema.org applicationCategory per product: Thought Buffer is a mobile app,
-// Branch Out Games is a game. Falls back to a generic app category for anything new.
+// The schema.org applicationCategory per product: Branch Out Games is a game.
+// Falls back to a generic app category for anything new.
 const PRODUCT_CATEGORY: Record<string, string> = {
-  "thought-buffer": "MobileApplication",
   "branch-out": "GameApplication",
 };
 
-// Statically generate exactly the two product pages; any other slug 404s.
+// Statically generate the product pages; any other slug 404s.
 export function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
 }

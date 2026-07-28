@@ -7,10 +7,10 @@ In the first cut of spec 0013, the tester persona flagged two majors:
 1. The `<` -> `<` script-breakout escape (the exact guard the spec scoped in) lived inline in
    the `JsonLd` component (`src/components/json-ld.tsx`) with zero coverage. A regression that dropped
    the `.replace(...)` would ship green, since a `.tsx` component is not loaded by `node --test`.
-2. The two `llms.txt` route handlers were described in a test comment as "thin shells", but each
+2. The `llms.txt` route handler was described in a test comment as a "thin shell", but it
    carried real assembly logic that only lived there and was proven by nothing: the rogueoak
-   `(status)` suffix on coming-soon product notes, and the thoughtbuffer body-plus-benefits-bullet
-   transform. The shipped tests exercised only the pure `renderLlmsTxt` primitive, not the assembly.
+   `(status)` suffix on coming-soon product notes. The shipped tests exercised only the pure
+   `renderLlmsTxt` primitive, not the assembly.
 
 ## Root cause
 
@@ -25,10 +25,9 @@ Extracted the logic into the import-free, node-testable leaves and covered it:
 
 - `serializeJsonLd(data)` moved to `src/lib/structured-data.ts`; `JsonLd` now calls it. Tests assert
   every `<` in a `</script>` / `<!--` / `<![CDATA[` payload is escaped and the output round-trips.
-- `buildSiteLlmsDoc` and `buildThoughtBufferLlmsDoc` moved to `src/lib/llms.ts`; both route handlers
-  now only wire content in and render. Tests assert the `(status)` suffix, the benefits bullet block
-  (and its omission when empty), the summary join, and the language rules (ASCII, no ` - ` break)
-  against the real content records.
+- `buildSiteLlmsDoc` moved to `src/lib/llms.ts`; the route handler now only wires content in and
+  renders. Tests assert the `(status)` suffix, the summary join, and the language rules (ASCII, no
+  ` - ` break) against the real content records.
 
 ## Learning
 

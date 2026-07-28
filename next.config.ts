@@ -43,18 +43,6 @@ const nextConfig: NextConfig = {
   // Required by the PostHog proxy: its ingest paths use trailing slashes (e.g.
   // `/e/`), which Next would otherwise 308-redirect and break event capture.
   skipTrailingSlashRedirect: true,
-  // The product formerly at /products/thought-stream is now Thought Buffer (spec
-  // 0012). Permanent-redirect the old slug so existing links and search results
-  // keep working.
-  async redirects() {
-    return [
-      {
-        source: "/products/thought-stream",
-        destination: "/products/thought-buffer",
-        permanent: true,
-      },
-    ];
-  },
   // Conservative baseline security headers for a public static-content site.
   // No CSP yet: the pre-paint theme script is inline, so a future CSP must use a
   // hash / nonce rather than 'unsafe-inline'.

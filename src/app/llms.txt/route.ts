@@ -15,8 +15,7 @@ import {
  * language models, following the llmstxt.org convention. The document is assembled
  * by `buildSiteLlmsDoc` from `content.ts` and `site.ts` (so a new tool or product
  * appears automatically and the file can never drift from the pages); this handler
- * only wires the content in and renders. The Thought Buffer subtree serves its own
- * at app/thoughtbuffer/llms.txt; `proxy.ts` routes each host to the right one.
+ * only wires the content in and renders.
  */
 export function GET(): Response {
   const doc = buildSiteLlmsDoc({
