@@ -94,9 +94,6 @@ jobs:
           CTCT_CLIENT_ID: ${{ secrets.CTCT_CLIENT_ID }}
           CTCT_REFRESH_TOKEN: ${{ secrets.CTCT_REFRESH_TOKEN }}
           CTCT_LIST_ID: ${{ secrets.CTCT_LIST_ID }}
-          # The Thought Buffer waitlist list (spec 0012), separate from the Rogue Oak
-          # list so thoughtbuffer.app signups stay their own audience.
-          CTCT_THOUGHT_BUFFER_LIST_ID: ${{ secrets.CTCT_THOUGHT_BUFFER_LIST_ID }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           CONTACT_TO_EMAIL: ${{ secrets.CONTACT_TO_EMAIL }}
           CONTACT_FROM_EMAIL: ${{ secrets.CONTACT_FROM_EMAIL }}
@@ -115,7 +112,7 @@ jobs:
           # only as a runtime fail-closed. A warning gives a deploy-time signal while
           # a partial set (e.g. first bring-up) still deploys.
           missing=""
-          for v in CTCT_CLIENT_ID CTCT_REFRESH_TOKEN CTCT_LIST_ID CTCT_THOUGHT_BUFFER_LIST_ID RESEND_API_KEY CONTACT_TO_EMAIL; do
+          for v in CTCT_CLIENT_ID CTCT_REFRESH_TOKEN CTCT_LIST_ID RESEND_API_KEY CONTACT_TO_EMAIL; do
             [ -n "${!v:-}" ] || missing="$missing $v"
           done
           [ -z "$missing" ] || echo "::warning title=Empty deploy secrets::empty and will blank in .env.site:$missing"
@@ -132,7 +129,6 @@ jobs:
               printf 'CTCT_CLIENT_ID=%s\n'     "$CTCT_CLIENT_ID"
               printf 'CTCT_REFRESH_TOKEN=%s\n' "$CTCT_REFRESH_TOKEN"
               printf 'CTCT_LIST_ID=%s\n'       "$CTCT_LIST_ID"
-              printf 'CTCT_THOUGHT_BUFFER_LIST_ID=%s\n' "$CTCT_THOUGHT_BUFFER_LIST_ID"
               printf 'RESEND_API_KEY=%s\n'     "$RESEND_API_KEY"
               printf 'CONTACT_TO_EMAIL=%s\n'   "$CONTACT_TO_EMAIL"
               printf 'CONTACT_FROM_EMAIL=%s\n' "$CONTACT_FROM_EMAIL"

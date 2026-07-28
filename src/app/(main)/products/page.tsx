@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/products" },
 };
 
-/** Products listing: Thought Buffer and Branch Out Games, each linking to its page. */
+/** Products listing: Branch Out Games, linking to its page. */
 export default function ProductsPage() {
   return (
     <section className="px-6 pt-10 pb-20 sm:pt-14 sm:pb-28">

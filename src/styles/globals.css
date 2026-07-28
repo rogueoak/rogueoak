@@ -9,8 +9,6 @@
 @import '@rogueoak/roots/tailwind-preset.css';
 @import './brand-rogueoak.generated.css';
 @import './theme-rogueoak.css';
-/* Thought Buffer brand palette, class-scoped to the thoughtbuffer.app subtree (spec 0012). */
-@import './theme-thoughtbuffer.css';
 
 /* Self-hosted brand fonts (Roots ships only the family names). */
 @import '@fontsource-variable/figtree';

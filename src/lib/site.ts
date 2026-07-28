@@ -28,8 +28,8 @@ export const site = {
 
 /**
  * The Rogue Oak identity as JSON-LD structured data reads it (spec 0013). Derived
- * once from `site` so the Organization node on rogueoak.com pages and the publisher
- * reference on the Thought Buffer landing use the same source and can never drift.
+ * once from `site` so the Organization node on rogueoak.com pages reads from a
+ * single source and can never drift.
  */
 export const schemaSite = {
   name: site.name,

@@ -5,7 +5,7 @@ matthewmaynes.com, the reference Canopy consumer. A multi-page site (spec 0011):
 pages live in the `(main)` route group, whose layout wraps a Canopy `TopNav`
 (About / Tools / Products / Contact) and the footer around each route. Routes: `/` (pitch),
 `/about`, `/tools` + `/tools/[slug]` (spectra/trellis/canopy), `/products` + `/products/[slug]`
-(thought-buffer/branch-out), `/contact`, plus `/subscribe` and `/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
+(branch-out), `/contact`, plus `/subscribe` and `/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
 404) and each ships a route-level `opengraph-image` that renders the item's card from its content
 record, so tool/product pages, their metadata, and their share previews all derive from one source.
 `SiteNav` is the only nav client island (`usePathname` for the active link); TopNav owns the mobile
@@ -13,25 +13,15 @@ disclosure. Shared render components: `ProductList` (listings) and `ProductPage`
 
 - **Discoverability seam** (spec 0013): `llms.txt` and JSON-LD both derive from the same content
   model rather than being hand-maintained. `src/lib/llms.ts` (`renderLlmsTxt`, import-free and
-  unit-tested like `content.ts`) renders the llmstxt.org format; route handlers at `app/llms.txt`
-  and `app/thoughtbuffer/llms.txt` assemble the document from `content.ts` / `site.ts` /
-  `thought-buffer.ts`. `src/lib/structured-data.ts` holds import-free JSON-LD builders
+  unit-tested like `content.ts`) renders the llmstxt.org format; the route handler at `app/llms.txt`
+  assembles the document from `content.ts` / `site.ts`. `src/lib/structured-data.ts` holds import-free JSON-LD builders
   (`organizationSchema`, `websiteSchema`, `softwareApplicationSchema`, `breadcrumbSchema`), and the
   `JsonLd` component serializes them into a `<script type="application/ld+json">` tag - the org/site
   graph in the `(main)` layout, the per-item nodes in the detail pages where the slug is in scope.
 
-- **Two domains, one container** (spec 0012): the same container also serves **thoughtbuffer.app**,
-  the Thought Buffer product site. `src/proxy.ts` (Next 16's proxy, formerly `middleware`) is the
-  ONLY host-aware code: it rewrites thoughtbuffer.app into the fixed `/thoughtbuffer` route subtree
-  and remaps that host's `/robots.txt` + `/sitemap.xml` + `/llms.txt` onto the subtree's own. The
-  subtree has its own nested layout, metadata, OG card, favicon, robots, sitemap, and llms.txt, all hardcoded to
-  thoughtbuffer.app, and wraps its pages in `.theme-thoughtbuffer` - the Thought Buffer brand palette
-  (`theme-thoughtbuffer.css`, the `thoughtbuffer` Roots brand's semantic colors) remapping the same
-  Canopy variables - so nothing derives a base URL from the request host and the two sites never
-  share chrome. The internal `/thoughtbuffer` prefix 404s on rogueoak.com. The proxy RE-RUNS on its
-  own rewrite (as the server's host, not thoughtbuffer.app), so the rewrite is tagged `x-tb-rewrite`
-  and short-circuited on the second pass rather than blocked. The waitlist reuses `/v1/subscribe`
-  with an `audience` field that selects a separate Constant Contact list.
+- **Single host**: the container serves only **rogueoak.com**. There is no host-aware routing;
+  every route is a rogueoak.com page. `/v1/subscribe` writes to the single Rogue Oak Constant
+  Contact list (`CTCT_LIST_ID`).
 
 - **Design system**: Canopy 1.2 via published npm packages - `@rogueoak/roots` (design tokens + a
   Tailwind v4 preset), `@rogueoak/canopy` (React components), `@rogueoak/icons`. `globals.css`
