@@ -1,10 +1,11 @@
 # Features
 
 - **Multi-page site** (spec 0011): a dark-only site built on the Canopy design system (v1.2), with a
-  persistent top nav (Canopy `TopNav`) linking About, Tools, Products, and Contact. The brand mark
+  persistent top nav (Canopy `TopNav`) linking About, Tools, and Contact. The brand mark
   links home; the active section is highlighted; the nav collapses to a mobile menu.
-  - **Home** (`/`): the pitch. Hero mark + tagline, the Rogue Oak mission up front, two cards
-    routing to Tools and Products, then the "Subscribe for updates" section (spec 0008).
+  - **Home** (`/`): the pitch. Hero mark + tagline, the Rogue Oak mission up front, a card
+    routing to Tools, then the "Subscribe for updates" section (spec 0008). The card row lays
+    itself out from the card count, so one card centres and two split the row.
   - **About** (`/about`): leads with the Rogue Oak mission (the same statement the home page
     pitches, so the two never drift), then the oak name story rendered as a quote.
   - **Tools** (`/tools`): a listing of Spectra, Trellis, and Canopy, each a wordmark + pitch +
@@ -12,7 +13,11 @@
     copy and a repo link.
   - **Products** (`/products`): a listing of Branch Out Games, marked "Coming soon", linking to its
     own **detail page** (`/products/<slug>`). Branch Out Games uses its own logo (vendored from the
-    branchout repo).
+    branchout repo). **Unlinked for now**: Branch Out Games is not ready to be advertised, so there
+    is no Products nav entry and no Products home card. The pages still build and resolve, and
+    `/products` stays in the sitemap, `llms.txt`, and the structured data, so crawlers and language
+    models still reach it. Restore the entry in `nav` and the card in `home` (both in `content.ts`)
+    to bring it back.
   - Every tool and product page carries its own title, description, and a **custom Open Graph card**
     (generated from the same content record, so the share preview matches the page).
   - Sections fade/rise in on load (pure CSS).
