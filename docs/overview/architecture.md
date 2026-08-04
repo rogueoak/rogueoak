@@ -3,7 +3,8 @@
 Next.js 16 (App Router) + React 19 + TypeScript, `output: "standalone"`, npm. Mirrors
 matthewmaynes.com, the reference Canopy consumer. A multi-page site (spec 0011): the rogueoak.com
 pages live in the `(main)` route group, whose layout wraps a Canopy `TopNav`
-(About / Tools / Products / Contact) and the footer around each route. Routes: `/` (pitch),
+(About / Tools / Contact; Products is unlinked for now, see features) and the footer around each
+route. Routes: `/` (pitch),
 `/about`, `/tools` + `/tools/[slug]` (spectra/trellis/canopy), `/products` + `/products/[slug]`
 (branch-out), `/contact`, plus `/subscribe` and `/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
 404) and each ships a route-level `opengraph-image` that renders the item's card from its content

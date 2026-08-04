@@ -47,11 +47,16 @@ export const hero = {
   tagline: "Software built to last.",
 } as const;
 
-/** Top-nav links, left to right. The brand mark (home) sits before these. */
+/**
+ * Top-nav links, left to right. The brand mark (home) sits before these.
+ *
+ * Products is deliberately absent: Branch Out Games is not ready to be advertised
+ * yet. The `/products` pages still build and resolve, they are just not linked
+ * from the nav or the home pitch. Add the entry back when it launches.
+ */
 export const nav = [
   { label: "About", href: "/about" },
   { label: "Tools", href: "/tools" },
-  { label: "Products", href: "/products" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -79,9 +84,13 @@ export const mission =
   "Rogue Oak builds what it believes in, not what would simply sell. It earns a relationship it is accountable for, not just your attention or your data. What is yours stays yours. That is not up for negotiation.";
 
 /**
- * Home - the pitch. The mission up front, then two cards that route to the Tools
- * and Products lists. Kept lean: home states what Rogue Oak stands for and sends
- * you deeper; the About page carries the same mission plus the oak story.
+ * Home - the pitch. The mission up front, then the cards that route deeper. Kept
+ * lean: home states what Rogue Oak stands for and sends you on; the About page
+ * carries the same mission plus the oak story.
+ *
+ * The Products card is held back with the nav entry (see `nav`) until Branch Out
+ * Games is ready to be advertised. `HomeIntro` lays the cards out from the count,
+ * so one card centres and two split the row.
  */
 export const home = {
   lead: mission,
@@ -92,13 +101,6 @@ export const home = {
         "Open-source tools Rogue Oak builds and runs on every project: spec-driven development, shared agent conventions, and a design system.",
       href: "/tools",
       cta: "Explore the tools",
-    },
-    {
-      title: "Products",
-      blurb:
-        "Apps in the works, built the same way as the tools and just as accountable to you.",
-      href: "/products",
-      cta: "See the products",
     },
   ],
 } as const;

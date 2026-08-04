@@ -118,22 +118,34 @@ test("tool and product slugs are unique", () => {
   assert.equal(new Set(slugs).size, slugs.length, "no duplicate slugs");
 });
 
-test("the nav lists About, Tools, Products, Contact with hrefs", () => {
+test("the nav lists About, Tools, Contact with hrefs", () => {
   assert.deepEqual(
     nav.map((link) => link.label),
-    ["About", "Tools", "Products", "Contact"],
+    ["About", "Tools", "Contact"],
   );
   for (const link of nav) {
     assert.match(link.href, /^\/[a-z]+$/, "href is an absolute in-site path");
   }
 });
 
-test("home routes to the tools and products lists", () => {
+// Products is held back until it is ready to be advertised: no nav entry, no home
+// card. The pages themselves stay live, so these two assert the absence directly.
+test("neither the nav nor home links to the products list", () => {
+  assert.ok(
+    !nav.some((link) => link.href === "/products"),
+    "no Products nav entry",
+  );
+  assert.ok(
+    !home.cards.some((card) => card.href === "/products"),
+    "no Products home card",
+  );
+});
+
+test("home routes to the tools list", () => {
   assert.ok(home.lead.trim(), "the pitch lead is present");
-  assert.equal(home.cards.length, 2, "two routing cards");
   assert.deepEqual(
-    home.cards.map((c) => c.href).sort(),
-    ["/products", "/tools"],
+    home.cards.map((c) => c.href),
+    ["/tools"],
   );
   for (const card of home.cards) {
     assert.ok(card.title.trim() && card.blurb.trim() && card.cta.trim());

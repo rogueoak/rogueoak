@@ -2,8 +2,8 @@
 
 Rogue Oak's home base on the web (rogueoak.com) and the repository that hosts it. The site is a
 short pitch for Rogue Oak that routes visitors into dedicated pages: About (mission + the name
-story), Tools (Spectra, Trellis, Canopy, each with its own page), Products (Branch Out Games, coming
-soon, with its own page), and Contact.
+story), Tools (Spectra, Trellis, Canopy, each with its own page), and Contact. Products (Branch Out
+Games, coming soon, with its own page) is built but unlinked until it is ready to be advertised.
 
 Hosting mirrors matthewmaynes.com: a standalone container deployed to a DigitalOcean droplet behind
 a Caddy edge proxy, with PostHog analytics. The repo is public, so no secrets are ever committed;

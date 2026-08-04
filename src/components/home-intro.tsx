@@ -4,11 +4,17 @@ import { Reveal } from "@/components/reveal";
 import { home } from "@/lib/content";
 
 /**
- * The home pitch: a short lead on why Rogue Oak exists, then two cards that route
- * to the Tools and Products lists. Home stays lean and sends you deeper; the
- * mission and the oak story live on /about. Each card is a whole-block link.
+ * The home pitch: a short lead on why Rogue Oak exists, then the cards that route
+ * into the sections. Home stays lean and sends you deeper; the mission and the oak
+ * story live on /about. Each card is a whole-block link.
+ *
+ * The layout follows the card count so the section reads right while Products is
+ * held back (see `home` in content.ts): a pair splits the row, a lone card centres
+ * at half width instead of stretching the full column.
  */
 export function HomeIntro() {
+  const single = home.cards.length === 1;
+
   return (
     <section className="px-6 pt-6 pb-4 sm:pt-8">
       <div className="mx-auto max-w-3xl">
@@ -17,7 +23,9 @@ export function HomeIntro() {
             {home.lead}
           </p>
         </Reveal>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2">
+        <div
+          className={`mt-12 grid gap-5 ${single ? "sm:mx-auto sm:max-w-sm" : "sm:grid-cols-2"}`}
+        >
           {home.cards.map((card, index) => (
             <Reveal key={card.title} delay={index * 120}>
               <Link
