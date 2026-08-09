@@ -25,8 +25,8 @@
     "built with Canopy" linking to the Canopy repo.
 - **Contact** (`/contact`, spec 0011): a form that sends an on-brand HTML notification email to the
   Rogue Oak inbox via Resend (reply-to the sender), mirroring matthewmaynes. An optional, unticked
-  "subscribe" box also adds the sender to the "Rogue Oak" Constant Contact list. Honeypot,
-  same-origin, per-IP rate limit, and a body cap guard the public endpoint; PII-free analytics.
+  "subscribe" box also adds the sender to the "Rogue Oak" Constant Contact list. Same-origin,
+  per-IP rate limit, and a body cap guard the public endpoint; PII-free analytics.
   Secrets are server-only; unset => the route fails closed.
 - **Subscribe** (spec 0008): a mailing list backed by the "Rogue Oak" Constant Contact list.
   - A dedicated `/subscribe` page (email + optional name, plus a taste of the three tools) and the
@@ -35,7 +35,7 @@
     credentials live only in server env and never reach the browser.
   - An `@rogueoak.com` email is a test address: the form shows the real success state but the route
     never calls Constant Contact.
-  - Mobile-first form (progressive optional-name reveal, honeypot, per-IP rate limit, PII-free
+  - Mobile-first form (progressive optional-name reveal, per-IP rate limit, PII-free
     analytics) with a success card that points to the welcome email.
   - A branded, mobile-friendly welcome email at `emails/templates/welcome.html`, created in Constant
     Contact as "Rogue Oak Welcome Template".

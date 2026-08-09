@@ -5,7 +5,6 @@ import {
   clientIpFromForwardedFor,
   createRateLimiter,
   isBodyWithinLimit,
-  isHoneypotFilled,
   isSameOrigin,
 } from "@/lib/http-guards";
 import {
@@ -102,20 +101,14 @@ export async function POST(req: Request): Promise<Response> {
     unknown
   >;
 
-  // 4. Honeypot: a filled hidden field means a bot - drop silently, report 200 so
-  //    it learns nothing.
-  if (isHoneypotFilled(input.company)) {
-    return NextResponse.json({ ok: true });
-  }
-
-  // 5. Validate + normalize.
+  // 4. Validate + normalize.
   const result = validateContact(input);
   if (!result.ok) {
     return NextResponse.json({ ok: false, error: result.error }, { status: 400 });
   }
 
-  // 6. Rate limit, keyed on the real client IP. Counts every valid, same-origin
-  //    attempt that reaches here (honeypot/invalid requests returned earlier).
+  // 5. Rate limit, keyed on the real client IP. Counts every valid, same-origin
+  //    attempt that reaches here (invalid requests returned earlier).
   if (!limiter.check(clientIpFromForwardedFor(req.headers.get("x-forwarded-for")))) {
     return NextResponse.json(
       { ok: false, error: "Too many messages - please try again shortly." },
@@ -123,7 +116,7 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  // 7. Config from server-only env. Missing => fail closed, never leak which.
+  // 6. Config from server-only env. Missing => fail closed, never leak which.
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_TO_EMAIL;
   const from =
@@ -138,7 +131,7 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  // 8. Send the notification (primary action). Render the on-brand HTML body with
+  // 7. Send the notification (primary action). Render the on-brand HTML body with
   //    the (escaped) form data, then hand it to Resend. A failure here 500s, since
   //    the visitor's message would otherwise be lost.
   const date = new Date().toLocaleString("en-CA", {
@@ -160,7 +153,7 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  // 9. Opt-in only: if the box was ticked, also add the sender to the "Rogue Oak"
+  // 8. Opt-in only: if the box was ticked, also add the sender to the "Rogue Oak"
   //    list (sign_up_form, recording consent). BEST-EFFORT: the message already
   //    went out, so a Constant Contact failure is logged and swallowed rather than
   //    failing the request. Skipped cleanly when the CTCT env is unset.

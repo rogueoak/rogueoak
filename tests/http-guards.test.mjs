@@ -1,25 +1,16 @@
 // Unit tests for the generic HTTP spam/abuse guards (src/lib/http-guards.ts): the
-// honeypot check, the scheme-agnostic same-origin check, and the in-memory rate
-// limiter (clock injected). Pure and I/O-free, so no server is needed. Node strips
-// the TypeScript types on import.
+// scheme-agnostic same-origin check and the in-memory rate limiter (clock
+// injected). Pure and I/O-free, so no server is needed. Node strips the TypeScript
+// types on import.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  isHoneypotFilled,
   isSameOrigin,
   clientIpFromForwardedFor,
   isBodyWithinLimit,
   createRateLimiter,
 } from "../src/lib/http-guards.ts";
-
-test("isHoneypotFilled is true only for a non-empty string", () => {
-  assert.equal(isHoneypotFilled("bot"), true);
-  assert.equal(isHoneypotFilled("  x  "), true);
-  for (const empty of ["", "   ", undefined, null, 0, 5, {}, []]) {
-    assert.equal(isHoneypotFilled(empty), false, `expected false for ${JSON.stringify(empty)}`);
-  }
-});
 
 test("isSameOrigin matches host scheme-agnostically (proxy https<->http hop)", () => {
   // Origin present: compared by host, so an https Origin matches an http host.

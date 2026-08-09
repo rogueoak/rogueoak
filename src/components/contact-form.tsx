@@ -18,8 +18,8 @@ import {
  * boundary via `@/components/ui`, per overview/architecture) that posts JSON to
  * `POST /v1/contact` and reflects submitting / success / error state. The
  * destination address lives only in server env behind that route - nothing here
- * knows it. A hidden honeypot field (`company`) catches naive bots. The opt-in
- * Checkbox is a controlled Canopy Seed; its boolean is sent straight in the body.
+ * knows it. The opt-in Checkbox is a controlled Canopy Seed; its boolean is sent
+ * straight in the body.
  */
 type Status =
   | { kind: "idle" }
@@ -55,7 +55,6 @@ export function ContactForm() {
           email: data.get("email"),
           message: data.get("message"),
           subscribe,
-          company: data.get("company"), // honeypot
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -141,27 +140,6 @@ export function ContactForm() {
         />
         Subscribe for occasional Rogue Oak updates
       </label>
-
-      {/* Honeypot: positioned off-screen (not `display:none`, which aggressive
-          password managers may still autofill and so drop a real submission) and
-          hidden from assistive tech. A naive bot that fills every input trips it
-          and the server drops the message silently. `autoComplete="off"` +
-          `tabIndex={-1}` keep a real user's autofill and keyboard out of it. */}
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          width: 1,
-          height: 1,
-          overflow: "hidden",
-        }}
-      >
-        <label>
-          Company
-          <input type="text" name="company" tabIndex={-1} autoComplete="off" />
-        </label>
-      </div>
 
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit" disabled={submitting} className="w-fit">

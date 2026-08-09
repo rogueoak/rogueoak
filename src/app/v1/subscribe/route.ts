@@ -3,7 +3,6 @@ import {
   clientIpFromForwardedFor,
   createRateLimiter,
   isBodyWithinLimit,
-  isHoneypotFilled,
   isSameOrigin,
 } from "@/lib/http-guards";
 import {
@@ -33,8 +32,8 @@ const limiter = createRateLimiter({ max: 5, windowMs: 10 * 60 * 1000 });
 const tokenCache = createTokenCache();
 
 // Reject bodies larger than this before parsing. The payload is a single email
-// (cap 200 chars) plus an optional name and the honeypot, so this is generous
-// headroom yet bounds the parse.
+// (cap 200 chars) plus an optional name, so this is generous headroom yet bounds
+// the parse.
 const MAX_BODY_BYTES = 8 * 1024;
 
 export async function POST(req: Request): Promise<Response> {
@@ -78,19 +77,13 @@ export async function POST(req: Request): Promise<Response> {
     unknown
   >;
 
-  // 4. Honeypot: a filled hidden field means a bot - drop silently, report 200 so
-  //    it learns nothing.
-  if (isHoneypotFilled(input.company)) {
-    return NextResponse.json({ ok: true });
-  }
-
-  // 5. Validate + normalize.
+  // 4. Validate + normalize.
   const result = validateSubscribe(input);
   if (!result.ok) {
     return NextResponse.json({ ok: false, error: result.error }, { status: 400 });
   }
 
-  // 5b. Internal test domain (@rogueoak.com): simulate a successful subscribe
+  // 4b. Internal test domain (@rogueoak.com): simulate a successful subscribe
   //     WITHOUT writing to Constant Contact, so the owner can exercise the full
   //     form UX (submit -> success note -> analytics) without creating throwaway
   //     contacts or firing a live welcome email. Returns the same { ok: true } as a
@@ -102,8 +95,8 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ ok: true });
   }
 
-  // 6. Rate limit, keyed on the real client IP. Counts every valid, same-origin
-  //    attempt that reaches here (honeypot/invalid requests returned earlier).
+  // 5. Rate limit, keyed on the real client IP. Counts every valid, same-origin
+  //    attempt that reaches here (invalid requests returned earlier).
   if (!limiter.check(clientIpFromForwardedFor(req.headers.get("x-forwarded-for")))) {
     return NextResponse.json(
       { ok: false, error: "Too many requests - please try again shortly." },
@@ -111,7 +104,7 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  // 7. Config from server-only env. Missing => fail closed, never leak which. The
+  // 6. Config from server-only env. Missing => fail closed, never leak which. The
   //    target is the Rogue Oak newsletter list (CTCT_LIST_ID).
   const clientId = process.env.CTCT_CLIENT_ID;
   const refreshToken = process.env.CTCT_REFRESH_TOKEN;
@@ -126,7 +119,7 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  // 8. Submit to Constant Contact (refresh-cached token -> sign_up_form). The
+  // 7. Submit to Constant Contact (refresh-cached token -> sign_up_form). The
   //    optional name is split into first/last name in the lib.
   try {
     await submitSubscription(
