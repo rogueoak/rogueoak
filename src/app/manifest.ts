@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
+import { manifestIcons } from "@/lib/icons";
 
-// Served at /manifest.webmanifest. Gives the site a name, theme color, and an
-// install icon for "add to home screen" on mobile.
+// Served at /manifest.webmanifest. Gives the site a name, theme color, and install icons for
+// "add to home screen". The icon list comes from src/lib/icons.ts, which the generator and the
+// tests read too, so a declared size can never drift from the bytes on disk.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${site.name} - ${site.title}`,
@@ -12,9 +14,6 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     background_color: "#0a0d13",
     theme_color: "#0a0d13",
-    icons: [
-      { src: "/rogueoak-avatar.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/rogueoak-avatar.png", sizes: "512x512", type: "image/png", purpose: "any" },
-    ],
+    icons: manifestIcons.map(({ src, sizes, type, purpose }) => ({ src, sizes, type, purpose })),
   };
 }

@@ -44,6 +44,10 @@
 - **Analytics**: PostHog (client only), gated so only a deployed, non-local production build reports.
 - **SEO / sharing**: metadata, `sitemap.ts` (with image entries), `robots.ts`, an OpenGraph image,
   web manifest, icon. Every page sets an explicit canonical; detail pages carry per-page OG/Twitter.
+- **Site icons** (spec 0014): a full set generated from the vector mark by `npm run icons:build` -
+  `favicon.ico` (16/32/48), `apple-icon.png` (180) for Safari bookmarks and iOS home screens,
+  `icon.svg` for tabs, and 192/512 plus a `maskable` 512 for the manifest. The tab mark is framed
+  tighter than the GitHub avatar so it still reads at 16px.
 - **AEO / machine discoverability** (spec 0013): a curated `llms.txt` (generated from `content.ts`, so
   it never drifts from the pages) and JSON-LD structured data across the site: `Organization` +
   `WebSite` site-wide, and `SoftwareApplication` + `BreadcrumbList` on each tool/product page.
