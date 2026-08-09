@@ -24,7 +24,9 @@ import {
 // Resolve a "/foo.svg" public path to its file on disk. A referenced asset that
 // is not in public/ would 404 at runtime, so the tests fail the build instead.
 function publicFileExists(publicPath) {
-  return existsSync(fileURLToPath(new URL("../public" + publicPath, import.meta.url)));
+  return existsSync(
+    fileURLToPath(new URL("../public" + publicPath, import.meta.url)),
+  );
 }
 
 // Em dash, en dash, and other non-ASCII: the language rules require ASCII only.
@@ -59,9 +61,17 @@ const ALL_COPY = {
 
 /** Shared field checks for one tool or product record. */
 function assertItemShape(item, { org }) {
-  assert.match(item.slug, /^[a-z][a-z0-9-]*$/, "slug is a url-safe kebab string");
+  assert.match(
+    item.slug,
+    /^[a-z][a-z0-9-]*$/,
+    "slug is a url-safe kebab string",
+  );
   assert.ok(item.name.trim(), "name is present");
-  assert.match(item.logo, /^\/[\w-]+\.(svg|png)$/, "logo is a public asset path");
+  assert.match(
+    item.logo,
+    /^\/[\w-]+\.(svg|png)$/,
+    "logo is a public asset path",
+  );
   assert.ok(
     publicFileExists(item.logo),
     `logo file is missing from public/: ${item.logo}`,
@@ -99,17 +109,19 @@ test("each tool has the required fields and a rogueoak repo link", () => {
   }
 });
 
-test("there is exactly one product, Branch Out Games", () => {
+test("the products are Branch Out Games and Famlistry", () => {
   assert.deepEqual(
     products.map((p) => p.name),
-    ["Branch Out Games"],
+    ["Branch Out Games", "Famlistry"],
   );
 });
 
-test("each product has the required fields and a coming-soon status", () => {
+test("each product has the required fields and a status marker", () => {
+  // A product carries a status; a tool never does. Both products are in alpha:
+  // usable, early, and honest about it on the card.
   for (const product of products) {
     assertItemShape(product, { org: null });
-    assert.ok(product.status && product.status.trim(), "carries a status marker");
+    assert.equal(product.status, "Alpha");
   }
 });
 
@@ -118,34 +130,34 @@ test("tool and product slugs are unique", () => {
   assert.equal(new Set(slugs).size, slugs.length, "no duplicate slugs");
 });
 
-test("the nav lists About, Tools, Contact with hrefs", () => {
+test("the nav lists About, Tools, Products, Contact with hrefs", () => {
   assert.deepEqual(
     nav.map((link) => link.label),
-    ["About", "Tools", "Contact"],
+    ["About", "Tools", "Products", "Contact"],
   );
   for (const link of nav) {
     assert.match(link.href, /^\/[a-z]+$/, "href is an absolute in-site path");
   }
 });
 
-// Products is held back until it is ready to be advertised: no nav entry, no home
-// card. The pages themselves stay live, so these two assert the absence directly.
-test("neither the nav nor home links to the products list", () => {
+// Both surfaces that route into the products list read from this module, so they
+// cannot drift apart: if one links there, the other must too.
+test("both the nav and home link to the products list", () => {
   assert.ok(
-    !nav.some((link) => link.href === "/products"),
-    "no Products nav entry",
+    nav.some((link) => link.href === "/products"),
+    "Products nav entry",
   );
   assert.ok(
-    !home.cards.some((card) => card.href === "/products"),
-    "no Products home card",
+    home.cards.some((card) => card.href === "/products"),
+    "Products home card",
   );
 });
 
-test("home routes to the tools list", () => {
+test("home routes to the tools and products lists", () => {
   assert.ok(home.lead.trim(), "the pitch lead is present");
   assert.deepEqual(
     home.cards.map((c) => c.href),
-    ["/tools"],
+    ["/tools", "/products"],
   );
   for (const card of home.cards) {
     assert.ok(card.title.trim() && card.blurb.trim() && card.cta.trim());
@@ -157,7 +169,11 @@ test("the home pitch and the About intro both carry the mission", () => {
   // The mission is the source of truth for both surfaces, so they cannot drift.
   assert.equal(home.lead, mission, "home leads with the mission");
   assert.equal(about.intro, mission, "About leads with the mission");
-  assert.match(mission, /not up for negotiation/, "the mission keeps its closing line");
+  assert.match(
+    mission,
+    /not up for negotiation/,
+    "the mission keeps its closing line",
+  );
 });
 
 test("about carries a heading, the mission intro, and a story heading", () => {
@@ -189,7 +205,14 @@ test("no product/tool copy frames the work as standalone tools", () => {
   // sweep is scoped to the sales copy and excludes the oak story, where "a lone
   // oak stands on its own" is the literal, intended image. Matches the singular
   // ("stands") too, which the old regex missed.
-  const SALES_COPY = { home, toolsPage, productsPage, contact, tools, products };
+  const SALES_COPY = {
+    home,
+    toolsPage,
+    productsPage,
+    contact,
+    tools,
+    products,
+  };
   for (const value of everyString(SALES_COPY)) {
     assert.doesNotMatch(
       value,
