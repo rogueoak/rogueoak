@@ -5,11 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
-  renderLlmsTxt,
-  buildSiteLlmsDoc,
-  itemNote,
-} from "../src/lib/llms.ts";
+import { renderLlmsTxt, buildSiteLlmsDoc, itemNote } from "../src/lib/llms.ts";
 import { tools, products, mission } from "../src/lib/content.ts";
 
 const sampleDoc = {
@@ -20,7 +16,11 @@ const sampleDoc = {
     {
       title: "Tools",
       links: [
-        { title: "Spectra", url: "https://rogueoak.com/tools/spectra", note: "Spec-driven." },
+        {
+          title: "Spectra",
+          url: "https://rogueoak.com/tools/spectra",
+          note: "Spec-driven.",
+        },
         { title: "Bare", url: "https://rogueoak.com/tools/bare" },
       ],
     },
@@ -42,7 +42,11 @@ test("includes each detail paragraph as its own block", () => {
 test("renders a section heading and its link lines", () => {
   const out = renderLlmsTxt(sampleDoc);
   assert.ok(out.includes("## Tools"));
-  assert.ok(out.includes("- [Spectra](https://rogueoak.com/tools/spectra): Spec-driven."));
+  assert.ok(
+    out.includes(
+      "- [Spectra](https://rogueoak.com/tools/spectra): Spec-driven.",
+    ),
+  );
 });
 
 test("a link with no note has no trailing colon", () => {
@@ -65,7 +69,11 @@ test("blocks are separated by a blank line", () => {
 // --- renderLlmsTxt boundary cases -------------------------------------------
 
 test("a section with no links renders as a bare heading", () => {
-  const out = renderLlmsTxt({ title: "T", summary: "S", sections: [{ title: "Empty", links: [] }] });
+  const out = renderLlmsTxt({
+    title: "T",
+    summary: "S",
+    sections: [{ title: "Empty", links: [] }],
+  });
   assert.ok(out.includes("## Empty"));
   // No stray link bullets, and the trailing newline is still single.
   assert.ok(!out.includes("- ["));
@@ -74,7 +82,12 @@ test("a section with no links renders as a bare heading", () => {
 
 test("omitted details render no detail block; empty details is the same as omitted", () => {
   const omitted = renderLlmsTxt({ title: "T", summary: "S", sections: [] });
-  const empty = renderLlmsTxt({ title: "T", summary: "S", details: [], sections: [] });
+  const empty = renderLlmsTxt({
+    title: "T",
+    summary: "S",
+    details: [],
+    sections: [],
+  });
   assert.equal(omitted, "# T\n\n> S\n");
   assert.equal(empty, omitted);
 });
@@ -98,18 +111,29 @@ test("buildSiteLlmsDoc includes every tool and product with a canonical link", (
     pages: [{ title: "About", path: "/about", note: "about." }],
   });
   const out = renderLlmsTxt(doc);
-  assert.ok(out.includes("> Software built to last. desc."), "summary should join title + description");
+  assert.ok(
+    out.includes("> Software built to last. desc."),
+    "summary should join title + description",
+  );
   for (const tool of tools) {
-    assert.ok(out.includes(`- [${tool.name}](https://rogueoak.com/tools/${tool.slug}): ${tool.pitch}`));
+    assert.ok(
+      out.includes(
+        `- [${tool.name}](https://rogueoak.com/tools/${tool.slug}): ${tool.pitch}`,
+      ),
+    );
   }
   for (const product of products) {
-    assert.ok(out.includes(`https://rogueoak.com/products/${product.slug}`), `missing ${product.slug}`);
+    assert.ok(
+      out.includes(`https://rogueoak.com/products/${product.slug}`),
+      `missing ${product.slug}`,
+    );
   }
   assert.ok(out.includes("- [About](https://rogueoak.com/about): about."));
 });
 
-test("buildSiteLlmsDoc appends a coming-soon product's status to its note", () => {
-  // Every current product is unshipped, so the (status) suffix must show.
+test("buildSiteLlmsDoc appends a product's status to its note", () => {
+  // A product carries a maturity status (today "Alpha"), so the (status) suffix must show. A tool
+  // never has one, which the assertion below the fixture relies on.
   const doc = buildSiteLlmsDoc({
     name: "Rogue Oak",
     title: "t",
@@ -122,13 +146,19 @@ test("buildSiteLlmsDoc appends a coming-soon product's status to its note", () =
   });
   const out = renderLlmsTxt(doc);
   for (const product of products.filter((p) => p.status)) {
-    assert.ok(out.includes(`${product.pitch} (${product.status})`), `missing status for ${product.slug}`);
+    assert.ok(
+      out.includes(`${product.pitch} (${product.status})`),
+      `missing status for ${product.slug}`,
+    );
   }
 });
 
 test("itemNote appends status only when present", () => {
   assert.equal(itemNote({ pitch: "P" }), "P");
-  assert.equal(itemNote({ pitch: "P", status: "Coming soon" }), "P (Coming soon)");
+  assert.equal(
+    itemNote({ pitch: "P", status: "Coming soon" }),
+    "P (Coming soon)",
+  );
 });
 
 // --- language rules ----------------------------------------------------------
@@ -146,15 +176,26 @@ test("the assembled rogueoak.com doc is ASCII-only with no spaced-dash breaks", 
       pages: [],
     }),
   );
-  assert.ok(!/[^\x00-\x7F]/.test(out), "found a non-ASCII character in llms.txt output");
-  assert.ok(!out.includes(" - "), "found a spaced-dash sentence break (docs/rules/language.md)");
+  assert.ok(
+    !/[^\x00-\x7F]/.test(out),
+    "found a non-ASCII character in llms.txt output",
+  );
+  assert.ok(
+    !out.includes(" - "),
+    "found a spaced-dash sentence break (docs/rules/language.md)",
+  );
 });
 
 test("the spaced-dash assertion has teeth (a ' - ' note is caught)", () => {
   const out = renderLlmsTxt({
     title: "T",
     summary: "S",
-    sections: [{ title: "X", links: [{ title: "L", url: "u", note: "a - b" }] }],
+    sections: [
+      { title: "X", links: [{ title: "L", url: "u", note: "a - b" }] },
+    ],
   });
-  assert.ok(out.includes(" - "), "sanity: the guard must be able to see a spaced dash");
+  assert.ok(
+    out.includes(" - "),
+    "sanity: the guard must be able to see a spaced dash",
+  );
 });

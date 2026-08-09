@@ -14,12 +14,7 @@ import { home } from "@/lib/content";
  * kept so the section survives the next time the set changes.
  */
 export function HomeIntro() {
-  // `home.cards` is `as const`, so its length is the literal `2` and comparing it
-  // to 1 is statically false - TypeScript rejects the comparison outright. The
-  // layout rule is about the data, which changes, so widen to `number` rather than
-  // delete a branch that earns its place whenever the card set is edited.
-  const cardCount: number = home.cards.length;
-  const single = cardCount === 1;
+  const single = home.cards.length === 1;
 
   return (
     <section className="px-6 pt-6 pb-4 sm:pt-8">

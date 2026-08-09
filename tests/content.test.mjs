@@ -222,6 +222,60 @@ test("no product/tool copy frames the work as standalone tools", () => {
   }
 });
 
+// The copy sweeps below cover language.md rules that had no guard. Every one was verified against
+// the current copy first, so these lock in behaviour rather than describing an aspiration.
+
+test("no copy speaks in the first person", () => {
+  // language.md rule 1, and the module contract at the top of content.ts: Rogue Oak is spoken of
+  // in the third person, never "we"/"I". A logged learning covers this, and nothing enforced it.
+  // Word-boundary matched so "Iowa", "wear", and "our" in ordinary prose do not trip it.
+  for (const value of everyString(ALL_COPY)) {
+    assert.doesNotMatch(
+      value,
+      /\b(we|we're|we've|we'll|us|our|ours|I|I'm|I've|my|mine)\b/i,
+      `first-person voice found in copy: ${JSON.stringify(value)}`,
+    );
+  }
+});
+
+test("no copy uses hype words", () => {
+  // language.md rule 5. The list is the one the rules name, not an invented one.
+  for (const value of everyString(ALL_COPY)) {
+    assert.doesNotMatch(
+      value,
+      /\b(revolutionary|seamless|blazing[- ]fast|game[- ]changing|cutting[- ]edge|world[- ]class|best[- ]in[- ]class|unparalleled|effortless)\b/i,
+      `hype word found in copy: ${JSON.stringify(value)}`,
+    );
+  }
+});
+
+test("no product is described as unavailable while it ships", () => {
+  // The regression this PR exists to fix: Branch Out Games was live and playable while the site
+  // still said "Coming soon" and "Still on the way", telling visitors a working product was not
+  // available. A status marker is fine; claiming unavailability in the prose is not.
+  for (const product of products) {
+    for (const value of everyString({
+      pitch: product.pitch,
+      benefits: product.benefits,
+      body: product.body,
+    })) {
+      assert.doesNotMatch(
+        value,
+        /coming soon|still on the way|not yet available|launching soon/i,
+        `${product.name} copy claims it is unavailable: ${JSON.stringify(value)}`,
+      );
+    }
+  }
+});
+
+test("each product's link label names the action, not just the destination", () => {
+  // The CTA is the last thing read before leaving the site, and "Visit x.com" on something you can
+  // actually use undersells it. Asserted per product so a new one cannot skip it.
+  const labels = Object.fromEntries(products.map((p) => [p.slug, p.hrefLabel]));
+  assert.equal(labels["branch-out"], "Play at branchout.games");
+  assert.equal(labels["famlistry"], "Visit famlistry.com");
+});
+
 test("the 404 copy points a lost visitor back home", () => {
   assert.equal(notFound.code, "404");
   assert.ok(notFound.heading.trim(), "heading is present");

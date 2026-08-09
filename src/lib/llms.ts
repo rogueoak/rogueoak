@@ -59,7 +59,7 @@ export type LlmsPage = {
   note: string;
 };
 
-/** Note for a tool/product link: the pitch, with an unshipped product's status appended. */
+/** Note for a tool/product link: the pitch, with a product's maturity status appended. */
 export function itemNote(item: Pick<LlmsItem, "pitch" | "status">): string {
   return item.status ? `${item.pitch} (${item.status})` : item.pitch;
 }
