@@ -2,7 +2,7 @@
 // validation, the HTML notification render, and the Resend payload shaping + send.
 // No server, no network - the send path injects a fake fetch. The route handler
 // (app/v1/contact) is a thin shell over these and the shared http-guards, whose
-// honeypot / same-origin / rate-limit behavior is covered by http-guards.test.mjs.
+// same-origin / rate-limit behavior is covered by http-guards.test.mjs.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

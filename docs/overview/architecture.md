@@ -44,8 +44,8 @@ disclosure. Shared render components: `ProductList` (listings) and `ProductPage`
   sets up the same-origin `/ingest` reverse proxy to PostHog US Cloud.
 - **Subscribe (spec 0008)**: the site's first server-side behavior and first server secret. The pure,
   import-free (node-testable leaf) cores `src/lib/subscribe.ts` (validate, `sign_up_form` shaping,
-  OAuth refresh + token cache with 401 self-heal) and `src/lib/http-guards.ts` (honeypot,
-  same-origin, in-memory rate limiter) carry all the logic; `app/v1/subscribe/route.ts` is a thin
+  OAuth refresh + token cache with 401 self-heal) and `src/lib/http-guards.ts` (same-origin,
+  in-memory rate limiter) carry all the logic; `app/v1/subscribe/route.ts` is a thin
   HTTP shell that reads `CTCT_CLIENT_ID` / `CTCT_REFRESH_TOKEN` / `CTCT_LIST_ID` from server env and
   maps outcomes to status codes. Credentials never cross the client boundary; unset env fails closed.
   An `@rogueoak.com` email short-circuits to a simulated success (no Constant Contact call) so the
@@ -56,7 +56,7 @@ disclosure. Shared render components: `ProductList` (listings) and `ProductPage`
 - **Contact (spec 0011)**: mirrors matthewmaynes' contact flow. The pure, import-free
   `src/lib/contact.ts` (validate, HTML-escape, notification render, Resend payload + injectable
   send) carries the logic; `app/v1/contact/route.ts` is a thin shell reusing `http-guards.ts`
-  (honeypot, same-origin, per-IP rate limit, actual-byte body cap), reading `RESEND_API_KEY` /
+  (same-origin, per-IP rate limit, actual-byte body cap), reading `RESEND_API_KEY` /
   `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` from server env (fail closed), and - when the opt-in box
   is ticked - calling the existing `submitSubscription` against the single "Rogue Oak" list. The
   on-brand `emails/templates/contact-notification.html` is read at runtime (bundled via

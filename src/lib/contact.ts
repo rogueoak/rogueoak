@@ -5,7 +5,7 @@
  * booting a server (the same node-testable-leaf rule as `subscribe.ts`; the
  * `app/v1/contact` route is a thin shell over this). No secrets or PII live here:
  * the destination + sender are read from env in the route and passed in. The
- * generic honeypot / same-origin / rate-limit guards live in `./http-guards.ts`
+ * generic same-origin / rate-limit guards live in `./http-guards.ts`
  * (shared with `/v1/subscribe`); this module owns only the contact-specific logic.
  * Mirrors matthewmaynes' contact core.
  */
