@@ -15,8 +15,14 @@
     </radialGradient>
   </defs>
 
-  <!-- full-bleed background (GitHub crops to a circle/rounded square) -->
+  <!-- full-bleed background; stays outside the scale group so it never leaves a gap -->
   <rect width="512" height="512" fill="url(#av-bg)"/>
+
+  <!-- The mark is scaled about its own center (256, 254) so it fills ~78% of the tile
+       instead of ~57%. The avatar framing in public/rogueoak-avatar.svg is tuned for a
+       GitHub profile crop; at a 16px favicon that much padding turns the oak to mush.
+       Bounds are ~286x294 units, so 1.35 lands at ~386x397 inside the 512 frame. -->
+  <g transform="translate(256,254) scale(1.35) translate(-256,-254)">
   <circle cx="256" cy="252" r="200" fill="url(#av-glow)"/>
 
   <!-- oak as a branching node-graph -->
@@ -57,5 +63,6 @@
       <circle cx="336" cy="224" r="7"/> <circle cx="256" cy="168" r="7"/>
     </g>
     <circle cx="256" cy="384" r="10" fill="#d2a463"/>
+  </g>
   </g>
 </svg>

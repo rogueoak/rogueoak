@@ -67,6 +67,15 @@ disclosure. Shared render components: `ProductList` (listings) and `ProductPage`
   approaches were tried and dropped - see learnings.
 - **Assets**: brand SVGs (org + product logos, matthewmaynes.com favicon) live in `public/`; the
   repo is standalone and cannot reach sibling repos at build time.
+- **Site icons**: `src/lib/icons.ts` is the import-free inventory (what exists, where, how big).
+  `scripts/build-icons.mjs` (`npm run icons:build`) rasterizes it from the vector sources with
+  `sharp` and packs `favicon.ico` with an inline ICO encoder; `manifest.ts` and
+  `tests/icons.test.mjs` read the same list, so a declared size cannot drift from the bytes. The
+  rasters are committed rather than built: reviewable in the diff, no image toolchain in the
+  container, no rasterization on a cold `next build`. `favicon.ico` / `icon.svg` / `apple-icon.png`
+  sit in `src/app/` so Next's file conventions emit the `<link>` tags; nothing sets `metadata.icons`.
+  `public/rogueoak-avatar.{svg,png}` keeps its avatar framing on purpose - it is the GitHub avatar
+  and `emails/templates/` hard-links the PNG by URL.
 - **Tests**: Node's built-in runner (`node --test`, `tests/*.test.mjs`).
 - **CI**: `.github/workflows/verify.yml` is a reusable (`workflow_call`) gate - `npm ci`, lint,
   build, test on Node 24 - called by `ci.yml` on every PR to `main`. Written reusable so the deploy

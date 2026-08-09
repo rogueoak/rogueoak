@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test --test-concurrency=1 tests/*.test.mjs",
-    "theme:build": "roots-brand brand/rogueoak/brand.config.json"
+    "theme:build": "roots-brand brand/rogueoak/brand.config.json",
+    "icons:build": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "@fontsource-variable/figtree": "^5.2.10",
@@ -28,6 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "sharp": "^0.35.3",
     "style-dictionary": "^4.4.0",
     "tailwindcss": "^4",
     "typescript": "^5"
