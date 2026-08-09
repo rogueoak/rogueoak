@@ -1,5 +1,11 @@
 # 0010 - Language overhaul and a Coming Soon section
 
+> **Superseded.** The language overhaul shipped and still stands. The "Coming soon" home section
+> described below does not exist any more: spec 0011 replaced it with `/products` and per-product
+> pages, and the product it featured (Thought Stream, later Thought Buffer) was decommissioned in
+> #36. Read 0011 and 0015 for how products are presented now. Kept for the record rather than
+> rewritten.
+
 ## Problem
 
 The site leans on one phrase everywhere: "Tools built to stand on their own." It frames Rogue

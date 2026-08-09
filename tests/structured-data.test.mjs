@@ -39,7 +39,11 @@ test("websiteSchema is published by the organization @id", () => {
 });
 
 test("softwareApplicationSchema maps an item and links its publisher", () => {
-  const item = { name: "Spectra", pitch: "Spec-driven development.", href: "https://github.com/rogueoak/spectra" };
+  const item = {
+    name: "Spectra",
+    pitch: "Spec-driven development.",
+    href: "https://github.com/rogueoak/spectra",
+  };
   const app = softwareApplicationSchema(item, {
     category: "DeveloperApplication",
     pageUrl: "https://rogueoak.com/tools/spectra",
@@ -56,8 +60,16 @@ test("softwareApplicationSchema maps an item and links its publisher", () => {
 
 test("softwareApplicationSchema asserts no price or availability", () => {
   const app = softwareApplicationSchema(
-    { name: "Thought Buffer", pitch: "On-device dictation.", href: "https://thoughtbuffer.app" },
-    { category: "MobileApplication", pageUrl: "https://rogueoak.com/products/thought-buffer", publisherUrl: SITE.url },
+    {
+      name: "Famlistry",
+      pitch: "Family stories in one place.",
+      href: "https://famlistry.com",
+    },
+    {
+      category: "WebApplication",
+      pageUrl: "https://rogueoak.com/products/famlistry",
+      publisherUrl: SITE.url,
+    },
   );
   assert.equal(app.offers, undefined);
   assert.equal(app.price, undefined);

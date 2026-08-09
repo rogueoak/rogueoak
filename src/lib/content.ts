@@ -3,8 +3,9 @@
  * language rules: address the reader as "you", speak of the company in the third
  * person ("Rogue Oak", never "we"/"I"), stay terse, no hype words, ASCII only
  * (never em / en dashes), and avoid " - " as a sentence break (prefer a colon,
- * period, or comma). Shipped tools are described in confident present tense;
- * unshipped products carry an honest status marker.
+ * period, or comma). Tools are described in confident present tense; a product
+ * carries a status marker naming how far along it is, and its copy says what you
+ * can actually do with it today rather than leaning on the badge.
  *
  * This module is import-free on purpose: `node --test` loads it directly to
  * assert on the copy, so it must not pull in path-aliased or extensionless
@@ -17,8 +18,8 @@
 /**
  * One tool or product. Tools and products share a shape so the listing cards and
  * the detail pages render from a single component. `body` is the longer copy the
- * detail page adds under the pitch; `status` marks an unshipped product (a tool
- * never has one).
+ * detail page adds under the pitch; `status` marks how far along a product is (a
+ * tool never has one).
  */
 export type Item = {
   /** URL segment under /tools or /products, e.g. "spectra". */
@@ -37,7 +38,11 @@ export type Item = {
   href: string;
   /** Label for the primary link button. */
   hrefLabel: string;
-  /** Only on unshipped products, e.g. "Coming soon". */
+  /**
+   * Products only, e.g. "Alpha". A maturity marker, not an availability one: a
+   * product can be shipped and still carry it. What you can do with the product
+   * today belongs in `body`, where it can be said precisely.
+   */
   status?: string;
 };
 
@@ -47,16 +52,11 @@ export const hero = {
   tagline: "Software built to last.",
 } as const;
 
-/**
- * Top-nav links, left to right. The brand mark (home) sits before these.
- *
- * Products is deliberately absent: Branch Out Games is not ready to be advertised
- * yet. The `/products` pages still build and resolve, they are just not linked
- * from the nav or the home pitch. Add the entry back when it launches.
- */
+/** Top-nav links, left to right. The brand mark (home) sits before these. */
 export const nav = [
   { label: "About", href: "/about" },
   { label: "Tools", href: "/tools" },
+  { label: "Products", href: "/products" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -83,16 +83,27 @@ export const oakStory = {
 export const mission =
   "Rogue Oak builds what it believes in, not what would simply sell. It earns a relationship it is accountable for, not just your attention or your data. What is yours stays yours. That is not up for negotiation.";
 
+/** One routing card on the home pitch. */
+export type HomeCard = {
+  title: string;
+  blurb: string;
+  href: string;
+  cta: string;
+};
+
 /**
- * Home - the pitch. The mission up front, then the cards that route deeper. Kept
- * lean: home states what Rogue Oak stands for and sends you on; the About page
- * carries the same mission plus the oak story.
+ * Home - the pitch. The mission up front, then two cards that route to the Tools
+ * and Products lists. Kept lean: home states what Rogue Oak stands for and sends
+ * you deeper; the About page carries the same mission plus the oak story.
  *
- * The Products card is held back with the nav entry (see `nav`) until Branch Out
- * Games is ready to be advertised. `HomeIntro` lays the cards out from the count,
- * so one card centres and two split the row.
+ * `HomeIntro` lays the cards out from the count, so one card centres and two split
+ * the row. `cards` is annotated `readonly HomeCard[]` rather than left to `as
+ * const` inference for that reason: the inferred type fixes the length at the
+ * literal `2`, which makes a count check in the component a statically-dead
+ * comparison that TypeScript rejects outright. The card set is data that changes,
+ * so the type says so. Same reason `tools` and `products` are annotated below.
  */
-export const home = {
+export const home: { lead: string; cards: readonly HomeCard[] } = {
   lead: mission,
   cards: [
     {
@@ -102,8 +113,15 @@ export const home = {
       href: "/tools",
       cta: "Explore the tools",
     },
+    {
+      title: "Products",
+      blurb:
+        "Apps Rogue Oak builds and runs, held to the same standard as the tools: a games platform for game night, and a home for your family stories.",
+      href: "/products",
+      cta: "See the products",
+    },
   ],
-} as const;
+};
 
 /**
  * About - the mission and the oak story. Leads with the shared `mission`, then the
@@ -126,7 +144,7 @@ export const toolsPage = {
 export const productsPage = {
   heading: "Products",
   intro:
-    "Apps Rogue Oak is building, the same careful way as the tools. Both are on the way.",
+    "Apps Rogue Oak builds and runs, the same careful way as the tools. Both are in alpha, and each one says what you can do with it today.",
 } as const;
 
 /** Contact page copy. */
@@ -198,20 +216,39 @@ export const products: readonly Item[] = [
     slug: "branch-out",
     name: "Branch Out Games",
     logo: "/branchout-logo.svg",
-    status: "Coming soon",
+    status: "Alpha",
     pitch:
       "Online shared games for game night: mostly party games you play together, with a few for solo runs.",
     benefits: [
-      "Get friends into a game in seconds, no installs, no fuss.",
+      "Start a room, share the code, and play. No installs, and joining needs no account.",
       "Party games built to stay fair and social, so everyone keeps playing.",
-      "A growing shelf of games under one subscription.",
+      "A growing shelf of games in one place.",
     ],
     body: [
-      "Branch Out Games is where game night grows: online shared games you play together, mostly party games with a few solo ones in the mix. Send a link, gather the group, and start playing in seconds.",
-      "The games are built to stay fair and social, so no one gets left on the sidelines. Still on the way.",
+      "Branch Out Games is where game night grows. Pick a game, start a room as the host, and share the short join code. Anyone with the code can join from their own screen, so the group is playing within a minute of deciding to.",
+      "The shelf is open and growing: party games for a group, plus a few you can play head to head. They are designed to stay fair and social, so no one gets left on the sidelines.",
     ],
     href: "https://branchout.games",
-    hrefLabel: "Visit branchout.games",
+    hrefLabel: "Play at branchout.games",
+  },
+  {
+    slug: "famlistry",
+    name: "Famlistry",
+    logo: "/famlistry-logo.svg",
+    status: "Alpha",
+    pitch:
+      "Your family stories and memories in one place: record audio, write stories, share images and video.",
+    benefits: [
+      "Catch a story in someone's own voice, the way they tell it.",
+      "Keep photographs and clips somewhere that outlives any one phone or hard drive.",
+      "Built for families rather than archivists, so adding a memory is easy enough to actually happen.",
+    ],
+    body: [
+      "Family memories scatter across phones, chat threads, and drives nobody can log into any more. The stories that matter most are the ones least likely to be written down, and they disappear quietly. Famlistry is one place to put them.",
+      "Record audio, write the stories you already know by heart, and bring the photographs and video out of everyone's phones. Famlistry is early: the waitlist is open at famlistry.com, and you get an email when there is something to sign in to.",
+    ],
+    href: "https://famlistry.com",
+    hrefLabel: "Visit famlistry.com",
   },
 ] as const;
 

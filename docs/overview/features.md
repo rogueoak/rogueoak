@@ -11,13 +11,13 @@
   - **Tools** (`/tools`): a listing of Spectra, Trellis, and Canopy, each a wordmark + pitch +
     benefits linking to its own page. Each tool has a **detail page** (`/tools/<slug>`) with longer
     copy and a repo link.
-  - **Products** (`/products`): a listing of Branch Out Games, marked "Coming soon", linking to its
-    own **detail page** (`/products/<slug>`). Branch Out Games uses its own logo (vendored from the
-    branchout repo). **Unlinked for now**: Branch Out Games is not ready to be advertised, so there
-    is no Products nav entry and no Products home card. The pages still build and resolve, and
-    `/products` stays in the sitemap, `llms.txt`, and the structured data, so crawlers and language
-    models still reach it. Restore the entry in `nav` and the card in `home` (both in `content.ts`)
-    to bring it back.
+  - **Products** (`/products`): a listing of **Branch Out Games** and **Famlistry**, each marked
+    `Alpha` and linking to its own **detail page** (`/products/<slug>`) and out to the live product.
+    Each uses a banner vendored from the product's own repo, in the shared 520x150 format. Branch
+    Out is playable (three games); Famlistry is a waitlist, and the copy says so rather than leaning
+    on the badge to carry it. Linked from both the nav and the home pitch (spec 0015). It was
+    unlinked for a while under #38, when the one product listed was not ready to advertise; the
+    pages kept building throughout, which is why bringing it back was a data edit.
   - Every tool and product page carries its own title, description, and a **custom Open Graph card**
     (generated from the same content record, so the share preview matches the page).
   - Sections fade/rise in on load (pure CSS).

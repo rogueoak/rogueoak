@@ -4,7 +4,10 @@ import { ProductPage } from "@/components/product-page";
 import { JsonLd } from "@/components/json-ld";
 import { products, productBySlug } from "@/lib/content";
 import { site } from "@/lib/site";
-import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/structured-data";
+import {
+  softwareApplicationSchema,
+  breadcrumbSchema,
+} from "@/lib/structured-data";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -20,7 +23,9 @@ export function generateStaticParams() {
 }
 export const dynamicParams = false;
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const item = productBySlug(slug);
   if (!item) return {};
@@ -31,8 +36,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: item.name,
     description: item.pitch,
     alternates: { canonical: path },
-    openGraph: { type: "website", url: path, title: item.name, description: item.pitch },
-    twitter: { card: "summary_large_image", title: item.name, description: item.pitch },
+    openGraph: {
+      type: "website",
+      url: path,
+      title: item.name,
+      description: item.pitch,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: item.name,
+      description: item.pitch,
+    },
   };
 }
 
@@ -40,8 +54,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const item = productBySlug(slug);
   if (!item) notFound();
-  // SoftwareApplication + breadcrumb. The honest "coming soon" stays in the visible
-  // copy; the schema only states what the product is.
+  // SoftwareApplication + breadcrumb. The maturity status and what you can do with
+  // the product today stay in the visible copy; the schema only states what it is.
   const url = (path: string) => new URL(path, site.url).toString();
   const pageUrl = url(`/products/${item.slug}`);
   const schemas = [

@@ -26,10 +26,14 @@ is X real yet, how do I reach them.
 - **Tools (`/tools`)** is a listing of Spectra, Trellis, and Canopy (what the home page shows
   today), each linking to its own page.
   - **`/tools/spectra`, `/tools/trellis`, `/tools/canopy`** each get a dedicated page.
-- **Products (`/products`)** lists two coming-soon products, Thought Stream and Branch Out Games,
-  each linking to its own page.
-  - **`/products/thought-stream`, `/products/branch-out`** each get a dedicated page. Branch Out
-    Games uses its own logo (copied from the branchout repo).
+- **Products (`/products`)** lists the products, each linking to its own page.
+  - **`/products/branch-out`, `/products/famlistry`** each get a dedicated page, using a banner
+    copied from the product's own repo.
+  - *Revised since this spec was written.* It originally listed Thought Stream (later Thought
+    Buffer) alongside Branch Out Games; that product was decommissioned in #36. Spec 0015 restores
+    the section, adds Famlistry, and marks both products `Alpha`. The structure below is unchanged:
+    the listing, the detail pages, the OG cards, the sitemap, and `llms.txt` all derive from
+    `content.ts`, so adding or retiring a product is a data edit.
 - **Contact (`/contact`)** sends a Resend email to `contact@rogueoak.com`, using the same
   mechanism as matthewmaynes.com, with a branded HTML notification email. An optional, unticked
   "also subscribe to updates" box adds the sender to the Rogue Oak Constant Contact list.
