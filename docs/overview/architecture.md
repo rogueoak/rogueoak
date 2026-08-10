@@ -3,11 +3,9 @@
 Next.js 16 (App Router) + React 19 + TypeScript, `output: "standalone"`, npm. Mirrors
 matthewmaynes.com, the reference Canopy consumer. A multi-page site (spec 0011): the rogueoak.com
 pages live in the `(main)` route group, whose layout wraps a Canopy `TopNav`
-(About / Tools / Contact; Products is unlinked for now, see features) and the footer around each
-route. Routes: `/` (pitch),
+(About / Tools / Products / Contact) and the footer around each route. Routes: `/` (pitch),
 `/about`, `/tools` + `/tools/[slug]` (spectra/trellis/canopy), `/products` + `/products/[slug]`
-(branch-out), `/contact`, plus `/subscribe` and `/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs
-404) and each ships a route-level `opengraph-image` that renders the item's card from its content
+(branch-out/famlistry), `/contact`, plus `/subscribe` and `/privacy`. The `[slug]` routes use `generateStaticParams` + `dynamicParams = false` (unknown slugs 404) and each ships a route-level `opengraph-image` that renders the item's card from its content
 record, so tool/product pages, their metadata, and their share previews all derive from one source.
 `SiteNav` is the only nav client island (`usePathname` for the active link); TopNav owns the mobile
 disclosure. Shared render components: `ProductList` (listings) and `ProductPage` (detail).
@@ -66,7 +64,15 @@ disclosure. Shared render components: `ProductList` (listings) and `ProductPage`
 - **Reveal**: a pure-CSS fade-up on load (`.reveal` + a keyframe, `both` fill). JS/observer/scroll
   approaches were tried and dropped - see learnings.
 - **Assets**: brand SVGs (org + product logos, matthewmaynes.com favicon) live in `public/`; the
-  repo is standalone and cannot reach sibling repos at build time.
+  repo is standalone and cannot reach sibling repos at build time. Every product and tool banner is
+  a **copy** of a file owned by that product's repo, so `src/lib/vendored.ts` records where each one
+  came from and, where the copy was adapted on the way in, why. Three of the five had been edited
+  with nothing noting it, which made a deliberate adaptation and a stale copy look identical.
+  `tests/assets.test.mjs` hashes each file against its entry, so a re-copy fails until the record is
+  updated: the failure lands exactly when the new source commit is known. Because CI cannot reach
+  the source repos, the hash is the enforced half and the commit is the recorded half. The same test
+  sweeps every served SVG for script, event handlers, and off-origin references, since `next/image`
+  passes SVG through unoptimized and these files are foreign in origin.
 - **Site icons**: `src/lib/icons.ts` is the import-free inventory (what exists, where, how big).
   `scripts/build-icons.mjs` (`npm run icons:build`) rasterizes it from the vector sources with
   `sharp` and packs `favicon.ico` with an inline ICO encoder; `manifest.ts` and
