@@ -82,9 +82,16 @@ That direction matters: the brand asset belongs to the product, not to this site
 the same arrangement every other banner already has, and if the seal changes, the banner is
 regenerated there and re-copied here.
 
-The banner carries an opaque paper ground rather than being transparent. This site is hardcoded dark
-(`<html className="dark">`), and the same file also has to render on GitHub in light mode, so a
-transparent banner with ink text would be invisible in one of the two.
+The banner carries an opaque **dark** ground. This site is hardcoded dark
+(`<html className="dark">`), so a transparent banner would need its type colour to match a
+background the famlistry repo cannot know about, and the paper version this first shipped with
+landed as a bright slab beside Branch Out Games' dark card.
+
+The famlistry brand package therefore composes the banner on two grounds (rogueoak/famlistry#29):
+`banner.svg` on paper, which its own README uses, and `banner-dark.svg` on the rogueoak house
+dark-card values, which is the one vendored here. That keeps the two products on this page reading
+as a matched pair. The mark itself is identical in both; only the card and the type around it
+change.
 
 ### Thought Buffer
 

@@ -13,7 +13,9 @@
     copy and a repo link.
   - **Products** (`/products`): a listing of **Branch Out Games** and **Famlistry**, each marked
     `Alpha` and linking to its own **detail page** (`/products/<slug>`) and out to the live product.
-    Each uses a banner vendored from the product's own repo, in the shared 520x150 format. Branch
+    Each uses a banner vendored from the product's own repo, in the shared 520x150 format (the
+    famlistry brand package composes a dark-ground variant specifically for this page, so the two
+    products read as a matched pair). Branch
     Out is playable (three games); Famlistry is a waitlist, and the copy says so rather than leaning
     on the badge to carry it. Linked from both the nav and the home pitch (spec 0015). It was
     unlinked for a while under #38, when the one product listed was not ready to advertise; the
